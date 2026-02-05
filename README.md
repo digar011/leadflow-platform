@@ -1,36 +1,137 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LeadFlow Intelligence Platform
 
-## Getting Started
+Full-stack lead intelligence and CRM platform built with Next.js 14, TypeScript, Tailwind CSS, and Supabase.
 
-First, run the development server:
+![Next.js](https://img.shields.io/badge/Next.js-14-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
+![Tailwind](https://img.shields.io/badge/Tailwind-3.4-38bdf8)
+![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ecf8e)
+
+## Features
+
+### Core CRM
+- **Lead Management**: Full CRUD with 40+ data fields per lead
+- **360-Degree Customer View**: Complete customer journey timeline
+- **Contact Management**: Track people at each business
+- **Activity Logging**: Calls, emails, meetings, notes, and more
+- **Kanban Board**: Visual pipeline management
+
+### Analytics & Reporting
+- **Dashboard**: KPIs, pipeline funnel, activity feed
+- **Advanced Analytics**: Conversion rates, revenue trends, source analysis
+- **Report Builder**: Create custom reports with export options
+- **Scheduled Reports**: Automated email delivery
+
+### Automation
+- **Workflow Rules**: Trigger-based automation
+- **Task Scheduling**: Automated follow-ups
+- **n8n Integration**: Webhook support for external automation
+
+### Security
+- **Role-Based Access**: Admin and User roles
+- **Row Level Security**: Database-level access control
+- **CSRF Protection**: Cross-site request forgery prevention
+- **Rate Limiting**: API abuse prevention
+- **Input Validation**: Zod schemas for all inputs
+
+## Tech Stack
+
+| Category | Technology |
+|----------|------------|
+| Framework | Next.js 14 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS |
+| Database | Supabase (PostgreSQL) |
+| Auth | Supabase Auth |
+| Charts | Recharts |
+| Testing | Playwright |
+| Validation | Zod |
+
+## Quick Start
 
 ```bash
+# Clone the repository
+git clone <repository-url>
+cd leadflow-platform
+
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env.local
+# Edit .env.local with your Supabase credentials
+
+# Run database migrations (requires Supabase CLI)
+npx supabase db push
+
+# Start development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Documentation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- [Setup Guide](docs/SETUP.md) - Detailed installation instructions
+- [Security Guide](docs/SECURITY.md) - Security implementation details
 
-## Learn More
+## Project Structure
 
-To learn more about Next.js, take a look at the following resources:
+```
+leadflow-platform/
+├── app/                    # Next.js App Router pages
+│   ├── (auth)/            # Auth pages (login, register)
+│   ├── (dashboard)/       # Dashboard pages
+│   ├── admin/             # Admin pages
+│   └── api/               # API routes
+├── components/            # React components
+│   ├── ui/               # Base UI components
+│   ├── layout/           # Layout components
+│   └── ...               # Feature-specific components
+├── lib/                   # Utilities and configuration
+│   ├── supabase/         # Supabase clients
+│   ├── utils/            # Helpers and validators
+│   └── types/            # TypeScript types
+├── supabase/
+│   └── migrations/       # Database migrations
+├── tests/
+│   └── e2e/              # Playwright E2E tests
+└── docs/                  # Documentation
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run dev        # Start development server
+npm run build      # Build for production
+npm run start      # Start production server
+npm run lint       # Run ESLint
+npm run test:e2e   # Run Playwright tests
+```
 
-## Deploy on Vercel
+## Environment Variables
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | Yes |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key | Yes |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key | Yes |
+| `NEXT_PUBLIC_APP_URL` | Application URL | Yes |
+| `N8N_WEBHOOK_SECRET` | Webhook signature secret | No |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Database Schema
+
+The application uses the following main tables:
+- `profiles` - User profiles and roles
+- `businesses` - Lead/company records
+- `contacts` - People at businesses
+- `activities` - Interaction history
+- `touchpoints` - Customer journey events
+- `campaigns` - Marketing campaigns
+- `automation_rules` - Workflow automation
+- `reports` - Saved report configurations
+- `analytics_snapshots` - Daily metrics rollups
+
+## License
+
+This project is proprietary software. All rights reserved.
