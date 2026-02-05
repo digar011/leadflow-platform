@@ -77,6 +77,26 @@ export const INDUSTRY_CATEGORIES = [
   "Other",
 ] as const;
 
+// Industries (for forms)
+export const INDUSTRIES = [
+  { value: "healthcare", label: "Healthcare" },
+  { value: "technology", label: "Technology" },
+  { value: "finance", label: "Finance" },
+  { value: "real_estate", label: "Real Estate" },
+  { value: "retail", label: "Retail" },
+  { value: "manufacturing", label: "Manufacturing" },
+  { value: "construction", label: "Construction" },
+  { value: "education", label: "Education" },
+  { value: "food_beverage", label: "Food & Beverage" },
+  { value: "professional_services", label: "Professional Services" },
+  { value: "legal", label: "Legal" },
+  { value: "automotive", label: "Automotive" },
+  { value: "travel_hospitality", label: "Travel & Hospitality" },
+  { value: "media_entertainment", label: "Media & Entertainment" },
+  { value: "non_profit", label: "Non-Profit" },
+  { value: "other", label: "Other" },
+] as const;
+
 // Lead sources
 export const LEAD_SOURCES = [
   { value: "google_maps", label: "Google Maps" },
