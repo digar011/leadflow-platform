@@ -102,14 +102,8 @@ export default function ActivitiesPage() {
           <Select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-          >
-            <option value="">All Activity Types</option>
-            {ACTIVITY_TYPES.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </Select>
+            options={[{ value: "", label: "All Activity Types" }, ...ACTIVITY_TYPES]}
+          />
         </div>
       </div>
 
@@ -206,7 +200,7 @@ export default function ActivitiesPage() {
                                 </span>
                               </div>
                               <p className="font-medium text-text-primary mt-1">
-                                {activity.title}
+                                {activity.subject}
                               </p>
                               {activity.description && (
                                 <p className="text-sm text-text-secondary mt-1 line-clamp-2">

@@ -6,7 +6,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
-export type UserRole = "admin" | "user";
+export type UserRole = "admin" | "manager" | "user";
 export type LeadStatus =
   | "new"
   | "contacted"
@@ -82,6 +82,8 @@ export interface Database {
           full_name: string | null;
           role: UserRole;
           avatar_url: string | null;
+          is_active: boolean;
+          last_sign_in_at: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -91,6 +93,8 @@ export interface Database {
           full_name?: string | null;
           role?: UserRole;
           avatar_url?: string | null;
+          is_active?: boolean;
+          last_sign_in_at?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -100,6 +104,8 @@ export interface Database {
           full_name?: string | null;
           role?: UserRole;
           avatar_url?: string | null;
+          is_active?: boolean;
+          last_sign_in_at?: string | null;
           updated_at?: string;
         };
       };
@@ -573,6 +579,166 @@ export interface Database {
           schedule?: string | null;
           recipients?: string[] | null;
           last_generated_at?: string | null;
+          updated_at?: string;
+        };
+      };
+      audit_logs: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          action: string;
+          resource_type: string;
+          resource_id: string | null;
+          old_values: Json | null;
+          new_values: Json | null;
+          metadata: Json;
+          ip_address: string | null;
+          user_agent: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          action: string;
+          resource_type: string;
+          resource_id?: string | null;
+          old_values?: Json | null;
+          new_values?: Json | null;
+          metadata?: Json;
+          ip_address?: string | null;
+          user_agent?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          user_id?: string | null;
+          action?: string;
+          resource_type?: string;
+          resource_id?: string | null;
+          old_values?: Json | null;
+          new_values?: Json | null;
+          metadata?: Json;
+          ip_address?: string | null;
+          user_agent?: string | null;
+        };
+      };
+      webhook_configs: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          description: string | null;
+          type: "inbound" | "outbound";
+          url: string | null;
+          secret: string | null;
+          events: string[];
+          headers: Json;
+          is_active: boolean;
+          retry_count: number;
+          retry_delay: number;
+          ip_allowlist: string[] | null;
+          last_triggered_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          description?: string | null;
+          type: "inbound" | "outbound";
+          url?: string | null;
+          secret?: string | null;
+          events?: string[];
+          headers?: Json;
+          is_active?: boolean;
+          retry_count?: number;
+          retry_delay?: number;
+          ip_allowlist?: string[] | null;
+          last_triggered_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          name?: string;
+          description?: string | null;
+          type?: "inbound" | "outbound";
+          url?: string | null;
+          secret?: string | null;
+          events?: string[];
+          headers?: Json;
+          is_active?: boolean;
+          retry_count?: number;
+          retry_delay?: number;
+          ip_allowlist?: string[] | null;
+          last_triggered_at?: string | null;
+          updated_at?: string;
+        };
+      };
+      api_keys: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          key_hash: string;
+          key_prefix: string;
+          scopes: string[];
+          last_used_at: string | null;
+          expires_at: string | null;
+          is_active: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          name: string;
+          key_hash: string;
+          key_prefix: string;
+          scopes?: string[];
+          last_used_at?: string | null;
+          expires_at?: string | null;
+          is_active?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          name?: string;
+          key_hash?: string;
+          key_prefix?: string;
+          scopes?: string[];
+          last_used_at?: string | null;
+          expires_at?: string | null;
+          is_active?: boolean;
+        };
+      };
+      system_settings: {
+        Row: {
+          id: string;
+          key: string;
+          value: Json;
+          description: string | null;
+          category: string;
+          is_public: boolean;
+          updated_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          key: string;
+          value: Json;
+          description?: string | null;
+          category?: string;
+          is_public?: boolean;
+          updated_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          key?: string;
+          value?: Json;
+          description?: string | null;
+          category?: string;
+          is_public?: boolean;
+          updated_by?: string | null;
           updated_at?: string;
         };
       };

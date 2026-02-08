@@ -19,10 +19,11 @@ const config: Config = {
         },
         // Gold accent colors
         gold: {
-          DEFAULT: "#d4af37",
-          light: "#e6c65a",
-          dark: "#b8962f",
-          muted: "rgba(212, 175, 55, 0.2)",
+          DEFAULT: "#D2AC47",
+          light: "#EDC967",
+          lighter: "#F7EF8A",
+          dark: "#AE8625",
+          muted: "rgba(210, 172, 71, 0.2)",
         },
         // Text colors
         text: {
@@ -51,7 +52,7 @@ const config: Config = {
         sidebar: {
           DEFAULT: "#0f0f23",
           hover: "#1a1a3a",
-          active: "rgba(212, 175, 55, 0.15)",
+          active: "rgba(210, 172, 71, 0.15)",
         },
       },
       fontFamily: {
@@ -59,14 +60,14 @@ const config: Config = {
         mono: ["var(--font-geist-mono)", "monospace"],
       },
       boxShadow: {
-        glow: "0 0 20px rgba(212, 175, 55, 0.3)",
-        "glow-sm": "0 0 10px rgba(212, 175, 55, 0.2)",
+        glow: "0 0 20px rgba(210, 172, 71, 0.3)",
+        "glow-sm": "0 0 10px rgba(210, 172, 71, 0.2)",
         card: "0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2)",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-gold":
-          "linear-gradient(135deg, #d4af37 0%, #f4d03f 50%, #d4af37 100%)",
+          "linear-gradient(135deg, #AE8625 0%, #D2AC47 25%, #F7EF8A 50%, #EDC967 75%, #AE8625 100%)",
         "gradient-dark":
           "linear-gradient(180deg, #0a0a1a 0%, #141432 100%)",
       },
@@ -89,8 +90,8 @@ const config: Config = {
           "100%": { transform: "translateY(0)", opacity: "1" },
         },
         pulseGold: {
-          "0%, 100%": { boxShadow: "0 0 0 0 rgba(212, 175, 55, 0.4)" },
-          "50%": { boxShadow: "0 0 0 10px rgba(212, 175, 55, 0)" },
+          "0%, 100%": { boxShadow: "0 0 0 0 rgba(210, 172, 71, 0.4)" },
+          "50%": { boxShadow: "0 0 0 10px rgba(210, 172, 71, 0)" },
         },
       },
     },

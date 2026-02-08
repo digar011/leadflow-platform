@@ -115,7 +115,8 @@ export function LeadForm({ initialData, onSubmit, isLoading, mode }: LeadFormPro
     const result = businessSchema.safeParse(submitData);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
-      result.error.errors.forEach((err) => {
+      const zodErrors = result.error?.issues ?? [];
+      zodErrors.forEach((err) => {
         if (err.path[0]) {
           fieldErrors[err.path[0].toString()] = err.message;
         }
@@ -183,14 +184,9 @@ export function LeadForm({ initialData, onSubmit, isLoading, mode }: LeadFormPro
             value={formData.industry}
             onChange={(e) => updateField("industry", e.target.value)}
             error={errors.industry}
-          >
-            <option value="">Select industry...</option>
-            {INDUSTRIES.map((industry) => (
-              <option key={industry.value} value={industry.value}>
-                {industry.label}
-              </option>
-            ))}
-          </Select>
+            placeholder="Select industry..."
+            options={INDUSTRIES}
+          />
         </CardContent>
       </Card>
 
@@ -251,38 +247,23 @@ export function LeadForm({ initialData, onSubmit, isLoading, mode }: LeadFormPro
             value={formData.status}
             onChange={(e) => updateField("status", e.target.value)}
             error={errors.status}
-          >
-            {LEAD_STATUSES.map((status) => (
-              <option key={status.value} value={status.value}>
-                {status.label}
-              </option>
-            ))}
-          </Select>
+            options={LEAD_STATUSES}
+          />
           <Select
             label="Temperature"
             value={formData.lead_temperature}
             onChange={(e) => updateField("lead_temperature", e.target.value)}
             error={errors.lead_temperature}
-          >
-            {LEAD_TEMPERATURES.map((temp) => (
-              <option key={temp.value} value={temp.value}>
-                {temp.label}
-              </option>
-            ))}
-          </Select>
+            options={LEAD_TEMPERATURES}
+          />
           <Select
             label="Source"
             value={formData.source}
             onChange={(e) => updateField("source", e.target.value)}
             error={errors.source}
-          >
-            <option value="">Select source...</option>
-            {LEAD_SOURCES.map((source) => (
-              <option key={source.value} value={source.value}>
-                {source.label}
-              </option>
-            ))}
-          </Select>
+            placeholder="Select source..."
+            options={LEAD_SOURCES}
+          />
         </CardContent>
       </Card>
 

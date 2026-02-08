@@ -38,7 +38,8 @@ export default function LoginPage() {
     const result = loginSchema.safeParse(formData);
     if (!result.success) {
       const fieldErrors: Partial<LoginInput> = {};
-      result.error.errors.forEach((err) => {
+      const zodErrors = result.error?.issues ?? [];
+      zodErrors.forEach((err) => {
         const field = err.path[0] as keyof LoginInput;
         fieldErrors[field] = err.message;
       });

@@ -78,6 +78,7 @@ export function formatPhone(phone: string): string {
   }
   return phone;
 }
+export const formatPhoneNumber = formatPhone;
 
 // Name formatting
 export function formatName(firstName?: string | null, lastName?: string | null): string {

@@ -9,9 +9,10 @@
   --foreground: #ffffff;
   --foreground-secondary: #a0a0b8;
   --foreground-muted: #6b6b80;
-  --gold: #d4af37;
-  --gold-light: #e6c65a;
-  --gold-dark: #b8962f;
+  --gold: #D2AC47;
+  --gold-light: #EDC967;
+  --gold-lighter: #F7EF8A;
+  --gold-dark: #AE8625;
 }
 
 * {
@@ -63,7 +64,7 @@ body {
 
 /* Selection styles */
 ::selection {
-  background: rgba(212, 175, 55, 0.3);
+  background: rgba(210, 172, 71, 0.3);
   color: var(--foreground);
 }
 

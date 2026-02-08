@@ -2,6 +2,24 @@
 -- Description: Contacts table for people at businesses
 -- Created: 2024
 
+-- Fix profiles: add missing columns needed by the app
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT true;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS last_sign_in_at TIMESTAMPTZ;
+ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_role_check;
+ALTER TABLE public.profiles ADD CONSTRAINT profiles_role_check CHECK (role IN ('admin', 'manager', 'user'));
+UPDATE public.profiles SET is_active = true WHERE email = 'diego.j.garnica@gmail.com';
+
+-- Rename existing contacts table (from Codexium website) to avoid conflict
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'contacts' AND column_name = 'message'
+  ) THEN
+    ALTER TABLE public.contacts RENAME TO contacts_website_legacy;
+  END IF;
+END $$;
+
 -- Create contacts table
 CREATE TABLE IF NOT EXISTS public.contacts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

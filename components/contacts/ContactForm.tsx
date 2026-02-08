@@ -76,7 +76,8 @@ export function ContactForm({
     const result = contactSchema.safeParse(submitData);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
-      result.error.errors.forEach((err) => {
+      const zodErrors = result.error?.issues ?? [];
+      zodErrors.forEach((err) => {
         if (err.path[0]) {
           fieldErrors[err.path[0].toString()] = err.message;
         }

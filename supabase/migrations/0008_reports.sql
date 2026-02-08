@@ -84,6 +84,20 @@ CREATE TABLE IF NOT EXISTS public.analytics_snapshots (
   UNIQUE(snapshot_date)
 );
 
+-- Rename existing landing_pages table (from Codexium website) if it has different schema
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'landing_pages'
+  ) AND NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'landing_pages' AND column_name = 'campaign_id'
+  ) THEN
+    ALTER TABLE public.landing_pages RENAME TO landing_pages_website_legacy;
+  END IF;
+END $$;
+
 -- Create landing_pages table
 CREATE TABLE IF NOT EXISTS public.landing_pages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

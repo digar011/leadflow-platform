@@ -40,7 +40,8 @@ export default function RegisterPage() {
     const result = registerSchema.safeParse(formData);
     if (!result.success) {
       const fieldErrors: Partial<Record<keyof RegisterInput, string>> = {};
-      result.error.errors.forEach((err) => {
+      const zodErrors = result.error?.issues ?? [];
+      zodErrors.forEach((err) => {
         const field = err.path[0] as keyof RegisterInput;
         fieldErrors[field] = err.message;
       });

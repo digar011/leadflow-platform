@@ -2,7 +2,11 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getSupabaseClient } from "@/lib/supabase/client";
-import type { InsertTables } from "@/lib/types/database";
+import type { Tables, InsertTables } from "@/lib/types/database";
+
+type ActivityWithProfile = Tables<"activities"> & {
+  profiles: { full_name: string | null } | null;
+};
 
 export interface ActivityFilters {
   businessId?: string;
@@ -43,7 +47,7 @@ export function useActivities(filters: ActivityFilters = {}) {
       const { data, error } = await query;
 
       if (error) throw error;
-      return data;
+      return data as unknown as ActivityWithProfile[];
     },
   });
 }
@@ -125,13 +129,14 @@ export function useCustomerJourney(businessId: string) {
     queryKey: ["customerJourney", businessId],
     queryFn: async () => {
       // Fetch activities
-      const { data: activities, error: activitiesError } = await supabase
+      const { data: rawActivities, error: activitiesError } = await supabase
         .from("activities")
         .select("*, profiles(full_name)")
         .eq("business_id", businessId)
         .order("created_at", { ascending: false });
 
       if (activitiesError) throw activitiesError;
+      const activities = rawActivities as unknown as ActivityWithProfile[];
 
       // Fetch touchpoints
       const { data: touchpoints, error: touchpointsError } = await supabase
@@ -147,7 +152,7 @@ export function useCustomerJourney(businessId: string) {
         ...(activities || []).map((activity) => ({
           id: activity.id,
           type: activity.activity_type,
-          title: activity.title || `${activity.activity_type} Activity`,
+          title: activity.subject || `${activity.activity_type} Activity`,
           description: activity.description,
           metadata: activity.metadata as Record<string, unknown> | undefined,
           created_at: activity.created_at,
@@ -155,9 +160,9 @@ export function useCustomerJourney(businessId: string) {
         })),
         ...(touchpoints || []).map((tp) => ({
           id: tp.id,
-          type: tp.touchpoint_type,
-          title: getTouchpointTitle(tp.touchpoint_type, tp.metadata),
-          description: tp.metadata?.description as string | undefined,
+          type: tp.type,
+          title: getTouchpointTitle(tp.type, tp.metadata as Record<string, unknown> | null),
+          description: (tp.metadata as Record<string, unknown>)?.description as string | undefined,
           metadata: tp.metadata as Record<string, unknown> | undefined,
           created_at: tp.occurred_at,
           user_name: undefined,

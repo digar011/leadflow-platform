@@ -22,7 +22,7 @@ const Select = forwardRef<HTMLSelectElement, SelectProps>(
       className,
       label,
       error,
-      options,
+      options = [],
       placeholder,
       disabled,
       id,

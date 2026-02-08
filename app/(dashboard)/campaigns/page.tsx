@@ -113,26 +113,14 @@ export default function CampaignsPage() {
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="w-40"
-          >
-            <option value="">All Statuses</option>
-            {CAMPAIGN_STATUSES.map((status) => (
-              <option key={status.value} value={status.value}>
-                {status.label}
-              </option>
-            ))}
-          </Select>
+            options={[{ value: "", label: "All Statuses" }, ...CAMPAIGN_STATUSES]}
+          />
           <Select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
             className="w-48"
-          >
-            <option value="">All Types</option>
-            {CAMPAIGN_TYPES.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </Select>
+            options={[{ value: "", label: "All Types" }, ...CAMPAIGN_TYPES]}
+          />
         </div>
       </div>
 

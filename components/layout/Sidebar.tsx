@@ -16,6 +16,10 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
+  Shield,
+  UserCog,
+  ScrollText,
+  Cog,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getSupabaseClient } from "@/lib/supabase/client";
@@ -32,11 +36,21 @@ const navigation = [
   { name: "Automation", href: "/automation", icon: Zap },
 ];
 
+const adminNavigation = [
+  { name: "User Management", href: "/admin/users", icon: UserCog },
+  { name: "System Settings", href: "/admin/settings", icon: Cog },
+  { name: "Audit Logs", href: "/admin/audit", icon: ScrollText },
+];
+
 const bottomNavigation = [
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  isAdmin?: boolean;
+}
+
+export function Sidebar({ isAdmin = false }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
@@ -100,6 +114,41 @@ export function Sidebar() {
             );
           })}
         </ul>
+
+        {/* Admin Navigation */}
+        {isAdmin && (
+          <div className="mt-6 pt-6 border-t border-white/5">
+            {!collapsed && (
+              <div className="px-4 mb-2 flex items-center gap-2">
+                <Shield className="h-4 w-4 text-gold" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-gold">
+                  Admin
+                </span>
+              </div>
+            )}
+            <ul className="space-y-1 px-2">
+              {adminNavigation.map((item) => {
+                const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                return (
+                  <li key={item.name}>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                        isActive
+                          ? "bg-sidebar-active text-gold"
+                          : "text-text-secondary hover:bg-sidebar-hover hover:text-text-primary"
+                      )}
+                    >
+                      <item.icon className={cn("h-5 w-5 shrink-0", isActive && "text-gold")} />
+                      {!collapsed && <span>{item.name}</span>}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        )}
       </nav>
 
       {/* Bottom Navigation */}

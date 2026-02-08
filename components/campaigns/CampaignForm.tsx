@@ -86,7 +86,8 @@ export function CampaignForm({
     const result = campaignSchema.safeParse(submitData);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
-      result.error.errors.forEach((err) => {
+      const zodErrors = result.error?.issues ?? [];
+      zodErrors.forEach((err) => {
         if (err.path[0]) {
           fieldErrors[err.path[0].toString()] = err.message;
         }
@@ -161,13 +162,8 @@ export function CampaignForm({
               value={formData.status}
               onChange={(e) => updateField("status", e.target.value)}
               error={errors.status}
-            >
-              {CAMPAIGN_STATUSES.map((status) => (
-                <option key={status.value} value={status.value}>
-                  {status.label}
-                </option>
-              ))}
-            </Select>
+              options={CAMPAIGN_STATUSES}
+            />
           </div>
 
           <div>
