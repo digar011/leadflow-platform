@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import type { Business, InsertTables, UpdateTables } from "@/lib/types/database";
+import { checkResourceLimit } from "@/lib/hooks/useGatedMutation";
 
 export interface LeadFilters {
   status?: string;
@@ -54,9 +55,12 @@ export function useLeads(options: UseLeadsOptions = {}) {
         query = query.eq("assigned_to", filters.assignedTo);
       }
       if (filters.search) {
-        query = query.or(
-          `business_name.ilike.%${filters.search}%,email.ilike.%${filters.search}%,city.ilike.%${filters.search}%`
-        );
+        const sanitized = filters.search.replace(/['"`;\\,.()\[\]{}]/g, "").trim();
+        if (sanitized) {
+          query = query.or(
+            `business_name.ilike.%${sanitized}%,email.ilike.%${sanitized}%,city.ilike.%${sanitized}%`
+          );
+        }
       }
       if (filters.dateFrom) {
         query = query.gte("created_at", filters.dateFrom);
@@ -141,6 +145,8 @@ export function useCreateLead() {
 
   return useMutation({
     mutationFn: async (lead: InsertTables<"businesses">) => {
+      await checkResourceLimit("businesses", "leads");
+
       const { data, error } = await supabase
         .from("businesses")
         .insert(lead)

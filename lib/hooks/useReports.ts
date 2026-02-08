@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import type { InsertTables, UpdateTables } from "@/lib/types/database";
+import { checkResourceLimit } from "@/lib/hooks/useGatedMutation";
 
 export function useReports() {
   const supabase = getSupabaseClient();
@@ -46,6 +47,8 @@ export function useCreateReport() {
 
   return useMutation({
     mutationFn: async (report: InsertTables<"reports">) => {
+      await checkResourceLimit("reports", "savedReports");
+
       const { data, error } = await supabase
         .from("reports")
         .insert(report)

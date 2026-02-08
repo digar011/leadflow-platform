@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import type { Tables, InsertTables, UpdateTables } from "@/lib/types/database";
+import { checkResourceLimit } from "@/lib/hooks/useGatedMutation";
 
 type AutomationRuleWithProfile = Tables<"automation_rules"> & {
   profiles: { full_name: string | null } | null;
@@ -55,6 +56,8 @@ export function useCreateAutomationRule() {
 
   return useMutation({
     mutationFn: async (rule: InsertTables<"automation_rules">) => {
+      await checkResourceLimit("automation_rules", "automationRules");
+
       const { data, error } = await supabase
         .from("automation_rules")
         .insert(rule)

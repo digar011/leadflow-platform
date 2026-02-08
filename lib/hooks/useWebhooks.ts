@@ -294,12 +294,14 @@ export function useWebhookStats() {
   });
 }
 
-// Helper function to generate webhook secret
+// Helper function to generate webhook secret (using crypto.getRandomValues for security)
 function generateWebhookSecret(): string {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const randomValues = new Uint8Array(32);
+  crypto.getRandomValues(randomValues);
   let secret = "whsec_";
   for (let i = 0; i < 32; i++) {
-    secret += chars.charAt(Math.floor(Math.random() * chars.length));
+    secret += chars.charAt(randomValues[i] % chars.length);
   }
   return secret;
 }

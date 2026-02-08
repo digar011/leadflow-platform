@@ -177,19 +177,54 @@ export async function POST(request: NextRequest) {
   }
 }
 
+// Allowlisted fields per resource type to prevent arbitrary column injection
+const ALLOWED_LEAD_FIELDS = [
+  "business_name", "email", "phone", "website", "industry",
+  "street_address", "city", "state", "zip_code", "country",
+  "status", "temperature", "source", "deal_value", "description",
+  "expected_close_date", "next_follow_up", "tags",
+] as const;
+
+const ALLOWED_CONTACT_FIELDS = [
+  "first_name", "last_name", "email", "phone", "title",
+  "department", "linkedin_url", "is_primary", "business_id",
+] as const;
+
+const ALLOWED_ACTIVITY_FIELDS = [
+  "activity_type", "subject", "description", "outcome",
+  "scheduled_at", "business_id", "contact_id", "metadata",
+] as const;
+
+function pickAllowedFields(
+  data: Record<string, unknown>,
+  allowed: readonly string[]
+): Record<string, unknown> {
+  const result: Record<string, unknown> = {};
+  for (const key of allowed) {
+    if (key in data && data[key] !== undefined) {
+      result[key] = data[key];
+    }
+  }
+  return result;
+}
+
 async function processWebhookEvent(
   eventType: string,
   payload: Record<string, unknown>,
   userId: string
 ): Promise<{ action: string; resourceId?: string }> {
-  const data = payload.data as Record<string, unknown>;
+  const rawData = (payload.data || {}) as Record<string, unknown>;
 
   switch (eventType) {
     case "lead.create": {
+      const safeData = pickAllowedFields(rawData, ALLOWED_LEAD_FIELDS);
+      if (!safeData.business_name) {
+        throw new Error("business_name is required for lead creation");
+      }
       const { data: lead, error } = await supabase
         .from("businesses")
         .insert({
-          ...data,
+          ...safeData,
           user_id: userId,
           source: "webhook",
         })
@@ -201,12 +236,13 @@ async function processWebhookEvent(
     }
 
     case "lead.update": {
-      const leadId = data.id as string;
+      const leadId = rawData.id as string;
       if (!leadId) throw new Error("Lead ID required for update");
 
+      const safeData = pickAllowedFields(rawData, ALLOWED_LEAD_FIELDS);
       const { error } = await supabase
         .from("businesses")
-        .update(data)
+        .update(safeData)
         .eq("id", leadId)
         .eq("user_id", userId);
 
@@ -215,10 +251,14 @@ async function processWebhookEvent(
     }
 
     case "contact.create": {
+      const safeData = pickAllowedFields(rawData, ALLOWED_CONTACT_FIELDS);
+      if (!safeData.first_name || !safeData.last_name) {
+        throw new Error("first_name and last_name are required for contact creation");
+      }
       const { data: contact, error } = await supabase
         .from("contacts")
         .insert({
-          ...data,
+          ...safeData,
           user_id: userId,
         })
         .select()
@@ -229,10 +269,14 @@ async function processWebhookEvent(
     }
 
     case "activity.log": {
+      const safeData = pickAllowedFields(rawData, ALLOWED_ACTIVITY_FIELDS);
+      if (!safeData.activity_type) {
+        throw new Error("activity_type is required for activity logging");
+      }
       const { data: activity, error } = await supabase
         .from("activities")
         .insert({
-          ...data,
+          ...safeData,
           user_id: userId,
         })
         .select()

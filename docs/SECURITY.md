@@ -63,8 +63,18 @@ All tables have RLS policies enabled:
 - SHA-256 hashed key storage (full key never stored)
 - Key prefix for identification
 - Scope-based permissions (read/write per resource)
-- Optional expiration dates
+- Optional expiration dates (30, 60, 90 days, or 1 year)
+- Integration type categorization (Supabase, Email, Phone/SMS, Webhook, CRM Sync, Custom)
+- Enable/disable keys without deletion
 - Revocation support
+
+### Subscription-Based Feature Gating
+- Resource limits enforced at the mutation level via `checkResourceLimit()` pre-flight checks
+- `LimitReachedError` thrown when a user's resource count reaches their plan limit
+- Sidebar navigation hides features not available on the user's tier
+- `FeatureGate` component renders locked UI state for gated features
+- Subscription tier stored in `profiles.subscription_tier` with database-level CHECK constraint
+- System gracefully defaults to Free tier if the subscription column is missing
 
 ## Webhook Security
 
@@ -154,8 +164,9 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key (server-side only)
 - [ ] Review audit logs weekly
 - [ ] Rotate API keys quarterly
 - [ ] Update dependencies monthly
-- [ ] Review user permissions quarterly
+- [ ] Review user permissions and subscription tiers quarterly
 - [ ] Test backup restoration annually
+- [ ] Verify subscription tier limits are enforced correctly
 
 ## Best Practices
 

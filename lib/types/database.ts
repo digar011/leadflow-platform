@@ -72,6 +72,35 @@ export type AutomationAction =
   | "send_webhook"
   | "add_tag";
 
+export type PermissionKey =
+  | "leads.view"
+  | "leads.create"
+  | "leads.edit"
+  | "leads.delete"
+  | "contacts.view"
+  | "contacts.create"
+  | "contacts.edit"
+  | "contacts.delete"
+  | "activities.view"
+  | "activities.create"
+  | "campaigns.view"
+  | "campaigns.create"
+  | "campaigns.edit"
+  | "campaigns.delete"
+  | "reports.view"
+  | "reports.create"
+  | "automation.view"
+  | "automation.create"
+  | "automation.edit"
+  | "automation.delete"
+  | "settings.view"
+  | "settings.edit";
+
+export type UserPermissions = Partial<Record<PermissionKey, boolean>>;
+
+export type SubscriptionTier = "free" | "starter" | "growth" | "business" | "enterprise";
+export type BillingCycle = "monthly" | "annual";
+
 export interface Database {
   public: {
     Tables: {
@@ -83,6 +112,9 @@ export interface Database {
           role: UserRole;
           avatar_url: string | null;
           is_active: boolean;
+          permissions: Json;
+          subscription_tier: SubscriptionTier;
+          subscription_billing_cycle: BillingCycle;
           last_sign_in_at: string | null;
           created_at: string;
           updated_at: string;
@@ -94,6 +126,9 @@ export interface Database {
           role?: UserRole;
           avatar_url?: string | null;
           is_active?: boolean;
+          permissions?: Json;
+          subscription_tier?: SubscriptionTier;
+          subscription_billing_cycle?: BillingCycle;
           last_sign_in_at?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -105,6 +140,9 @@ export interface Database {
           role?: UserRole;
           avatar_url?: string | null;
           is_active?: boolean;
+          permissions?: Json;
+          subscription_tier?: SubscriptionTier;
+          subscription_billing_cycle?: BillingCycle;
           last_sign_in_at?: string | null;
           updated_at?: string;
         };

@@ -16,7 +16,11 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { useUsers, useUpdateUserRole, useToggleUserActive, useAdminStats } from "@/lib/hooks/useAdmin";
+import { useUsers, useUpdateUserRole, useToggleUserActive, useUpdateUserPermissions, useUpdateUserTier, useAdminStats } from "@/lib/hooks/useAdmin";
+import type { User } from "@/lib/hooks/useAdmin";
+import type { UserPermissions, SubscriptionTier } from "@/lib/types/database";
+import { hasCustomPermissions } from "@/lib/utils/permissions";
+import { PermissionsPanel } from "@/components/admin/PermissionsPanel";
 import { cn } from "@/lib/utils";
 
 const roleOptions = [
@@ -25,13 +29,24 @@ const roleOptions = [
   { value: "user", label: "User", icon: UserIcon, color: "text-text-muted" },
 ];
 
+const tierOptions = [
+  { value: "free", label: "Free", color: "text-text-muted" },
+  { value: "starter", label: "Starter", color: "text-blue-400" },
+  { value: "growth", label: "Growth", color: "text-gold" },
+  { value: "business", label: "Business", color: "text-purple-400" },
+  { value: "enterprise", label: "Enterprise", color: "text-emerald-400" },
+];
+
 export default function AdminUsersPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [permissionsUser, setPermissionsUser] = useState<User | null>(null);
 
   const { data: users, isLoading } = useUsers();
   const { data: stats } = useAdminStats();
   const updateRole = useUpdateUserRole();
   const toggleActive = useToggleUserActive();
+  const updatePermissions = useUpdateUserPermissions();
+  const updateTier = useUpdateUserTier();
 
   const filteredUsers = users?.filter((user) => {
     if (!searchQuery) return true;
@@ -55,6 +70,27 @@ export default function AdminUsersPage() {
       await toggleActive.mutateAsync({ userId, isActive: !currentActive });
     } catch (error) {
       console.error("Failed to toggle user:", error);
+    }
+  };
+
+  const handleTierChange = async (userId: string, newTier: string) => {
+    try {
+      await updateTier.mutateAsync({ userId, tier: newTier as SubscriptionTier });
+    } catch (error) {
+      console.error("Failed to update tier:", error);
+    }
+  };
+
+  const handleSavePermissions = async (permissions: UserPermissions) => {
+    if (!permissionsUser) return;
+    try {
+      await updatePermissions.mutateAsync({
+        userId: permissionsUser.id,
+        permissions,
+      });
+      setPermissionsUser(null);
+    } catch (error) {
+      console.error("Failed to update permissions:", error);
     }
   };
 
@@ -182,6 +218,9 @@ export default function AdminUsersPage() {
                       Status
                     </th>
                     <th className="text-left py-3 px-4 text-sm font-medium text-text-muted">
+                      Plan
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-text-muted">
                       Joined
                     </th>
                     <th className="text-left py-3 px-4 text-sm font-medium text-text-muted">
@@ -260,6 +299,27 @@ export default function AdminUsersPage() {
                             {user.is_active ? "Active" : "Inactive"}
                           </Badge>
                         </td>
+                        <td className="py-4 px-4">
+                          <select
+                            value={user.subscription_tier || "free"}
+                            onChange={(e) => handleTierChange(user.id, e.target.value)}
+                            className={cn(
+                              "bg-transparent border border-white/10 rounded-lg px-3 py-1.5",
+                              "text-sm focus:outline-none focus:ring-2 focus:ring-gold/50",
+                              tierOptions.find((t) => t.value === (user.subscription_tier || "free"))?.color || "text-text-muted"
+                            )}
+                          >
+                            {tierOptions.map((t) => (
+                              <option
+                                key={t.value}
+                                value={t.value}
+                                className="bg-surface text-text-primary"
+                              >
+                                {t.label}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
                         <td className="py-4 px-4 text-sm text-text-secondary">
                           {format(new Date(user.created_at), "MMM d, yyyy")}
                         </td>
@@ -269,28 +329,42 @@ export default function AdminUsersPage() {
                             : "Never"}
                         </td>
                         <td className="py-4 px-4 text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleToggleActive(user.id, user.is_active)}
-                            className={
-                              user.is_active
-                                ? "text-red-400 hover:text-red-300"
-                                : "text-green-400 hover:text-green-300"
-                            }
-                          >
-                            {user.is_active ? (
-                              <>
-                                <UserX className="h-4 w-4 mr-1" />
-                                Deactivate
-                              </>
-                            ) : (
-                              <>
-                                <UserCheck className="h-4 w-4 mr-1" />
-                                Activate
-                              </>
-                            )}
-                          </Button>
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setPermissionsUser(user)}
+                              className="text-text-muted hover:text-gold relative"
+                            >
+                              <Shield className="h-4 w-4 mr-1" />
+                              Permissions
+                              {hasCustomPermissions(user.role, (user.permissions || {}) as UserPermissions) && (
+                                <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-amber-400" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleToggleActive(user.id, user.is_active)}
+                              className={
+                                user.is_active
+                                  ? "text-red-400 hover:text-red-300"
+                                  : "text-green-400 hover:text-green-300"
+                              }
+                            >
+                              {user.is_active ? (
+                                <>
+                                  <UserX className="h-4 w-4 mr-1" />
+                                  Deactivate
+                                </>
+                              ) : (
+                                <>
+                                  <UserCheck className="h-4 w-4 mr-1" />
+                                  Activate
+                                </>
+                              )}
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     );
@@ -301,6 +375,19 @@ export default function AdminUsersPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Permissions Modal */}
+      {permissionsUser && (
+        <PermissionsPanel
+          isOpen={!!permissionsUser}
+          onClose={() => setPermissionsUser(null)}
+          onSave={handleSavePermissions}
+          userName={permissionsUser.full_name || permissionsUser.email}
+          userRole={permissionsUser.role}
+          currentPermissions={(permissionsUser.permissions || {}) as UserPermissions}
+          isSaving={updatePermissions.isPending}
+        />
+      )}
     </div>
   );
 }

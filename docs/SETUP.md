@@ -35,7 +35,14 @@ N8N_WEBHOOK_SECRET=your-webhook-secret
 
 ## 4. Database Setup
 
-Run the migration files in `supabase/migrations/` in order using the Supabase SQL Editor.
+Run the migration files in `supabase/migrations/` in order using the Supabase SQL Editor:
+
+1. `0001_profiles.sql` through `0011_api_keys.sql` -- core schema
+2. `20260209000000_add_subscription_tier.sql` -- adds subscription tier and billing cycle columns to profiles
+
+Alternatively, run the combined file `supabase/combined_migrations.sql` for everything at once.
+
+> **Note**: If you skip the subscription migration, the app still works but all users will default to the Free tier with limited access to features.
 
 ## 5. Start Development Server
 
@@ -54,10 +61,17 @@ npm run test:e2e
 
 ## First Admin User
 
-After registering, make yourself admin:
+After registering, make yourself admin and optionally set a subscription tier:
 
 ```sql
+-- Grant admin role
 UPDATE public.profiles
 SET role = 'admin'
+WHERE email = 'your-email@example.com';
+
+-- Optional: set subscription tier (free, starter, growth, business, enterprise)
+UPDATE public.profiles
+SET subscription_tier = 'business',
+    subscription_billing_cycle = 'monthly'
 WHERE email = 'your-email@example.com';
 ```

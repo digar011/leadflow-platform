@@ -1,19 +1,111 @@
 "use client";
 
-import { useState } from "react";
-import { Search, Bell, Plus, User, Shield, Monitor } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  Search,
+  Bell,
+  Plus,
+  User,
+  Shield,
+  Monitor,
+  Settings,
+  LogOut,
+  CreditCard,
+  UserCircle,
+  CheckCircle2,
+  Users,
+  Zap,
+  Megaphone,
+  Clock,
+} from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { useViewMode } from "@/lib/contexts/ViewModeContext";
+import { getSupabaseClient } from "@/lib/supabase/client";
 
 interface HeaderProps {
   title?: string;
   subtitle?: string;
 }
 
+// Static notification items (in production these would come from DB)
+const NOTIFICATIONS = [
+  {
+    id: "1",
+    icon: Users,
+    iconColor: "text-blue-400",
+    iconBg: "bg-blue-500/20",
+    title: "New lead assigned to you",
+    description: "Acme Corp was assigned by admin",
+    time: "2 min ago",
+    unread: true,
+  },
+  {
+    id: "2",
+    icon: CheckCircle2,
+    iconColor: "text-green-400",
+    iconBg: "bg-green-500/20",
+    title: "Deal won!",
+    description: "TechStart Inc - $12,500",
+    time: "1 hour ago",
+    unread: true,
+  },
+  {
+    id: "3",
+    icon: Zap,
+    iconColor: "text-gold",
+    iconBg: "bg-gold/20",
+    title: "Automation triggered",
+    description: "Follow-up email sent to 3 leads",
+    time: "3 hours ago",
+    unread: false,
+  },
+  {
+    id: "4",
+    icon: Megaphone,
+    iconColor: "text-purple-400",
+    iconBg: "bg-purple-500/20",
+    title: "Campaign completed",
+    description: "Q1 Outreach finished with 24% open rate",
+    time: "Yesterday",
+    unread: false,
+  },
+];
+
 export function Header({ title, subtitle }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const { isRealAdmin, isAdminView, toggleViewMode, loading } = useViewMode();
+  const router = useRouter();
+
+  const notifRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+        setShowNotifications(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setShowProfileMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleLogout = async () => {
+    const supabase = getSupabaseClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  };
+
+  const unreadCount = NOTIFICATIONS.filter((n) => n.unread).length;
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-white/5 bg-background/80 px-6 backdrop-blur-xl">
@@ -81,25 +173,136 @@ export function Header({ title, subtitle }: HeaderProps) {
         )}
 
         {/* Quick Add */}
-        <Button size="sm" leftIcon={<Plus className="h-4 w-4" />}>
-          Add Lead
-        </Button>
+        <Link href="/leads/new">
+          <Button size="sm" leftIcon={<Plus className="h-4 w-4" />}>
+            Add Lead
+          </Button>
+        </Link>
 
         {/* Notifications */}
-        <button className="relative rounded-lg p-2 text-text-muted hover:bg-white/5 hover:text-text-primary transition-colors">
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-1.5 top-1.5 flex h-2 w-2">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-75"></span>
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-gold"></span>
-          </span>
-        </button>
+        <div className="relative" ref={notifRef}>
+          <button
+            onClick={() => {
+              setShowNotifications(!showNotifications);
+              setShowProfileMenu(false);
+            }}
+            className="relative rounded-lg p-2 text-text-muted hover:bg-white/5 hover:text-text-primary transition-colors"
+          >
+            <Bell className="h-5 w-5" />
+            {unreadCount > 0 && (
+              <span className="absolute right-1.5 top-1.5 flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-gold opacity-75"></span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-gold"></span>
+              </span>
+            )}
+          </button>
+
+          {/* Notifications Dropdown */}
+          {showNotifications && (
+            <div className="absolute right-0 top-full mt-2 w-80 rounded-xl border border-white/10 bg-[#161636] shadow-2xl shadow-black/50 backdrop-blur-none overflow-hidden z-50">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                <h3 className="text-sm font-semibold text-text-primary">Notifications</h3>
+                {unreadCount > 0 && (
+                  <span className="text-xs text-gold">{unreadCount} new</span>
+                )}
+              </div>
+              <div className="max-h-80 overflow-y-auto">
+                {NOTIFICATIONS.map((notif) => (
+                  <div
+                    key={notif.id}
+                    className={cn(
+                      "flex items-start gap-3 px-4 py-3 hover:bg-white/5 transition-colors cursor-pointer",
+                      notif.unread && "bg-gold/5"
+                    )}
+                  >
+                    <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg", notif.iconBg)}>
+                      <notif.icon className={cn("h-4 w-4", notif.iconColor)} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={cn("text-sm", notif.unread ? "text-text-primary font-medium" : "text-text-secondary")}>
+                        {notif.title}
+                      </p>
+                      <p className="text-xs text-text-muted truncate">{notif.description}</p>
+                      <p className="text-xs text-text-muted mt-0.5 flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {notif.time}
+                      </p>
+                    </div>
+                    {notif.unread && (
+                      <div className="h-2 w-2 rounded-full bg-gold shrink-0 mt-1.5" />
+                    )}
+                  </div>
+                ))}
+              </div>
+              <Link
+                href="/settings/notifications"
+                onClick={() => setShowNotifications(false)}
+                className="block px-4 py-3 text-center text-sm text-gold hover:bg-white/5 border-t border-white/10 transition-colors"
+              >
+                Notification Settings
+              </Link>
+            </div>
+          )}
+        </div>
 
         {/* Profile */}
-        <button className="flex items-center gap-2 rounded-lg p-1.5 text-text-muted hover:bg-white/5 transition-colors">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gold/20 text-gold">
-            <User className="h-4 w-4" />
-          </div>
-        </button>
+        <div className="relative" ref={profileRef}>
+          <button
+            onClick={() => {
+              setShowProfileMenu(!showProfileMenu);
+              setShowNotifications(false);
+            }}
+            className="flex items-center gap-2 rounded-lg p-1.5 text-text-muted hover:bg-white/5 transition-colors"
+          >
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gold/20 text-gold">
+              <User className="h-4 w-4" />
+            </div>
+          </button>
+
+          {/* Profile Dropdown */}
+          {showProfileMenu && (
+            <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-white/10 bg-[#161636] shadow-2xl shadow-black/50 backdrop-blur-none overflow-hidden z-50">
+              <div className="py-1">
+                <Link
+                  href="/settings/profile"
+                  onClick={() => setShowProfileMenu(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-text-secondary hover:bg-white/5 hover:text-text-primary transition-colors"
+                >
+                  <UserCircle className="h-4 w-4" />
+                  My Profile
+                </Link>
+                <Link
+                  href="/settings/billing"
+                  onClick={() => setShowProfileMenu(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-text-secondary hover:bg-white/5 hover:text-text-primary transition-colors"
+                >
+                  <CreditCard className="h-4 w-4" />
+                  Billing & Plan
+                </Link>
+                <Link
+                  href="/settings"
+                  onClick={() => setShowProfileMenu(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-text-secondary hover:bg-white/5 hover:text-text-primary transition-colors"
+                >
+                  <Settings className="h-4 w-4" />
+                  Settings
+                </Link>
+              </div>
+              <div className="border-t border-white/10 py-1">
+                <button
+                  onClick={() => {
+                    setShowProfileMenu(false);
+                    handleLogout();
+                  }}
+                  className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-status-error hover:bg-white/5 transition-colors"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

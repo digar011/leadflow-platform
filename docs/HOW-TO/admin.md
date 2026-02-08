@@ -17,6 +17,7 @@ This guide covers administrative features in LeadFlow Platform.
 The Users page (`/admin/users`) shows all registered users with:
 - Name and email
 - Current role (Admin, Manager, User)
+- Subscription tier (Free, Starter, Growth, Business, Enterprise)
 - Active/inactive status
 - Join date
 - Last sign-in date
@@ -46,6 +47,26 @@ Use the search box to filter by:
 | User management | ❌ | ❌ | ✅ |
 | System settings | ❌ | ❌ | ✅ |
 | Audit logs | ❌ | ❌ | ✅ |
+
+### Changing Subscription Tiers
+
+1. Find the user in the list
+2. Click the **Plan** dropdown
+3. Select a tier: Free, Starter, Growth, Business, or Enterprise
+4. The change is saved immediately
+5. The user's feature access and resource limits update on their next page load
+
+#### Tier Limits
+
+| Resource | Free | Starter | Growth | Business | Enterprise |
+|----------|------|---------|--------|----------|------------|
+| Leads | 50 | 500 | 5,000 | 25,000 | Unlimited |
+| Users | 1 | 3 | 10 | 25 | Unlimited |
+| Campaigns | 1 | 5 | 25 | Unlimited | Unlimited |
+| Automation Rules | 0 | 3 | 20 | Unlimited | Unlimited |
+| Saved Reports | 0 | 5 | Unlimited | Unlimited | Unlimited |
+
+Features like API access, webhooks, admin panel, and audit logs are unlocked at higher tiers. See the [Pricing Page](/pricing) for a complete feature comparison.
 
 ### Activating/Deactivating Users
 

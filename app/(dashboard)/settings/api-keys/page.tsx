@@ -12,6 +12,11 @@ import {
   Check,
   AlertCircle,
   Shield,
+  Mail,
+  Database,
+  Phone,
+  Globe,
+  Webhook,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -32,6 +37,7 @@ export default function ApiKeysSettingsPage() {
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
   const [newKeyData, setNewKeyData] = useState({
     name: "",
+    integrationType: "",
     scopes: [] as string[],
     expiresIn: "",
   });
@@ -68,7 +74,7 @@ export default function ApiKeysSettingsPage() {
   const handleCloseCreateModal = () => {
     setShowCreateModal(false);
     setCreatedKey(null);
-    setNewKeyData({ name: "", scopes: [], expiresIn: "" });
+    setNewKeyData({ name: "", integrationType: "", scopes: [], expiresIn: "" });
   };
 
   const handleDelete = async (id: string) => {
@@ -287,16 +293,67 @@ export default function ApiKeysSettingsPage() {
           </div>
         ) : (
           <div className="space-y-4">
+            {/* Integration Type */}
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-2">
-                Name
+                Integration Type
+              </label>
+              <p className="text-xs text-text-muted mb-3">
+                Select what this API key will be used for
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { value: "supabase", label: "Supabase", desc: "Database & Auth", icon: Database, color: "text-emerald-400 bg-emerald-500/20" },
+                  { value: "email", label: "Email Service", desc: "SendGrid, Mailgun, etc.", icon: Mail, color: "text-blue-400 bg-blue-500/20" },
+                  { value: "phone", label: "Phone / SMS", desc: "Twilio, Vonage, etc.", icon: Phone, color: "text-purple-400 bg-purple-500/20" },
+                  { value: "webhook", label: "Webhook", desc: "n8n, Zapier, Make", icon: Webhook, color: "text-orange-400 bg-orange-500/20" },
+                  { value: "crm", label: "CRM Sync", desc: "Salesforce, HubSpot", icon: Globe, color: "text-pink-400 bg-pink-500/20" },
+                  { value: "custom", label: "Custom", desc: "Custom integration", icon: Key, color: "text-gold bg-gold/20" },
+                ].map((type) => (
+                  <button
+                    key={type.value}
+                    type="button"
+                    onClick={() =>
+                      setNewKeyData((prev) => ({
+                        ...prev,
+                        integrationType: type.value,
+                        name: prev.name || `${type.label} Key`,
+                      }))
+                    }
+                    className={cn(
+                      "flex items-center gap-3 p-3 rounded-lg border text-left transition-all",
+                      newKeyData.integrationType === type.value
+                        ? "border-gold bg-gold/10 ring-1 ring-gold/30"
+                        : "border-white/10 hover:border-white/20"
+                    )}
+                  >
+                    <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg", type.color)}>
+                      <type.icon className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <p className={cn(
+                        "text-sm font-medium",
+                        newKeyData.integrationType === type.value ? "text-gold" : "text-text-secondary"
+                      )}>
+                        {type.label}
+                      </p>
+                      <p className="text-xs text-text-muted">{type.desc}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-text-secondary mb-2">
+                Key Name
               </label>
               <Input
                 value={newKeyData.name}
                 onChange={(e) =>
                   setNewKeyData({ ...newKeyData, name: e.target.value })
                 }
-                placeholder="My API Key"
+                placeholder="e.g., Production Email Key"
               />
             </div>
 
@@ -359,7 +416,7 @@ export default function ApiKeysSettingsPage() {
               </Button>
               <Button
                 onClick={handleCreate}
-                disabled={!newKeyData.name || newKeyData.scopes.length === 0}
+                disabled={!newKeyData.name || !newKeyData.integrationType || newKeyData.scopes.length === 0}
               >
                 Create Key
               </Button>

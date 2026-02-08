@@ -4,6 +4,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 
 // Types
+import type { UserPermissions, SubscriptionTier, BillingCycle } from "@/lib/types/database";
+
 export interface User {
   id: string;
   email: string;
@@ -11,6 +13,9 @@ export interface User {
   avatar_url: string | null;
   role: "admin" | "manager" | "user";
   is_active: boolean;
+  permissions: UserPermissions;
+  subscription_tier: SubscriptionTier;
+  subscription_billing_cycle: BillingCycle;
   created_at: string;
   last_sign_in_at: string | null;
 }
@@ -92,6 +97,67 @@ export function useToggleUserActive() {
       const { data, error } = await supabase
         .from("profiles")
         .update({ is_active: isActive })
+        .eq("id", userId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+    },
+  });
+}
+
+export function useUpdateUserPermissions() {
+  const supabase = createClient();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      userId,
+      permissions,
+    }: {
+      userId: string;
+      permissions: UserPermissions;
+    }) => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .update({ permissions: permissions as unknown as Record<string, unknown> })
+        .eq("id", userId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+    },
+  });
+}
+
+export function useUpdateUserTier() {
+  const supabase = createClient();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      userId,
+      tier,
+      billingCycle,
+    }: {
+      userId: string;
+      tier: SubscriptionTier;
+      billingCycle?: BillingCycle;
+    }) => {
+      const updates: Record<string, unknown> = { subscription_tier: tier };
+      if (billingCycle) updates.subscription_billing_cycle = billingCycle;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .update(updates)
         .eq("id", userId)
         .select()
         .single();

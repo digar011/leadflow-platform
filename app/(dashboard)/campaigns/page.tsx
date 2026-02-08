@@ -19,6 +19,7 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { CampaignCard } from "@/components/campaigns/CampaignCard";
 import { useCampaigns, useCampaignStats } from "@/lib/hooks/useCampaigns";
 import { formatCurrency } from "@/lib/utils/formatters";
+import { UsageLimitBar } from "@/components/subscription";
 import { CAMPAIGN_TYPES, CAMPAIGN_STATUSES } from "@/lib/utils/constants";
 
 export default function CampaignsPage() {
@@ -97,6 +98,9 @@ export default function CampaignsPage() {
           </Card>
         </div>
       )}
+
+      {/* Usage Limit */}
+      <UsageLimitBar feature="campaigns" currentUsage={campaigns?.length || 0} showAlways />
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">

@@ -28,6 +28,7 @@ import {
 } from "@/lib/hooks/useAutomation";
 import { AUTOMATION_TRIGGERS, AUTOMATION_ACTIONS } from "@/lib/utils/constants";
 import { cn } from "@/lib/utils";
+import { UsageLimitBar } from "@/components/subscription";
 
 export default function AutomationPage() {
   const { data: rules, isLoading, error } = useAutomationRules();
@@ -120,6 +121,9 @@ export default function AutomationPage() {
           </Card>
         </div>
       )}
+
+      {/* Usage Limit */}
+      <UsageLimitBar feature="automationRules" currentUsage={stats?.totalRules || 0} showAlways />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Rules List */}

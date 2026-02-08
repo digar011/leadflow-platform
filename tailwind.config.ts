@@ -48,6 +48,12 @@ const config: Config = {
           won: "#22c55e",
           lost: "#6b7280",
         },
+        // Surface colors (cards, dropdowns, modals)
+        surface: {
+          DEFAULT: "#12122a",
+          elevated: "#1a1a3a",
+          overlay: "#161636",
+        },
         // Sidebar colors
         sidebar: {
           DEFAULT: "#0f0f23",

@@ -9,6 +9,7 @@ import { LeadFilters } from "@/components/leads/LeadFilters";
 import { LeadTable } from "@/components/leads/LeadTable";
 import { useLeads, useLeadStats, useDeleteLead, type LeadFilters as LeadFiltersType, type LeadSort } from "@/lib/hooks/useLeads";
 import { formatCurrency, formatCompactNumber } from "@/lib/utils/formatters";
+import { UsageLimitBar } from "@/components/subscription";
 
 export default function LeadsPage() {
   const [page, setPage] = useState(1);
@@ -99,6 +100,9 @@ export default function LeadsPage() {
           </Card>
         </div>
       )}
+
+      {/* Usage Limit */}
+      <UsageLimitBar feature="leads" currentUsage={data?.total || 0} showAlways />
 
       {/* Filters */}
       <LeadFilters filters={filters} onFiltersChange={handleFiltersChange} />

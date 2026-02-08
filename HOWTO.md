@@ -15,6 +15,8 @@ A practical, step-by-step guide for common tasks in the LeadFlow platform.
 - [How to Set Up Automation Rules](#how-to-set-up-automation-rules)
 - [How to View Reports](#how-to-view-reports)
 - [How to Use the Admin Panel](#how-to-use-the-admin-panel)
+- [How to Use Dashboard Quick Actions](#how-to-use-dashboard-quick-actions)
+- [How to View Pricing and Manage Your Subscription](#how-to-view-pricing-and-manage-your-subscription)
 - [How to Configure Settings](#how-to-configure-settings)
 - [Common Troubleshooting](#common-troubleshooting)
 
@@ -304,6 +306,81 @@ A practical, step-by-step guide for common tasks in the LeadFlow platform.
 
 ---
 
+## How to Use Dashboard Quick Actions
+
+The dashboard includes a **Quick Actions** panel for logging activities without navigating away from the main view.
+
+### Available Quick Actions
+
+1. **Add Lead** -- navigates to `/leads/new` to create a new lead.
+2. **Log Call** -- opens a modal to record a phone call:
+   - **Subject**: Brief description of the call.
+   - **Duration**: How long the call lasted (e.g., "30 minutes").
+   - **Outcome**: Select one of Answered, Voicemail, No Answer, or Busy.
+   - **Notes**: Additional details about the call.
+3. **Send Email** -- opens a modal to log an email activity:
+   - **Subject**: The email subject.
+   - **Notes**: Key points or follow-up items.
+4. **Meeting** -- opens a modal to schedule or log a meeting:
+   - **Subject**: Meeting topic.
+   - **Duration**: Expected meeting length.
+   - **Date & Time**: When the meeting is scheduled.
+   - **Notes**: Agenda or preparation notes.
+5. **Add Note** -- opens a modal to save a quick note:
+   - **Subject**: A brief title for the note.
+   - **Note**: The full note text.
+6. **Import** -- navigates to `/leads/new` for manual lead entry.
+
+### How It Works
+
+- Each action opens a **modal form** directly on the dashboard.
+- Submitted activities are saved via the `useCreateActivity` hook and appear in the global activity feed.
+- Activities created from Quick Actions are tagged with `source: "quick_action"` in their metadata.
+
+---
+
+## How to View Pricing and Manage Your Subscription
+
+### Viewing Pricing Plans
+
+1. Navigate to `/pricing` (this is a public page -- no login required).
+2. The page displays five pricing tiers: **Free**, **Starter**, **Growth**, **Business**, and **Enterprise**.
+3. Use the **Monthly / Annual** toggle to switch between billing cycles. Annual billing saves approximately 20%.
+4. Each tier card shows:
+   - Plan name and tagline.
+   - Monthly or annual price.
+   - Feature list with check/cross indicators.
+   - A call-to-action button (Get Started, Start Free Trial, or Contact Sales).
+5. The **Growth** tier is highlighted as "Most Popular" with a gold badge.
+6. Below the cards, a **Feature Comparison** table shows a detailed side-by-side breakdown of all features across tiers.
+
+### Managing Your Subscription (Billing Settings)
+
+1. Log in and navigate to **Settings > Billing & Plan** from the sidebar, or go directly to `/settings/billing`.
+2. The billing page shows:
+   - **Current Plan** card -- your active tier, billing cycle, and price.
+   - **Usage Summary** -- `UsageLimitBar` components showing current usage vs. plan limits for:
+     - Leads
+     - Campaigns
+     - Automation Rules
+     - Saved Reports
+   - **Change Plan** button linking to the pricing page.
+
+### Understanding Usage Limits
+
+- Each resource page (Leads, Campaigns, Automation) displays a usage bar at the top.
+- The bar turns **amber** when you reach 80% of your plan limit.
+- The bar turns **red** when you hit 100% -- an **Upgrade** button appears.
+- Creating a resource beyond your plan limit triggers an **Upgrade Modal** explaining which plan you need.
+
+### Upgrading Your Plan
+
+1. When you encounter a limit, click the **Upgrade** button on the usage bar or the upgrade modal.
+2. You will be taken to the pricing page or billing settings to choose a new plan.
+3. Alternatively, contact your admin -- admins can change subscription tiers from the Admin Panel.
+
+---
+
 ## How to Use the Admin Panel
 
 The admin panel is only accessible to users with the `admin` role. Non-admin users are redirected to the dashboard.
@@ -323,11 +400,13 @@ The admin panel is only accessible to users with the `admin` role. Non-admin use
 3. **User Table**: Displays each user with:
    - Name and email.
    - Role dropdown (Admin, Manager, User) -- change a user's role by selecting from the dropdown.
+   - **Plan dropdown** (Free, Starter, Growth, Business, Enterprise) -- change a user's subscription tier.
    - Status badge (Active/Inactive).
    - Join date and last sign-in date.
    - Activate/Deactivate button.
 4. **Changing Roles**: Select a new role from the dropdown. The change is saved immediately.
-5. **Deactivating Users**: Click the "Deactivate" button to disable a user's account. They will not be able to sign in. Click "Activate" to re-enable.
+5. **Changing Subscription Tier**: Select a new plan from the Plan dropdown. The change is saved immediately and the user's feature access updates accordingly.
+6. **Deactivating Users**: Click the "Deactivate" button to disable a user's account. They will not be able to sign in. Click "Activate" to re-enable.
 
 ### System Settings (`/admin/settings`)
 
@@ -372,6 +451,7 @@ The admin panel is only accessible to users with the `admin` role. Non-admin use
 2. You will see a settings page with a sidebar navigation listing:
    - Profile
    - Team
+   - Billing & Plan
    - Webhooks
    - API Keys
    - Notifications
@@ -385,6 +465,13 @@ The admin panel is only accessible to users with the `admin` role. Non-admin use
 
 - View and manage team members.
 - Invite new team members.
+
+### Billing & Plan (`/settings/billing`)
+
+- View your current subscription tier, billing cycle, and price.
+- See usage summary bars for leads, campaigns, automation rules, and saved reports.
+- Click **Change Plan** to navigate to the pricing page.
+- For more details, see [How to View Pricing and Manage Your Subscription](#how-to-view-pricing-and-manage-your-subscription).
 
 ### Webhook Configuration (`/settings/webhooks`)
 
@@ -402,11 +489,19 @@ The admin panel is only accessible to users with the `admin` role. Non-admin use
 
 ### API Key Management (`/settings/api-keys`)
 
-- Generate new API keys with:
-  - A descriptive name.
-  - Scoped permissions.
-  - Optional expiration date.
-- View existing keys (prefix shown, full key shown only at creation time).
+- Generate new API keys by first selecting an **integration type**:
+  - **Supabase** -- for database and auth integrations.
+  - **Email Service** -- for SendGrid, Mailgun, and similar providers.
+  - **Phone / SMS** -- for Twilio, Vonage, and similar providers.
+  - **Webhook** -- for n8n, Zapier, Make, and similar automation platforms.
+  - **CRM Sync** -- for Salesforce, HubSpot, and similar CRM integrations.
+  - **Custom** -- for any other integration.
+- After selecting the type, configure:
+  - A descriptive key name (auto-filled from the integration type).
+  - Scoped permissions (select one or more scopes).
+  - Optional expiration date (30 days, 60 days, 90 days, 1 year, or never).
+- View existing keys (prefix shown, full key displayed only at creation time).
+- Enable/disable keys without deleting them.
 - Revoke keys when no longer needed.
 
 ### Notification Preferences (`/settings/notifications`)
@@ -502,6 +597,29 @@ WHERE email = 'your-email@example.com';
 2. If the rule is inactive, click the play icon to activate it.
 3. Check the trigger conditions match the events happening in your workflow.
 4. Review the **Recent Activity** panel on the automation page for execution logs and error indicators.
+
+### Billing page shows "Free" even after upgrading
+
+**Cause**: The subscription tier migration has not been applied to the database, or the `subscription_tier` column is missing from the `profiles` table.
+
+**Fix**:
+1. Run the subscription migration: `supabase/migrations/20260209000000_add_subscription_tier.sql` in the Supabase SQL Editor.
+2. If using local Supabase, run `npx supabase db push`.
+3. The system gracefully defaults to the "Free" tier when the column is missing, so the app will not crash -- but it will show Free for all users until the migration is applied.
+
+### "Upgrade Required" modal appears unexpectedly
+
+**Cause**: The user's subscription tier does not include the feature or resource they are trying to access.
+
+**Fix**:
+1. An admin can change the user's tier from **Admin > User Management** using the Plan dropdown.
+2. Alternatively, update the tier directly in the `profiles` table via Supabase SQL Editor:
+   ```sql
+   UPDATE public.profiles
+   SET subscription_tier = 'growth'
+   WHERE email = 'user@example.com';
+   ```
+3. The user should refresh the page after the change.
 
 ### Webhook not receiving events
 

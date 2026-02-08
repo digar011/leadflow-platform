@@ -17,6 +17,7 @@ LeadFlow is a full-stack lead intelligence and customer relationship management 
   - [Running the Development Server](#running-the-development-server)
 - [Database Schema](#database-schema)
 - [Authentication and Authorization](#authentication-and-authorization)
+- [Subscription and Pricing Tiers](#subscription-and-pricing-tiers)
 - [Testing](#testing)
 - [Scripts Reference](#scripts-reference)
 - [License](#license)
@@ -96,17 +97,34 @@ LeadFlow is a full-stack lead intelligence and customer relationship management 
 - CSV export support.
 - Report run history with timestamps.
 
+### Subscription and Monetization
+- Five pricing tiers: Free, Starter ($49/mo), Growth ($129/mo), Business ($299/mo), Enterprise (custom).
+- Monthly and annual billing cycles (annual saves ~20%).
+- Feature gating: sidebar navigation, create mutations, and UI components respect the user's subscription tier.
+- Usage limit bars on leads, campaigns, and automation pages showing current usage vs. plan limits (amber at 80%, red at 100%).
+- Upgrade modal prompts when users hit a feature or resource limit.
+- Public pricing page (`/pricing`) with tier comparison cards and feature matrix.
+- Billing settings page (`/settings/billing`) showing current plan, usage summary, and change-plan CTA.
+- `FeatureGate` component for wrapping tier-restricted UI sections.
+- Admin tier management: admins can change any user's subscription tier from the admin users page.
+
 ### Admin Panel (admin-only access)
-- **User Management**: View all users, search by name/email, change roles (Admin, Manager, User), activate/deactivate accounts. Stats for total users, active users, admins, and recent signups.
+- **User Management**: View all users, search by name/email, change roles (Admin, Manager, User), change subscription tier, activate/deactivate accounts. Stats for total users, active users, admins, and recent signups.
 - **System Settings**: Grouped by category (Branding, General, Features, Limits, Security). Toggle switches for boolean settings, text inputs for string/JSON values, inline save with confirmation.
 - **Audit Logs**: Complete action log with search, filters (action type, resource type), expandable details showing old/new values and metadata, pagination, and stats (total logs, today's count, unique action types).
 
 ### Settings (per-user)
 - Profile management.
 - Team member management.
+- Billing & Plan management with usage overview.
 - Webhook configuration (inbound/outbound with event subscriptions, retry settings, IP allowlists).
-- API key management (scoped keys with expiration).
+- API key management (scoped keys with expiration, integration type selection: Supabase, Email Service, Phone/SMS, Webhook, CRM Sync, Custom).
 - Notification preferences.
+
+### Dashboard Quick Actions
+- Self-contained quick action panel on the dashboard for logging calls, emails, meetings, and notes without navigating away.
+- Each action opens a modal with context-specific fields (e.g., call outcome selector, meeting date/time picker).
+- Activities are logged directly via the `useCreateActivity` hook.
 
 ### Authentication
 - Email/password sign-in and registration via Supabase Auth.
@@ -138,22 +156,26 @@ leadflow-platform/
 |   |   |-- layout.tsx            # Dashboard shell with sidebar + header
 |   |   |-- dashboard/page.tsx    # Analytics dashboard
 |   |   |-- leads/                # Lead management
-|   |   |   |-- page.tsx          # Lead list with filters
+|   |   |   |-- page.tsx          # Lead list with filters + usage bar
 |   |   |   |-- new/page.tsx      # Create lead form
 |   |   |   |-- kanban/page.tsx   # Kanban board view
 |   |   |   +-- [id]/             # Lead detail, edit, contacts
 |   |   |-- contacts/page.tsx     # Global contacts directory
 |   |   |-- activities/page.tsx   # Activity feed
-|   |   |-- campaigns/            # Campaign management
-|   |   |-- automation/page.tsx   # Automation rules
+|   |   |-- campaigns/            # Campaign management (+ usage bar)
+|   |   |-- automation/page.tsx   # Automation rules (+ usage bar)
 |   |   |-- reports/page.tsx      # Reports
 |   |   +-- settings/             # User settings
 |   |       |-- layout.tsx        # Settings sidebar navigation
 |   |       |-- profile/page.tsx
 |   |       |-- team/page.tsx
+|   |       |-- billing/page.tsx  # Subscription plan & usage overview
 |   |       |-- webhooks/page.tsx
 |   |       |-- api-keys/page.tsx
 |   |       +-- notifications/page.tsx
+|   |-- pricing/                  # Public pricing page (no auth required)
+|   |   |-- layout.tsx            # Minimal layout (logo + sign-in link)
+|   |   +-- page.tsx              # 5-tier pricing cards + comparison table
 |   |-- admin/                    # Admin panel (role-restricted)
 |   |   |-- layout.tsx            # Admin layout with role check
 |   |   |-- users/page.tsx        # User management
@@ -178,8 +200,13 @@ leadflow-platform/
 |   |                             # EngagementScore, ContactsList, QuickActions
 |   |-- contacts/                 # ContactForm
 |   |-- campaigns/                # CampaignForm, CampaignCard
-|   +-- dashboard/                # KPICard, Charts, DateRangeSelector,
-|                                 # RecentActivityFeed, QuickActionsPanel
+|   |-- dashboard/                # KPICard, Charts, DateRangeSelector,
+|   |                             # RecentActivityFeed, QuickActionsPanel
+|   +-- subscription/             # Monetization components
+|       |-- index.ts              # Barrel export
+|       |-- UpgradeModal.tsx      # Upgrade prompt when limit/feature gate hit
+|       |-- UsageLimitBar.tsx     # Progress bar (usage vs plan limit)
+|       +-- FeatureGate.tsx       # Wrapper: renders children or locked state
 |
 |-- lib/                          # Shared libraries
 |   |-- supabase/                 # Supabase client configs
@@ -187,16 +214,18 @@ leadflow-platform/
 |   |   |-- server.ts             # Server client + service role client
 |   |   +-- middleware.ts         # Session refresh middleware
 |   |-- hooks/                    # React Query hooks
-|   |   |-- useLeads.ts           # Lead CRUD, stats, filters
+|   |   |-- useLeads.ts           # Lead CRUD, stats, filters (+ limit check)
 |   |   |-- useContacts.ts        # Contact CRUD
 |   |   |-- useActivities.ts      # Activities, customer journey
-|   |   |-- useCampaigns.ts       # Campaign CRUD, stats
-|   |   |-- useAutomation.ts      # Automation rules, logs, stats
-|   |   |-- useReports.ts         # Reports CRUD, generation, CSV export
+|   |   |-- useCampaigns.ts       # Campaign CRUD, stats (+ limit check)
+|   |   |-- useAutomation.ts      # Automation rules, logs, stats (+ limit check)
+|   |   |-- useReports.ts         # Reports CRUD, generation, CSV (+ limit check)
 |   |   |-- useAnalytics.ts       # Dashboard stats, trends, funnel, heatmap
-|   |   |-- useAdmin.ts           # Users, system settings, audit logs
+|   |   |-- useAdmin.ts           # Users, system settings, audit logs, tier mgmt
 |   |   |-- useWebhooks.ts        # Webhook config management
-|   |   +-- useApiKeys.ts         # API key management
+|   |   |-- useApiKeys.ts         # API key management
+|   |   |-- useSubscription.ts    # Subscription tier, can(), limit(), nearLimit()
+|   |   +-- useGatedMutation.ts   # checkResourceLimit() pre-flight helper
 |   |-- types/
 |   |   +-- database.ts           # Full Supabase database types
 |   |-- utils/
@@ -204,6 +233,7 @@ leadflow-platform/
 |   |   |-- formatters.ts         # Currency, number, phone, date formatting
 |   |   |-- validation.ts         # Zod schemas for forms
 |   |   |-- security.ts           # Security utilities
+|   |   |-- subscription.ts       # Plan definitions, limits, feature keys, helpers
 |   |   +-- index.ts              # cn() utility (clsx + tailwind-merge)
 |   +-- contexts/
 |       +-- ViewModeContext.tsx    # Admin view mode context
@@ -221,7 +251,8 @@ leadflow-platform/
 |   |   |-- 0008_reports.sql
 |   |   |-- 0009_audit_logs.sql
 |   |   |-- 0010_webhooks.sql
-|   |   +-- 0011_api_keys.sql
+|   |   |-- 0011_api_keys.sql
+|   |   +-- 20260209000000_add_subscription_tier.sql
 |   |-- combined_migrations.sql   # All migrations in one file
 |   +-- create_test_user.sql      # Helper to create a test user
 |
@@ -300,7 +331,7 @@ npx supabase db push
 **Option B: Using a hosted Supabase project**
 
 1. Open the SQL Editor in your Supabase Dashboard.
-2. Run the migration files in order from `supabase/migrations/` (0001 through 0011), or run the single combined file `supabase/combined_migrations.sql`.
+2. Run the migration files in order from `supabase/migrations/` (0001 through 0011, plus the subscription tier migration), or run the single combined file `supabase/combined_migrations.sql`.
 3. Optionally run `supabase/create_test_user.sql` to create a test account.
 
 ### Running the Development Server
@@ -326,7 +357,7 @@ The application uses the following tables, all with Row Level Security (RLS) ena
 
 | Table                  | Description                                                       |
 | ---------------------- | ----------------------------------------------------------------- |
-| `profiles`             | User profiles extending `auth.users` with role, name, avatar. Auto-created on signup via trigger. |
+| `profiles`             | User profiles extending `auth.users` with role, name, avatar, subscription tier, and billing cycle. Auto-created on signup via trigger. |
 | `businesses`           | Core leads table with 40+ fields: business info, address, social media, Google Business Profile data, website scores, lead scoring, deal info, tags, and custom fields. Full-text search index included. |
 | `contacts`             | People associated with a business lead (name, title, email, phone, LinkedIn, primary flag). |
 | `activities`           | Activity logs: emails, calls, SMS, meetings, notes, status changes, and more. |
@@ -359,6 +390,39 @@ How authentication is enforced:
 - **Admin panel**: The `admin/layout.tsx` performs a client-side role check, querying the `profiles` table, and redirects non-admins to `/dashboard`.
 - **Middleware**: `lib/supabase/middleware.ts` refreshes sessions on every request.
 - **Database**: Row Level Security policies on every table restrict data access based on the authenticated user's identity and role.
+
+---
+
+## Subscription and Pricing Tiers
+
+LeadFlow uses a five-tier subscription model. Each user's tier is stored in the `profiles` table (`subscription_tier` column) and defaults to `free`.
+
+| Feature | Free | Starter | Growth | Business | Enterprise |
+| --- | --- | --- | --- | --- | --- |
+| **Monthly Price** | $0 | $49 | $129 | $299 | Custom |
+| **Annual Price** | $0 | $39/mo | $109/mo | $249/mo | Contract |
+| **Leads** | 50 | 500 | 5,000 | 25,000 | Unlimited |
+| **Users** | 1 | 3 | 10 | 25 | Unlimited |
+| **Campaigns** | 1 | 5 | 25 | Unlimited | Unlimited |
+| **Automation Rules** | 0 | 3 | 20 | Unlimited | Unlimited |
+| **Saved Reports** | 0 | 5 | Unlimited | Unlimited | Unlimited |
+| **CSV Export** | -- | -- | Yes | Yes | Yes |
+| **Report Scheduling** | -- | -- | -- | Yes | Yes |
+| **API Access** | -- | -- | Yes | Yes | Yes |
+| **Webhooks** | -- | -- | Yes | Yes | Yes |
+| **Scoped API Keys** | -- | -- | -- | Yes | Yes |
+| **Admin Panel** | -- | -- | -- | Yes | Yes |
+| **Audit Logs** | -- | -- | -- | Yes | Yes |
+| **Team Roles (RBAC)** | -- | Yes | Yes | Yes | Yes |
+
+### How Feature Gating Works
+
+- **`useSubscription` hook**: Provides `can(feature)`, `limit(feature)`, `nearLimit(usage, feature)`, and `atLimit(usage, feature)` helpers.
+- **`checkResourceLimit(table, feature)`**: Pre-flight check used inside create mutations (`useCreateLead`, `useCreateCampaign`, etc.). Throws a `LimitReachedError` when the user's resource count reaches the plan limit.
+- **`FeatureGate` component**: Wraps UI sections and renders a locked state with the required plan name if the feature is not available on the user's tier.
+- **`UsageLimitBar` component**: Shows a progress bar with current usage vs. plan limit. Turns amber at 80% usage and red at 100%. Displays an upgrade button when near or at limit.
+- **`UpgradeModal` component**: Shown when a user hits a limit or tries to access a gated feature. Displays the current plan vs. required plan with upgrade CTAs.
+- **Sidebar gating**: Navigation items have an optional `requiredFeature` property. Items are hidden if the user's tier doesn't include the feature.
 
 ---
 

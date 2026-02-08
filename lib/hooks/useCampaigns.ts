@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import type { InsertTables, UpdateTables } from "@/lib/types/database";
+import { checkResourceLimit } from "@/lib/hooks/useGatedMutation";
 
 export interface CampaignFilters {
   status?: string;
@@ -74,6 +75,8 @@ export function useCreateCampaign() {
 
   return useMutation({
     mutationFn: async (campaign: InsertTables<"campaigns">) => {
+      await checkResourceLimit("campaigns", "campaigns");
+
       const { data, error } = await supabase
         .from("campaigns")
         .insert(campaign)

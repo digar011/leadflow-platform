@@ -8,6 +8,7 @@ import {
   Webhook,
   Key,
   Bell,
+  CreditCard,
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,12 @@ const settingsNavItems = [
     icon: User,
     label: "Profile",
     description: "Your personal information",
+  },
+  {
+    href: "/settings/billing",
+    icon: CreditCard,
+    label: "Billing & Plan",
+    description: "Manage your subscription",
   },
   {
     href: "/settings/team",

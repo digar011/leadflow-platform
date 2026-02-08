@@ -25,22 +25,34 @@ import { cn } from "@/lib/utils";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useViewMode } from "@/lib/contexts/ViewModeContext";
+import { usePermissions } from "@/lib/hooks/usePermissions";
+import { useSubscription } from "@/lib/hooks/useSubscription";
+import type { PermissionKey } from "@/lib/types/database";
+import type { FeatureKey } from "@/lib/utils/subscription";
 
-const navigation = [
+interface NavItem {
+  name: string;
+  href: string;
+  icon: typeof LayoutDashboard;
+  permission?: PermissionKey;
+  requiredFeature?: FeatureKey;
+}
+
+const navigation: NavItem[] = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Leads", href: "/leads", icon: Building2 },
-  { name: "Contacts", href: "/contacts", icon: Users },
-  { name: "Activities", href: "/activities", icon: Activity },
-  { name: "Campaigns", href: "/campaigns", icon: Megaphone },
-  { name: "Analytics", href: "/analytics", icon: BarChart3 },
-  { name: "Reports", href: "/reports", icon: FileText },
-  { name: "Automation", href: "/automation", icon: Zap },
+  { name: "Leads", href: "/leads", icon: Building2, permission: "leads.view" },
+  { name: "Contacts", href: "/contacts", icon: Users, permission: "contacts.view" },
+  { name: "Activities", href: "/activities", icon: Activity, permission: "activities.view" },
+  { name: "Campaigns", href: "/campaigns", icon: Megaphone, permission: "campaigns.view", requiredFeature: "campaigns" },
+  { name: "Analytics", href: "/analytics", icon: BarChart3, permission: "reports.view", requiredFeature: "savedReports" },
+  { name: "Reports", href: "/reports", icon: FileText, permission: "reports.view", requiredFeature: "savedReports" },
+  { name: "Automation", href: "/automation", icon: Zap, permission: "automation.view", requiredFeature: "automationRules" },
 ];
 
-const adminNavigation = [
+const adminNavigation: NavItem[] = [
   { name: "User Management", href: "/admin/users", icon: UserCog },
   { name: "System Settings", href: "/admin/settings", icon: Cog },
-  { name: "Audit Logs", href: "/admin/audit", icon: ScrollText },
+  { name: "Audit Logs", href: "/admin/audit", icon: ScrollText, requiredFeature: "auditLogs" },
 ];
 
 const bottomNavigation = [
@@ -56,9 +68,18 @@ export function Sidebar({ isAdmin: isAdminProp }: SidebarProps) {
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
   const { isAdminView } = useViewMode();
+  const { can } = usePermissions();
+  const { can: canFeature } = useSubscription();
 
   // Use context-based admin view, fall back to prop
   const isAdmin = isAdminProp !== undefined ? isAdminProp : isAdminView;
+
+  // Filter navigation items by permission and subscription feature
+  const visibleNavigation = navigation.filter(
+    (item) =>
+      (!item.permission || can(item.permission)) &&
+      (!item.requiredFeature || canFeature(item.requiredFeature))
+  );
 
   const handleLogout = async () => {
     const supabase = getSupabaseClient();
@@ -99,7 +120,7 @@ export function Sidebar({ isAdmin: isAdminProp }: SidebarProps) {
       {/* Main Navigation */}
       <nav className="flex-1 overflow-y-auto py-4">
         <ul className="space-y-1 px-2">
-          {navigation.map((item) => {
+          {visibleNavigation.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
               <li key={item.name}>
@@ -132,7 +153,7 @@ export function Sidebar({ isAdmin: isAdminProp }: SidebarProps) {
               </div>
             )}
             <ul className="space-y-1 px-2">
-              {adminNavigation.map((item) => {
+              {adminNavigation.filter((item) => !item.requiredFeature || canFeature(item.requiredFeature)).map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
                 return (
                   <li key={item.name}>

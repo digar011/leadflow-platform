@@ -126,7 +126,7 @@ export async function verifyPassword(
   const verifyHash = crypto
     .pbkdf2Sync(password, salt, 100000, 64, "sha512")
     .toString("hex");
-  return hash === verifyHash;
+  return crypto.timingSafeEqual(Buffer.from(hash, "hex"), Buffer.from(verifyHash, "hex"));
 }
 
 // API Key Generation
