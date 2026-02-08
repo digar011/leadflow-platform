@@ -24,6 +24,7 @@ import {
 import { cn } from "@/lib/utils";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { useViewMode } from "@/lib/contexts/ViewModeContext";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -50,10 +51,14 @@ interface SidebarProps {
   isAdmin?: boolean;
 }
 
-export function Sidebar({ isAdmin = false }: SidebarProps) {
+export function Sidebar({ isAdmin: isAdminProp }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
+  const { isAdminView } = useViewMode();
+
+  // Use context-based admin view, fall back to prop
+  const isAdmin = isAdminProp !== undefined ? isAdminProp : isAdminView;
 
   const handleLogout = async () => {
     const supabase = getSupabaseClient();

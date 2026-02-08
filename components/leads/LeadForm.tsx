@@ -41,20 +41,20 @@ export function LeadForm({ initialData, onSubmit, isLoading, mode }: LeadFormPro
     business_name: initialData?.business_name || "",
     email: initialData?.email || "",
     phone: initialData?.phone || "",
-    website: initialData?.website || "",
-    address: initialData?.address || "",
+    website_url: initialData?.website_url || "",
+    street_address: initialData?.street_address || "",
     city: initialData?.city || "",
     state: initialData?.state || "",
     zip_code: initialData?.zip_code || "",
     country: initialData?.country || "USA",
-    industry: initialData?.industry || "",
+    industry_category: initialData?.industry_category || "",
     status: initialData?.status || "new",
     lead_temperature: initialData?.lead_temperature || "warm",
     source: initialData?.source || "",
     deal_value: initialData?.deal_value?.toString() || "",
     expected_close_date: initialData?.expected_close_date?.split("T")[0] || "",
     next_follow_up: initialData?.next_follow_up?.split("T")[0] || "",
-    description: initialData?.description || "",
+    notes: initialData?.notes || "",
     tags: initialData?.tags || [],
   });
 
@@ -94,20 +94,19 @@ export function LeadForm({ initialData, onSubmit, isLoading, mode }: LeadFormPro
       business_name: formData.business_name,
       email: formData.email || null,
       phone: formData.phone || null,
-      website: formData.website || null,
-      address: formData.address || null,
+      website_url: formData.website_url || null,
+      street_address: formData.street_address || null,
       city: formData.city || null,
       state: formData.state || null,
       zip_code: formData.zip_code || null,
       country: formData.country || null,
-      industry: formData.industry || null,
+      industry_category: formData.industry_category || null,
       status: formData.status,
       lead_temperature: formData.lead_temperature || null,
       source: formData.source || null,
       deal_value: formData.deal_value ? parseFloat(formData.deal_value) : null,
       expected_close_date: formData.expected_close_date || null,
-      next_follow_up: formData.next_follow_up || null,
-      description: formData.description || null,
+      notes: formData.notes || null,
       tags: formData.tags.length > 0 ? formData.tags : null,
     };
 
@@ -174,16 +173,16 @@ export function LeadForm({ initialData, onSubmit, isLoading, mode }: LeadFormPro
             label="Website"
             type="url"
             placeholder="https://www.example.com"
-            value={formData.website}
-            onChange={(e) => updateField("website", e.target.value)}
-            error={errors.website}
+            value={formData.website_url}
+            onChange={(e) => updateField("website_url", e.target.value)}
+            error={errors.website_url}
             leftIcon={<Globe className="h-4 w-4" />}
           />
           <Select
             label="Industry"
-            value={formData.industry}
-            onChange={(e) => updateField("industry", e.target.value)}
-            error={errors.industry}
+            value={formData.industry_category}
+            onChange={(e) => updateField("industry_category", e.target.value)}
+            error={errors.industry_category}
             placeholder="Select industry..."
             options={INDUSTRIES}
           />
@@ -202,9 +201,9 @@ export function LeadForm({ initialData, onSubmit, isLoading, mode }: LeadFormPro
           <Input
             label="Street Address"
             placeholder="123 Main St"
-            value={formData.address}
-            onChange={(e) => updateField("address", e.target.value)}
-            error={errors.address}
+            value={formData.street_address}
+            onChange={(e) => updateField("street_address", e.target.value)}
+            error={errors.street_address}
             className="md:col-span-2"
           />
           <Input
@@ -357,11 +356,11 @@ export function LeadForm({ initialData, onSubmit, isLoading, mode }: LeadFormPro
             className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-text-primary placeholder:text-text-muted focus:outline-none focus:border-gold/50 focus:ring-1 focus:ring-gold/50 resize-none"
             rows={4}
             placeholder="Add notes about this lead..."
-            value={formData.description}
-            onChange={(e) => updateField("description", e.target.value)}
+            value={formData.notes}
+            onChange={(e) => updateField("notes", e.target.value)}
           />
-          {errors.description && (
-            <p className="mt-1 text-sm text-status-error">{errors.description}</p>
+          {errors.notes && (
+            <p className="mt-1 text-sm text-status-error">{errors.notes}</p>
           )}
         </CardContent>
       </Card>

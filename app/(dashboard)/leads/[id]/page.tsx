@@ -37,6 +37,7 @@ import { useCustomerJourney, useCreateActivity } from "@/lib/hooks/useActivities
 import { useContacts, useSetPrimaryContact, useDeleteContact } from "@/lib/hooks/useContacts";
 import { formatCurrency, formatPhoneNumber, formatDate } from "@/lib/utils/formatters";
 import { cn } from "@/lib/utils";
+import type { ActivityType, Json } from "@/lib/types/database";
 
 export default function LeadDetailPage() {
   const params = useParams();
@@ -73,10 +74,10 @@ export default function LeadDetailPage() {
   }) => {
     await createActivity.mutateAsync({
       business_id: leadId,
-      activity_type: activity.type,
-      title: activity.title,
+      activity_type: activity.type as ActivityType,
+      subject: activity.title,
       description: activity.description || null,
-      metadata: activity.metadata || null,
+      metadata: (activity.metadata as Json) || null,
     });
   };
 
@@ -125,13 +126,14 @@ export default function LeadDetailPage() {
   }
 
   // Calculate engagement score factors
+  const lastActivity = lead.activities?.[0];
   const engagementFactors = [
-    ...(lead.last_contact_date
+    ...(lastActivity
       ? [
           {
             name: "Recent contact",
             impact: "positive" as const,
-            description: formatDate(lead.last_contact_date),
+            description: formatDate(lastActivity.created_at),
           },
         ]
       : [
@@ -201,7 +203,7 @@ export default function LeadDetailPage() {
               )}
             </div>
             <div className="flex items-center gap-4 mt-1 text-sm text-text-secondary">
-              {lead.industry && <span>{lead.industry}</span>}
+              {lead.industry_category && <span>{lead.industry_category}</span>}
               {lead.city && (
                 <span className="flex items-center gap-1">
                   <MapPin className="h-3 w-3" />
@@ -276,25 +278,25 @@ export default function LeadDetailPage() {
                   </a>
                 </div>
               )}
-              {lead.website && (
+              {lead.website_url && (
                 <div className="flex items-center gap-2">
                   <Globe className="h-4 w-4 text-text-muted" />
                   <a
-                    href={lead.website}
+                    href={lead.website_url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-text-secondary hover:text-gold transition-colors flex items-center gap-1"
                   >
-                    {lead.website.replace(/^https?:\/\//, "")}
+                    {lead.website_url.replace(/^https?:\/\//, "")}
                     <ExternalLink className="h-3 w-3" />
                   </a>
                 </div>
               )}
-              {lead.address && (
+              {lead.street_address && (
                 <div className="flex items-start gap-2 col-span-2">
                   <MapPin className="h-4 w-4 text-text-muted mt-0.5" />
                   <span className="text-text-secondary">
-                    {lead.address}
+                    {lead.street_address}
                     {lead.city && `, ${lead.city}`}
                     {lead.state && `, ${lead.state}`}
                     {lead.zip_code && ` ${lead.zip_code}`}
@@ -385,14 +387,12 @@ export default function LeadDetailPage() {
                     contacts={
                       contacts?.map((c) => ({
                         id: c.id,
-                        first_name: c.first_name,
-                        last_name: c.last_name,
+                        first_name: c.first_name || "",
+                        last_name: c.last_name || "",
                         email: c.email || undefined,
                         phone: c.phone || undefined,
-                        job_title: c.job_title || undefined,
+                        job_title: c.title || undefined,
                         is_primary: c.is_primary,
-                        department: c.department || undefined,
-                        notes: c.notes || undefined,
                       })) || []
                     }
                     onAddContact={() => router.push(`/leads/${leadId}/contacts/new`)}
@@ -457,9 +457,9 @@ export default function LeadDetailPage() {
             </CardHeader>
             <CardContent>
               <EngagementScore
-                score={lead.engagement_score || 50}
+                score={lead.lead_score || 50}
                 previousScore={45}
-                lastActivityDate={lead.last_contact_date || undefined}
+                lastActivityDate={lastActivity?.created_at || undefined}
                 factors={engagementFactors}
               />
             </CardContent>
@@ -475,7 +475,7 @@ export default function LeadDetailPage() {
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
                     <span className="text-gold font-medium">
-                      {lead.profiles.full_name
+                      {(lead.profiles.full_name || "?")
                         .split(" ")
                         .map((n: string) => n[0])
                         .join("")}
@@ -507,22 +507,20 @@ export default function LeadDetailPage() {
                   {formatDate(lead.created_at)}
                 </span>
               </div>
-              {lead.last_contact_date && (
+              {lastActivity && (
                 <div className="flex justify-between text-sm">
-                  <span className="text-text-muted">Last Contact</span>
+                  <span className="text-text-muted">Last Activity</span>
                   <span className="text-text-secondary">
-                    {formatDate(lead.last_contact_date)}
+                    {formatDate(lastActivity.created_at)}
                   </span>
                 </div>
               )}
-              {lead.next_follow_up && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-text-muted">Next Follow-up</span>
-                  <span className="text-gold font-medium">
-                    {formatDate(lead.next_follow_up)}
-                  </span>
-                </div>
-              )}
+              <div className="flex justify-between text-sm">
+                <span className="text-text-muted">Last Updated</span>
+                <span className="text-text-secondary">
+                  {formatDate(lead.updated_at)}
+                </span>
+              </div>
               {lead.expected_close_date && (
                 <div className="flex justify-between text-sm">
                   <span className="text-text-muted">Expected Close</span>
@@ -554,28 +552,28 @@ export default function LeadDetailPage() {
               </div>
               <div className="text-center p-3 rounded-lg bg-white/5">
                 <p className="text-2xl font-bold text-gold">
-                  {lead.total_interactions || 0}
+                  {lead.lead_score || 0}
                 </p>
-                <p className="text-xs text-text-muted">Total Calls</p>
+                <p className="text-xs text-text-muted">Lead Score</p>
               </div>
               <div className="text-center p-3 rounded-lg bg-white/5">
                 <p className="text-2xl font-bold text-gold">
-                  {lead.total_emails || 0}
+                  {lead.activities?.length || 0}
                 </p>
-                <p className="text-xs text-text-muted">Emails Sent</p>
+                <p className="text-xs text-text-muted">Activities</p>
               </div>
             </CardContent>
           </Card>
 
           {/* Description */}
-          {lead.description && (
+          {lead.notes && (
             <Card variant="glass">
               <CardHeader>
-                <CardTitle className="text-sm">Description</CardTitle>
+                <CardTitle className="text-sm">Notes</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-text-secondary whitespace-pre-wrap">
-                  {lead.description}
+                  {lead.notes}
                 </p>
               </CardContent>
             </Card>
@@ -589,10 +587,10 @@ export default function LeadDetailPage() {
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleDelete}
         title="Delete Lead"
-        description={`Are you sure you want to delete "${lead.business_name}"? This action cannot be undone and will remove all associated contacts, activities, and touchpoints.`}
+        message={`Are you sure you want to delete "${lead.business_name}"? This action cannot be undone and will remove all associated contacts, activities, and touchpoints.`}
         confirmText="Delete Lead"
         variant="danger"
-        isLoading={deleteLead.isPending}
+        loading={deleteLead.isPending}
       />
     </div>
   );

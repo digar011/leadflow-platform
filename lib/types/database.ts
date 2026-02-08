@@ -108,6 +108,7 @@ export interface Database {
           last_sign_in_at?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
       businesses: {
         Row: {
@@ -246,6 +247,7 @@ export interface Database {
           expected_close_date?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
       contacts: {
         Row: {
@@ -285,6 +287,7 @@ export interface Database {
           is_primary?: boolean;
           updated_at?: string;
         };
+        Relationships: [];
       };
       activities: {
         Row: {
@@ -327,6 +330,7 @@ export interface Database {
           completed_at?: string | null;
           metadata?: Json;
         };
+        Relationships: [];
       };
       touchpoints: {
         Row: {
@@ -363,6 +367,7 @@ export interface Database {
           metadata?: Json;
           occurred_at?: string;
         };
+        Relationships: [];
       };
       campaigns: {
         Row: {
@@ -404,6 +409,7 @@ export interface Database {
           ended_at?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
       landing_pages: {
         Row: {
@@ -445,6 +451,7 @@ export interface Database {
           visit_count?: number;
           conversion_count?: number;
         };
+        Relationships: [];
       };
       analytics_snapshots: {
         Row: {
@@ -490,6 +497,7 @@ export interface Database {
           revenue_pipeline?: number | null;
           revenue_closed?: number | null;
         };
+        Relationships: [];
       };
       automation_rules: {
         Row: {
@@ -537,6 +545,7 @@ export interface Database {
           trigger_count?: number;
           updated_at?: string;
         };
+        Relationships: [];
       };
       reports: {
         Row: {
@@ -581,6 +590,7 @@ export interface Database {
           last_generated_at?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
       audit_logs: {
         Row: {
@@ -620,6 +630,7 @@ export interface Database {
           ip_address?: string | null;
           user_agent?: string | null;
         };
+        Relationships: [];
       };
       webhook_configs: {
         Row: {
@@ -673,6 +684,7 @@ export interface Database {
           last_triggered_at?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
       api_keys: {
         Row: {
@@ -708,6 +720,7 @@ export interface Database {
           expires_at?: string | null;
           is_active?: boolean;
         };
+        Relationships: [];
       };
       system_settings: {
         Row: {
@@ -741,6 +754,7 @@ export interface Database {
           updated_by?: string | null;
           updated_at?: string;
         };
+        Relationships: [];
       };
     };
     Views: {

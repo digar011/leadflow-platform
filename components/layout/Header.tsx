@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Bell, Plus, User } from "lucide-react";
+import { Search, Bell, Plus, User, Shield, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { useViewMode } from "@/lib/contexts/ViewModeContext";
 
 interface HeaderProps {
   title?: string;
@@ -12,6 +13,7 @@ interface HeaderProps {
 
 export function Header({ title, subtitle }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const { isRealAdmin, isAdminView, toggleViewMode, loading } = useViewMode();
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-white/5 bg-background/80 px-6 backdrop-blur-xl">
@@ -40,6 +42,44 @@ export function Header({ title, subtitle }: HeaderProps) {
 
       {/* Right side - Actions */}
       <div className="flex items-center gap-3">
+        {/* Admin/User View Toggle - only shown for real admins */}
+        {isRealAdmin && !loading && (
+          <button
+            onClick={toggleViewMode}
+            className={cn(
+              "flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-200 border",
+              isAdminView
+                ? "border-gold/40 bg-gold/10 text-gold hover:bg-gold/20"
+                : "border-white/10 bg-white/5 text-text-secondary hover:bg-white/10 hover:text-text-primary"
+            )}
+          >
+            {isAdminView ? (
+              <>
+                <Shield className="h-4 w-4" />
+                <span>Admin</span>
+              </>
+            ) : (
+              <>
+                <Monitor className="h-4 w-4" />
+                <span>User</span>
+              </>
+            )}
+            <div
+              className={cn(
+                "relative ml-1 h-5 w-9 rounded-full transition-colors duration-200",
+                isAdminView ? "bg-gold" : "bg-white/20"
+              )}
+            >
+              <div
+                className={cn(
+                  "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200",
+                  isAdminView ? "translate-x-4" : "translate-x-0.5"
+                )}
+              />
+            </div>
+          </button>
+        )}
+
         {/* Quick Add */}
         <Button size="sm" leftIcon={<Plus className="h-4 w-4" />}>
           Add Lead

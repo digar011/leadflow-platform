@@ -36,7 +36,7 @@ export function useLeads(options: UseLeadsOptions = {}) {
     queryFn: async () => {
       let query = supabase
         .from("businesses")
-        .select("*, profiles!businesses_assigned_to_fkey(full_name, email)", {
+        .select("*", {
           count: "exact",
         });
 
@@ -103,20 +103,33 @@ export function useLead(id: string) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("businesses")
-        .select(
-          `
-          *,
-          profiles!businesses_assigned_to_fkey(id, full_name, email, avatar_url),
-          contacts(*),
-          activities(*, profiles(full_name)),
-          touchpoints(*)
-        `
-        )
+        .select("*")
         .eq("id", id)
         .single();
 
       if (error) throw error;
-      return data;
+
+      // Fetch related data separately to avoid FK join failures
+      const [contactsResult, activitiesResult] = await Promise.allSettled([
+        supabase.from("contacts").select("*").eq("business_id", id),
+        supabase.from("activities").select("*").eq("business_id", id).order("created_at", { ascending: false }),
+      ]);
+
+      const contacts = contactsResult.status === "fulfilled" ? contactsResult.value.data : [];
+      const activities = activitiesResult.status === "fulfilled" ? activitiesResult.value.data : [];
+
+      // Fetch assigned profile if exists
+      let profiles = null;
+      if (data.assigned_to) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("id, full_name, email, avatar_url")
+          .eq("id", data.assigned_to)
+          .single();
+        profiles = profile;
+      }
+
+      return { ...data, profiles, contacts, activities, touchpoints: [] };
     },
     enabled: !!id,
   });
@@ -135,6 +148,18 @@ export function useCreateLead() {
         .single();
 
       if (error) throw error;
+
+      // Auto-create a primary contact if email or phone is provided
+      if (data && (lead.email || lead.phone)) {
+        await supabase.from("contacts").insert({
+          business_id: data.id,
+          first_name: lead.business_name,
+          email: lead.email || null,
+          phone: lead.phone || null,
+          is_primary: true,
+        });
+      }
+
       return data;
     },
     onSuccess: () => {

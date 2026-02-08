@@ -37,7 +37,7 @@ export function useAutomationRule(id: string) {
         .select(`
           *,
           profiles(full_name),
-          automation_logs(id, status, executed_at, error_message)
+          automation_logs(id, status, created_at, error_message)
         `)
         .eq("id", id)
         .single();
@@ -182,12 +182,17 @@ export function useAutomationStats() {
 
       // Get recent log counts
       const { count: totalExecutions, error: execError } = await supabase
-        .from("automation_rules")
+        .from("automation_logs")
         .select("*", { count: "exact", head: true });
 
       if (execError) throw execError;
 
-      const successfulExecutions = 0;
+      const { count: successfulExecutions, error: successError } = await supabase
+        .from("automation_logs")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "success");
+
+      if (successError) throw successError;
 
       return {
         totalRules: rules.length,
