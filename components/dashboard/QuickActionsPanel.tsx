@@ -141,7 +141,7 @@ export function QuickActionsPanel() {
               const content = (
                 <div
                   className={cn(
-                    "flex flex-col items-center justify-center gap-2 rounded-lg transition-colors cursor-pointer aspect-square",
+                    "flex flex-col items-center justify-center gap-2 rounded-lg transition-all duration-150 cursor-pointer aspect-square hover:scale-[1.03] hover:shadow-lg hover:shadow-gold/10 active:scale-95",
                     action.color
                   )}
                 >

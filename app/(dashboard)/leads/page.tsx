@@ -2,14 +2,15 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Plus, Upload, LayoutGrid, List } from "lucide-react";
+import { Plus, Upload, LayoutGrid, List, Trash2, RefreshCw, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
+import { ConfirmModal } from "@/components/ui/Modal";
 import { LeadFilters } from "@/components/leads/LeadFilters";
 import { LeadTable } from "@/components/leads/LeadTable";
 import { ExportButton } from "@/components/leads/ExportButton";
 import { ImportModal } from "@/components/leads/ImportModal";
-import { useLeads, useLeadStats, useDeleteLead, useUpdateLead, type LeadFilters as LeadFiltersType, type LeadSort } from "@/lib/hooks/useLeads";
+import { useLeads, useLeadStats, useDeleteLead, useUpdateLead, useBulkUpdateLeads, type LeadFilters as LeadFiltersType, type LeadSort } from "@/lib/hooks/useLeads";
 import type { LeadStatus } from "@/lib/types/database";
 import { formatCurrency, formatCompactNumber } from "@/lib/utils/formatters";
 import { UsageLimitBar } from "@/components/subscription";
@@ -23,13 +24,38 @@ export default function LeadsPage() {
   const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
   const [showImport, setShowImport] = useState(false);
+  const [bulkStatus, setBulkStatus] = useState<LeadStatus | null>(null);
+  const [showBulkDelete, setShowBulkDelete] = useState(false);
 
   const { data, isLoading, error } = useLeads({ page, pageSize, filters, sort });
   const { data: stats } = useLeadStats();
   const deleteLead = useDeleteLead();
   const updateLead = useUpdateLead();
+  const bulkUpdate = useBulkUpdateLeads();
   const { can } = useSubscription();
   const canPipeline = can("pipelineView");
+
+  const handleBulkStatusChange = async (status: LeadStatus) => {
+    try {
+      await bulkUpdate.mutateAsync({ ids: selectedLeads, updates: { status } });
+      setSelectedLeads([]);
+      setBulkStatus(null);
+    } catch (error) {
+      console.error("Failed to bulk update:", error);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    try {
+      for (const id of selectedLeads) {
+        await deleteLead.mutateAsync(id);
+      }
+      setSelectedLeads([]);
+      setShowBulkDelete(false);
+    } catch (error) {
+      console.error("Failed to bulk delete:", error);
+    }
+  };
 
   const handleSort = (column: string) => {
     setSort((prev) => ({
@@ -129,15 +155,58 @@ export default function LeadsPage() {
       {/* Filters */}
       <LeadFilters filters={filters} onFiltersChange={handleFiltersChange} />
 
-      {/* View Toggle and Bulk Actions */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {selectedLeads.length > 0 && (
-            <span className="text-sm text-text-secondary">
-              {selectedLeads.length} selected
-            </span>
-          )}
+      {/* Bulk Actions Bar */}
+      {selectedLeads.length > 0 && (
+        <div className="flex items-center gap-3 rounded-lg border border-gold/30 bg-gold/5 px-4 py-2.5">
+          <span className="text-sm font-medium text-gold">
+            {selectedLeads.length} selected
+          </span>
+          <div className="h-4 w-px bg-white/10" />
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setBulkStatus(bulkStatus ? null : "new")}
+              leftIcon={<RefreshCw className="h-3.5 w-3.5" />}
+            >
+              Change Status
+            </Button>
+            {bulkStatus !== null && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setBulkStatus(null)} />
+                <div className="absolute left-0 top-full z-20 mt-1 w-44 rounded-lg bg-background-secondary border border-white/10 py-1 shadow-lg">
+                  {(["new", "contacted", "qualified", "proposal", "negotiation", "won", "lost"] as LeadStatus[]).map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => handleBulkStatusChange(s)}
+                      className="w-full px-4 py-1.5 text-left text-sm text-text-secondary hover:bg-white/5 hover:text-text-primary capitalize transition-colors"
+                    >
+                      {s.replace(/_/g, " ")}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowBulkDelete(true)}
+            leftIcon={<Trash2 className="h-3.5 w-3.5" />}
+            className="text-status-error hover:text-status-error"
+          >
+            Delete
+          </Button>
+          <div className="ml-auto">
+            <Button variant="ghost" size="sm" onClick={() => setSelectedLeads([])}>
+              <X className="h-3.5 w-3.5" />
+            </Button>
+          </div>
         </div>
+      )}
+
+      {/* View Toggle */}
+      <div className="flex items-center justify-end">
         <div className="flex items-center gap-2">
           <Button
             variant={viewMode === "list" ? "secondary" : "ghost"}
@@ -197,6 +266,17 @@ export default function LeadsPage() {
 
       {/* Import Modal */}
       <ImportModal isOpen={showImport} onClose={() => setShowImport(false)} />
+
+      {/* Bulk Delete Confirmation */}
+      <ConfirmModal
+        isOpen={showBulkDelete}
+        onClose={() => setShowBulkDelete(false)}
+        onConfirm={handleBulkDelete}
+        title="Delete Selected Leads"
+        message={`Are you sure you want to delete ${selectedLeads.length} lead${selectedLeads.length > 1 ? "s" : ""}? This action cannot be undone.`}
+        confirmText="Delete All"
+        variant="danger"
+      />
     </div>
   );
 }
