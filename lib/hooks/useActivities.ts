@@ -3,6 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import type { Tables, InsertTables } from "@/lib/types/database";
+import { useRealtimeSubscription } from "@/lib/hooks/useRealtime";
 
 type ActivityWithProfile = Tables<"activities"> & {
   profiles: { full_name: string | null } | null;
@@ -18,6 +19,7 @@ export interface ActivityFilters {
 
 export function useActivities(filters: ActivityFilters = {}) {
   const supabase = getSupabaseClient();
+  useRealtimeSubscription("activities", [["activities"]]);
 
   return useQuery({
     queryKey: ["activities", filters],

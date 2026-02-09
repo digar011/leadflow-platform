@@ -95,6 +95,39 @@ async function executeRule(
           supabase
         );
         break;
+      case "create_task":
+        actionResult = await executeCreateTask(
+          actionConfig,
+          triggerData,
+          ruleId,
+          userId,
+          supabase
+        );
+        break;
+      case "update_status":
+        actionResult = await executeUpdateStatus(
+          actionConfig,
+          triggerData,
+          userId,
+          supabase
+        );
+        break;
+      case "assign_user":
+        actionResult = await executeAssignUser(
+          actionConfig,
+          triggerData,
+          userId,
+          supabase
+        );
+        break;
+      case "send_webhook":
+        actionResult = await executeSendWebhook(
+          actionConfig,
+          triggerData,
+          userId,
+          supabase
+        );
+        break;
       default:
         throw new Error(`Unsupported action type: ${actionType}`);
     }
@@ -226,4 +259,181 @@ async function executeSendEmail(
     recipientEmail,
     template: templateType,
   };
+}
+
+async function executeCreateTask(
+  actionConfig: Record<string, unknown>,
+  triggerData: TriggerData,
+  ruleId: string,
+  userId: string,
+  supabase: ReturnType<typeof createClient>
+): Promise<Record<string, unknown>> {
+  const taskType = (actionConfig.task_type as string) || "follow_up";
+  const dueDays = (actionConfig.due_days as number) || 1;
+  const description =
+    (actionConfig.description as string) ||
+    `Follow up with ${triggerData.businessName}`;
+
+  const scheduledFor = new Date();
+  scheduledFor.setDate(scheduledFor.getDate() + dueDays);
+
+  const { data, error } = await supabase
+    .from("scheduled_tasks")
+    .insert({
+      rule_id: ruleId,
+      business_id: triggerData.businessId,
+      task_type: taskType,
+      task_config: { description, ...actionConfig },
+      scheduled_for: scheduledFor.toISOString(),
+      status: "pending",
+    })
+    .select("id")
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to create task: ${error.message}`);
+  }
+
+  await supabase.from("activities").insert({
+    business_id: triggerData.businessId,
+    user_id: userId,
+    activity_type: "task_completed",
+    subject: `Automated task created: ${taskType}`,
+    description: `Task "${description}" scheduled for ${scheduledFor.toLocaleDateString()}`,
+    metadata: { task_id: data?.id, task_type: taskType, automated: true },
+  });
+
+  return { taskId: data?.id, taskType, scheduledFor: scheduledFor.toISOString() };
+}
+
+async function executeUpdateStatus(
+  actionConfig: Record<string, unknown>,
+  triggerData: TriggerData,
+  userId: string,
+  supabase: ReturnType<typeof createClient>
+): Promise<Record<string, unknown>> {
+  const newStatus = actionConfig.new_status as string;
+  if (!newStatus) {
+    throw new Error("Missing new_status in action config");
+  }
+
+  const { error } = await supabase
+    .from("businesses")
+    .update({ status: newStatus })
+    .eq("id", triggerData.businessId);
+
+  if (error) {
+    throw new Error(`Failed to update status: ${error.message}`);
+  }
+
+  await supabase.from("activities").insert({
+    business_id: triggerData.businessId,
+    user_id: userId,
+    activity_type: "status_change",
+    subject: `Status changed to ${newStatus}`,
+    description: `Lead status automatically changed to "${newStatus}" by automation`,
+    metadata: { new_status: newStatus, automated: true },
+  });
+
+  return { newStatus, businessId: triggerData.businessId };
+}
+
+async function executeAssignUser(
+  actionConfig: Record<string, unknown>,
+  triggerData: TriggerData,
+  userId: string,
+  supabase: ReturnType<typeof createClient>
+): Promise<Record<string, unknown>> {
+  const assignTo = actionConfig.assign_to as string;
+  if (!assignTo) {
+    throw new Error("Missing assign_to in action config");
+  }
+
+  const { error } = await supabase
+    .from("businesses")
+    .update({ assigned_to: assignTo })
+    .eq("id", triggerData.businessId);
+
+  if (error) {
+    throw new Error(`Failed to assign user: ${error.message}`);
+  }
+
+  // Look up assignee name for the activity log
+  const { data: assignee } = await supabase
+    .from("profiles")
+    .select("full_name")
+    .eq("id", assignTo)
+    .single();
+
+  const assigneeName = assignee?.full_name || assignTo;
+
+  await supabase.from("activities").insert({
+    business_id: triggerData.businessId,
+    user_id: userId,
+    activity_type: "note",
+    subject: `Lead assigned to ${assigneeName}`,
+    description: `Lead "${triggerData.businessName}" automatically assigned to ${assigneeName} by automation`,
+    metadata: { assign_to: assignTo, assignee_name: assigneeName, automated: true },
+  });
+
+  return { assignedTo: assignTo, assigneeName, businessId: triggerData.businessId };
+}
+
+async function executeSendWebhook(
+  actionConfig: Record<string, unknown>,
+  triggerData: TriggerData,
+  userId: string,
+  supabase: ReturnType<typeof createClient>
+): Promise<Record<string, unknown>> {
+  const url = actionConfig.url as string;
+  if (!url) {
+    throw new Error("Missing url in action config");
+  }
+
+  // SSRF prevention: only allow HTTPS URLs
+  if (!url.startsWith("https://")) {
+    throw new Error("Webhook URL must use HTTPS");
+  }
+
+  const customHeaders = (actionConfig.headers as Record<string, string>) || {};
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...customHeaders,
+      },
+      body: JSON.stringify({
+        event: "automation_trigger",
+        data: triggerData,
+        timestamp: new Date().toISOString(),
+      }),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Webhook returned ${response.status}: ${response.statusText}`);
+    }
+
+    await supabase.from("activities").insert({
+      business_id: triggerData.businessId,
+      user_id: userId,
+      activity_type: "note",
+      subject: "Webhook sent",
+      description: `Automated webhook sent to ${new URL(url).hostname}`,
+      metadata: {
+        webhook_url: url,
+        response_status: response.status,
+        automated: true,
+      },
+    });
+
+    return { url, status: response.status, success: true };
+  } finally {
+    clearTimeout(timeout);
+  }
 }

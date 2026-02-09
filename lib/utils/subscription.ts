@@ -5,6 +5,7 @@ export type FeatureKey =
   | "users"
   | "campaigns"
   | "automationRules"
+  | "pipelineView"
   | "savedReports"
   | "csvExport"
   | "reportScheduling"
@@ -42,10 +43,11 @@ export const PLAN_DEFINITIONS: Record<SubscriptionTier, PlanDefinition> = {
     monthlyPrice: 0,
     annualPrice: 0,
     limits: {
-      leads: 50,
+      leads: 25,
       users: 1,
-      campaigns: 1,
+      campaigns: 0,
       automationRules: 0,
+      pipelineView: false,
       savedReports: 0,
       csvExport: false,
       reportScheduling: false,
@@ -75,6 +77,7 @@ export const PLAN_DEFINITIONS: Record<SubscriptionTier, PlanDefinition> = {
       users: 3,
       campaigns: 5,
       automationRules: 3,
+      pipelineView: true,
       savedReports: 5,
       csvExport: false,
       reportScheduling: false,
@@ -104,6 +107,7 @@ export const PLAN_DEFINITIONS: Record<SubscriptionTier, PlanDefinition> = {
       users: 10,
       campaigns: 25,
       automationRules: 20,
+      pipelineView: true,
       savedReports: Infinity,
       csvExport: true,
       reportScheduling: false,
@@ -134,6 +138,7 @@ export const PLAN_DEFINITIONS: Record<SubscriptionTier, PlanDefinition> = {
       users: 25,
       campaigns: Infinity,
       automationRules: Infinity,
+      pipelineView: true,
       savedReports: Infinity,
       csvExport: true,
       reportScheduling: true,
@@ -163,6 +168,7 @@ export const PLAN_DEFINITIONS: Record<SubscriptionTier, PlanDefinition> = {
       users: Infinity,
       campaigns: Infinity,
       automationRules: Infinity,
+      pipelineView: true,
       savedReports: Infinity,
       csvExport: true,
       reportScheduling: true,
@@ -266,6 +272,7 @@ export const PLAN_FEATURE_ROWS: PlanFeatureRow[] = [
   { label: "Team Members", feature: "users", category: "core" },
   { label: "Campaigns", feature: "campaigns", category: "core" },
   { label: "Automation Rules", feature: "automationRules", category: "core" },
+  { label: "Pipeline View", feature: "pipelineView", category: "core" },
   { label: "Saved Reports", feature: "savedReports", category: "reports" },
   { label: "CSV Export", feature: "csvExport", category: "reports" },
   { label: "Report Scheduling", feature: "reportScheduling", category: "reports" },

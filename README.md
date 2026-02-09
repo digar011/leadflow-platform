@@ -89,6 +89,17 @@ LeadFlow is a full-stack lead intelligence and customer relationship management 
 - Actions: Send Email Notification, Create Task, Assign to User, Update Status, Update Lead Score, Add to Campaign, Send Webhook, Add Tag.
 - Toggle rules active/inactive, view execution history and success rates.
 - Recent automation activity log with per-rule execution tracking.
+- Auto-triggers on lead creation and status changes (fire-and-forget).
+
+### Real-Time Updates
+- Supabase Realtime subscriptions for live data sync across browser tabs.
+- Automatic React Query cache invalidation on database changes.
+- Enabled for leads, contacts, and activities.
+
+### Integrations
+- **Stripe**: Checkout sessions, customer portal, webhook handling for subscription management.
+- **Resend**: Transactional email sending with HTML templates.
+- **Webhooks**: Outbound webhook automation action with HTTPS enforcement and 10s timeout.
 
 ### Reports
 - Report types: Leads, Activities, Campaigns, Pipeline, Team Performance, Custom.
@@ -293,6 +304,17 @@ Create a `.env.local` file in the project root with the following variables:
 | `NEXT_PUBLIC_SUPABASE_URL`        | Supabase project URL                | Yes      |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY`   | Supabase anonymous (public) key     | Yes      |
 | `SUPABASE_SERVICE_ROLE_KEY`       | Supabase service role key (server)  | Yes      |
+| `STRIPE_SECRET_KEY`               | Stripe secret key for payments      | No       |
+| `STRIPE_WEBHOOK_SECRET`           | Stripe webhook signature secret     | No       |
+| `RESEND_API_KEY`                  | Resend API key for email sending    | No       |
+| `STRIPE_PRICE_STARTER_MONTHLY`    | Stripe Price ID for Starter monthly | No       |
+| `STRIPE_PRICE_STARTER_ANNUAL`     | Stripe Price ID for Starter annual  | No       |
+| `STRIPE_PRICE_GROWTH_MONTHLY`     | Stripe Price ID for Growth monthly  | No       |
+| `STRIPE_PRICE_GROWTH_ANNUAL`      | Stripe Price ID for Growth annual   | No       |
+| `STRIPE_PRICE_BUSINESS_MONTHLY`   | Stripe Price ID for Business monthly| No       |
+| `STRIPE_PRICE_BUSINESS_ANNUAL`    | Stripe Price ID for Business annual | No       |
+
+> **Note:** The app validates environment variables at startup. Missing required vars will throw an error. Missing optional vars will log warnings but the app will still run with those features disabled.
 
 Example `.env.local`:
 
@@ -300,6 +322,9 @@ Example `.env.local`:
 NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6...
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6...
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+RESEND_API_KEY=re_...
 ```
 
 You can find these values in your Supabase project dashboard under **Settings > API**.
@@ -401,11 +426,12 @@ LeadFlow uses a five-tier subscription model. Each user's tier is stored in the 
 | --- | --- | --- | --- | --- | --- |
 | **Monthly Price** | $0 | $49 | $129 | $299 | Custom |
 | **Annual Price** | $0 | $39/mo | $109/mo | $249/mo | Contract |
-| **Leads** | 50 | 500 | 5,000 | 25,000 | Unlimited |
+| **Leads** | 25 | 500 | 5,000 | 25,000 | Unlimited |
 | **Users** | 1 | 3 | 10 | 25 | Unlimited |
-| **Campaigns** | 1 | 5 | 25 | Unlimited | Unlimited |
-| **Automation Rules** | 0 | 3 | 20 | Unlimited | Unlimited |
-| **Saved Reports** | 0 | 5 | Unlimited | Unlimited | Unlimited |
+| **Campaigns** | -- | 5 | 25 | Unlimited | Unlimited |
+| **Automation Rules** | -- | 3 | 20 | Unlimited | Unlimited |
+| **Pipeline View** | -- | Yes | Yes | Yes | Yes |
+| **Saved Reports** | -- | 5 | Unlimited | Unlimited | Unlimited |
 | **CSV Export** | -- | -- | Yes | Yes | Yes |
 | **Report Scheduling** | -- | -- | -- | Yes | Yes |
 | **API Access** | -- | -- | Yes | Yes | Yes |
@@ -450,6 +476,14 @@ npm run test:e2e:ui
 | `lint`          | `next lint`              | Run ESLint                      |
 | `test:e2e`      | `playwright test`        | Run Playwright E2E tests        |
 | `test:e2e:ui`   | `playwright test --ui`   | Run Playwright with UI          |
+
+---
+
+## Documentation
+
+- [Changelog](docs/CHANGELOG.md) -- Sprint-by-sprint feature history and references
+- [Security Audit](docs/SECURITY-AUDIT.md) -- Security vulnerability assessment
+- [Setup Guide](docs/SETUP.md) -- Detailed setup instructions
 
 ---
 

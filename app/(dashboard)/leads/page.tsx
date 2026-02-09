@@ -10,6 +10,7 @@ import { LeadTable } from "@/components/leads/LeadTable";
 import { useLeads, useLeadStats, useDeleteLead, type LeadFilters as LeadFiltersType, type LeadSort } from "@/lib/hooks/useLeads";
 import { formatCurrency, formatCompactNumber } from "@/lib/utils/formatters";
 import { UsageLimitBar } from "@/components/subscription";
+import { useSubscription } from "@/lib/hooks/useSubscription";
 
 export default function LeadsPage() {
   const [page, setPage] = useState(1);
@@ -22,6 +23,8 @@ export default function LeadsPage() {
   const { data, isLoading, error } = useLeads({ page, pageSize, filters, sort });
   const { data: stats } = useLeadStats();
   const deleteLead = useDeleteLead();
+  const { can } = useSubscription();
+  const canPipeline = can("pipelineView");
 
   const handleSort = (column: string) => {
     setSort((prev) => ({
@@ -124,14 +127,25 @@ export default function LeadsPage() {
           >
             <List className="h-4 w-4" />
           </Button>
-          <Link href="/leads/kanban">
+          {canPipeline ? (
+            <Link href="/leads/kanban">
+              <Button
+                variant={viewMode === "kanban" ? "secondary" : "ghost"}
+                size="icon"
+              >
+                <LayoutGrid className="h-4 w-4" />
+              </Button>
+            </Link>
+          ) : (
             <Button
-              variant={viewMode === "kanban" ? "secondary" : "ghost"}
+              variant="ghost"
               size="icon"
+              disabled
+              title="Pipeline view requires Starter plan or higher"
             >
               <LayoutGrid className="h-4 w-4" />
             </Button>
-          </Link>
+          )}
         </div>
       </div>
 

@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import type { Business, InsertTables, UpdateTables } from "@/lib/types/database";
 import { checkResourceLimit } from "@/lib/hooks/useGatedMutation";
+import { useRealtimeSubscription } from "@/lib/hooks/useRealtime";
 
 export interface LeadFilters {
   status?: string;
@@ -31,6 +32,7 @@ export interface UseLeadsOptions {
 export function useLeads(options: UseLeadsOptions = {}) {
   const { page = 1, pageSize = 25, filters = {}, sort } = options;
   const supabase = getSupabaseClient();
+  useRealtimeSubscription("businesses", [["leads"]]);
 
   return useQuery({
     queryKey: ["leads", page, pageSize, filters, sort],
@@ -215,9 +217,38 @@ export function useUpdateLead() {
       if (error) throw error;
       return data;
     },
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       queryClient.invalidateQueries({ queryKey: ["lead", data.id] });
+
+      // Fire automation rules (fire-and-forget)
+      if (data) {
+        const triggerData = {
+          businessId: data.id,
+          businessName: data.business_name,
+          email: data.email,
+          contactName: data.business_name,
+        };
+
+        // Always fire lead_updated
+        fetch("/api/automation/execute", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ triggerType: "lead_updated", triggerData }),
+        }).catch((err) => console.error("Automation trigger failed:", err));
+
+        // If status changed, also fire status_changed
+        if (variables.updates.status) {
+          fetch("/api/automation/execute", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              triggerType: "status_changed",
+              triggerData: { ...triggerData, newStatus: variables.updates.status },
+            }),
+          }).catch((err) => console.error("Automation trigger failed:", err));
+        }
+      }
     },
   });
 }

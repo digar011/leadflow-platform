@@ -2,15 +2,25 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Plus, List, Filter, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { KanbanBoard } from "@/components/leads/KanbanBoard";
 import { useLeads, useUpdateLead, useLeadStats } from "@/lib/hooks/useLeads";
 import { formatCurrency } from "@/lib/utils/formatters";
 import { Card, CardContent } from "@/components/ui/Card";
+import { useSubscription } from "@/lib/hooks/useSubscription";
 
 export default function KanbanPage() {
+  const router = useRouter();
+  const { can } = useSubscription();
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Redirect free-tier users to list view
+  if (!can("pipelineView")) {
+    router.replace("/leads");
+    return null;
+  }
 
   // Fetch all leads for kanban (no pagination)
   const { data, isLoading, error, refetch } = useLeads({

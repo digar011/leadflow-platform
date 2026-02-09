@@ -135,18 +135,18 @@ export function QuickActionsPanel() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <div className="grid grid-cols-3 gap-3">
             {actions.map((action) => {
               const Icon = action.icon;
               const content = (
                 <div
                   className={cn(
-                    "flex flex-col items-center justify-center gap-2 p-4 rounded-lg transition-colors cursor-pointer",
+                    "flex flex-col items-center justify-center gap-2 rounded-lg transition-colors cursor-pointer aspect-square",
                     action.color
                   )}
                 >
-                  <Icon className="h-5 w-5" />
-                  <span className="text-xs font-medium">{action.label}</span>
+                  <Icon className="h-6 w-6" />
+                  <span className="text-xs font-medium text-center">{action.label}</span>
                 </div>
               );
 

@@ -3,9 +3,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import type { InsertTables, UpdateTables } from "@/lib/types/database";
+import { useRealtimeSubscription } from "@/lib/hooks/useRealtime";
 
 export function useContacts(businessId?: string) {
   const supabase = getSupabaseClient();
+  useRealtimeSubscription("contacts", [["contacts", businessId], ["contacts"]]);
 
   return useQuery({
     queryKey: ["contacts", businessId],
