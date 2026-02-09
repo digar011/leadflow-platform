@@ -10,6 +10,7 @@ import {
   Zap,
   Gauge,
   Check,
+  Database,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -48,6 +49,23 @@ const categoryConfig: Record<string, { icon: React.ElementType; label: string; d
 export default function AdminSettingsPage() {
   const [editedValues, setEditedValues] = useState<Record<string, string>>({});
   const [savedKeys, setSavedKeys] = useState<Set<string>>(new Set());
+  const [seedStatus, setSeedStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [seedMessage, setSeedMessage] = useState("");
+
+  const handleSeedData = async () => {
+    setSeedStatus("loading");
+    setSeedMessage("");
+    try {
+      const res = await fetch("/api/admin/seed", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to seed");
+      setSeedStatus("success");
+      setSeedMessage(data.message || "Test data created! Refresh the page to see it.");
+    } catch (err) {
+      setSeedStatus("error");
+      setSeedMessage(err instanceof Error ? err.message : "Failed to seed data");
+    }
+  };
 
   const { data: settings, isLoading } = useSystemSettings();
   const updateSetting = useUpdateSystemSetting();
@@ -136,6 +154,45 @@ export default function AdminSettingsPage() {
         </div>
       ) : (
         <div className="space-y-6">
+          {/* Seed Test Data */}
+          <Card variant="glass">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gold/20">
+                  <Database className="h-5 w-5 text-gold" />
+                </div>
+                <div>
+                  <span className="block">Seed Test Data</span>
+                  <span className="text-sm font-normal text-text-muted">
+                    Populate the database with 10 sample entries per table for testing
+                  </span>
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-4">
+                <Button
+                  onClick={handleSeedData}
+                  disabled={seedStatus === "loading"}
+                  leftIcon={<Database className="h-4 w-4" />}
+                >
+                  {seedStatus === "loading" ? "Seeding..." : "Seed Test Data"}
+                </Button>
+                {seedMessage && (
+                  <span className={cn(
+                    "text-sm",
+                    seedStatus === "success" ? "text-status-success" : "text-status-error"
+                  )}>
+                    {seedMessage}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-text-muted mt-3">
+                Creates 10 businesses, contacts, activities, campaigns, automation rules, and reports. Also sets your account to admin + enterprise tier.
+              </p>
+            </CardContent>
+          </Card>
+
           {Object.entries(categoryConfig).map(([category, config]) => {
             const categorySettings = groupedSettings?.[category];
             if (!categorySettings?.length) return null;

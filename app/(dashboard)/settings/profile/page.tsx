@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, Mail, Phone, Building, Save, Camera } from "lucide-react";
+import { User, Mail, Phone, Building, Save, Camera, Database } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
@@ -21,6 +21,8 @@ export default function ProfileSettingsPage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [seedStatus, setSeedStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [seedMessage, setSeedMessage] = useState("");
   const [formData, setFormData] = useState({
     full_name: "",
     phone: "",
@@ -123,6 +125,50 @@ export default function ProfileSettingsPage() {
                 {profile?.role} account
               </p>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Seed Test Data */}
+      <Card variant="glass">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Database className="h-5 w-5 text-gold" />
+            Seed Test Data
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-text-secondary mb-4">
+            Populate the database with 10 sample entries per table (businesses, contacts, activities, campaigns, etc.) and set your account to admin + enterprise tier.
+          </p>
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={async () => {
+                setSeedStatus("loading");
+                setSeedMessage("");
+                try {
+                  const res = await fetch("/api/admin/seed", { method: "POST" });
+                  const data = await res.json();
+                  if (!res.ok) throw new Error(data.error || "Failed to seed");
+                  setSeedStatus("success");
+                  setSeedMessage(data.message || "Test data created! Refresh the page.");
+                  // Reload after short delay so new data shows
+                  setTimeout(() => window.location.reload(), 1500);
+                } catch (err) {
+                  setSeedStatus("error");
+                  setSeedMessage(err instanceof Error ? err.message : "Failed to seed data");
+                }
+              }}
+              disabled={seedStatus === "loading"}
+              leftIcon={<Database className="h-4 w-4" />}
+            >
+              {seedStatus === "loading" ? "Seeding..." : "Seed Test Data"}
+            </Button>
+            {seedMessage && (
+              <span className={`text-sm ${seedStatus === "success" ? "text-green-400" : "text-red-400"}`}>
+                {seedMessage}
+              </span>
+            )}
           </div>
         </CardContent>
       </Card>

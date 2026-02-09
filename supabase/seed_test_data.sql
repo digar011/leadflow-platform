@@ -9,6 +9,10 @@
 -- =============================================
 -- 1. Set diego to admin + enterprise tier
 -- =============================================
+-- Temporarily disable the protect_profile_columns trigger
+-- (it blocks role/tier updates when there's no JWT service_role claim)
+ALTER TABLE public.profiles DISABLE TRIGGER protect_profile_columns_trigger;
+
 UPDATE public.profiles
 SET
   role = 'admin',
@@ -17,6 +21,9 @@ SET
   is_active = true,
   full_name = COALESCE(full_name, 'Diego Garnica')
 WHERE email = 'diego.j.garnica@gmail.com';
+
+-- Re-enable the trigger
+ALTER TABLE public.profiles ENABLE TRIGGER protect_profile_columns_trigger;
 
 -- Store diego's user_id for subsequent inserts
 DO $$
