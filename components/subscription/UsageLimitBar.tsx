@@ -52,7 +52,45 @@ export function UsageLimitBar({
   if (max === Infinity) return null;
   if (max === 0 && !showAlways) return null;
 
-  const ratio = max > 0 ? currentUsage / max : 0;
+  // Feature unavailable on this tier — show upgrade prompt instead of "N / 0"
+  if (max === 0) {
+    return (
+      <>
+        <div
+          className={cn(
+            "rounded-lg border border-white/10 bg-white/5 p-3",
+            className
+          )}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-text-muted">
+              {label}: Not available on your plan
+            </span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowUpgrade(true)}
+              className="text-gold hover:text-gold-light"
+            >
+              <TrendingUp className="h-3.5 w-3.5 mr-1" />
+              Upgrade
+            </Button>
+          </div>
+        </div>
+
+        <UpgradeModal
+          isOpen={showUpgrade}
+          onClose={() => setShowUpgrade(false)}
+          feature={feature}
+          featureLabel={label}
+          currentUsage={currentUsage}
+          currentLimit={max}
+        />
+      </>
+    );
+  }
+
+  const ratio = currentUsage / max;
   const isNear = nearLimit(currentUsage, feature);
   const isOver = atLimit(currentUsage, feature);
 

@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, ArrowDownRight, Minus, LucideIcon } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, Minus, Info, LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +15,7 @@ interface KPICardProps {
   iconColor?: string;
   isLoading?: boolean;
   href?: string;
+  tooltip?: string;
 }
 
 export function KPICard({
@@ -25,7 +27,9 @@ export function KPICard({
   iconColor = "text-gold",
   isLoading,
   href,
+  tooltip,
 }: KPICardProps) {
+  const [showTooltip, setShowTooltip] = useState(false);
   const changeType = change === undefined ? null : change > 0 ? "positive" : change < 0 ? "negative" : "neutral";
 
   if (isLoading) {
@@ -52,7 +56,27 @@ export function KPICard({
       <CardContent className="pt-6">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-text-secondary">{title}</p>
+            <div className="flex items-center gap-1">
+              <p className="text-sm font-medium text-text-secondary">{title}</p>
+              {tooltip && (
+                <div className="relative">
+                  <button
+                    type="button"
+                    onMouseEnter={() => setShowTooltip(true)}
+                    onMouseLeave={() => setShowTooltip(false)}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowTooltip(!showTooltip); }}
+                    className="text-text-muted hover:text-text-secondary transition-colors"
+                  >
+                    <Info className="h-3.5 w-3.5" />
+                  </button>
+                  {showTooltip && (
+                    <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-48 px-3 py-2 text-xs text-text-primary bg-background-secondary border border-white/10 rounded-lg shadow-lg z-50">
+                      {tooltip}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
             <p className="mt-1 text-2xl font-bold text-text-primary">{value}</p>
           </div>
           <div className={cn("flex h-12 w-12 items-center justify-center rounded-lg", iconColor === "text-gold" ? "bg-gold/10" : "bg-white/10")}>

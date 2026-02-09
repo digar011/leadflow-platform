@@ -99,6 +99,7 @@ export default function DashboardPage() {
           icon={Building2}
           isLoading={statsLoading}
           href="/leads"
+          tooltip="Total number of businesses/leads in your system"
         />
         <KPICard
           title="New This Week"
@@ -108,6 +109,7 @@ export default function DashboardPage() {
           icon={Users}
           isLoading={statsLoading}
           href="/leads"
+          tooltip="Leads created in the last 7 days"
         />
         <KPICard
           title="Pipeline Value"
@@ -118,6 +120,7 @@ export default function DashboardPage() {
           iconColor="text-gold"
           isLoading={statsLoading}
           href="/leads/kanban"
+          tooltip="Total estimated value of all active deals in your pipeline (excludes won/lost)"
         />
         <KPICard
           title="Conversion Rate"
@@ -127,6 +130,7 @@ export default function DashboardPage() {
           icon={Target}
           isLoading={statsLoading}
           href="/reports"
+          tooltip="Percentage of total leads that have been marked as won"
         />
       </div>
 

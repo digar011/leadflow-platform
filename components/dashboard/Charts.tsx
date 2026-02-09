@@ -83,13 +83,7 @@ export function LeadsTrendChart({ data, title = "Leads Trend", icon, isLoading }
     <ChartContainer title={title} icon={icon} isLoading={isLoading}>
       <div className="h-[300px]">
         {mounted && <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-            <defs>
-              <linearGradient id="colorLeads" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#d4af37" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#d4af37" stopOpacity={0} />
-              </linearGradient>
-            </defs>
+          <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
             <XAxis
               dataKey="label"
@@ -113,14 +107,8 @@ export function LeadsTrendChart({ data, title = "Leads Trend", icon, isLoading }
               }}
               labelStyle={{ color: "rgba(255,255,255,0.7)" }}
             />
-            <Area
-              type="monotone"
-              dataKey="value"
-              stroke="#d4af37"
-              strokeWidth={2}
-              fill="url(#colorLeads)"
-            />
-          </AreaChart>
+            <Bar dataKey="value" fill="#d4af37" radius={[4, 4, 0, 0]} />
+          </BarChart>
         </ResponsiveContainer>}
       </div>
     </ChartContainer>
@@ -306,8 +294,22 @@ export function ActivityHeatmap({ data, title = "Activity Heatmap", icon, isLoad
     return "bg-gold/80";
   };
 
+  // Show empty state when data is too sparse to reveal patterns
+  const totalActivities = data.reduce((sum, d) => sum + d.count, 0);
+  const activeSlots = data.filter((d) => d.count > 0).length;
+
   return (
     <ChartContainer title={title} icon={icon} isLoading={isLoading}>
+      {totalActivities < 20 || activeSlots < 3 ? (
+        <div className="flex flex-col items-center justify-center py-8 text-center">
+          <div className="text-text-muted text-sm mb-1">
+            More activity data needed to show patterns
+          </div>
+          <div className="text-text-muted text-xs">
+            The heatmap will appear once you have at least 20 activities across 3+ time slots
+          </div>
+        </div>
+      ) : (
       <div className="overflow-x-auto">
         <div className="min-w-[500px]">
           {/* Hour labels */}
@@ -350,6 +352,7 @@ export function ActivityHeatmap({ data, title = "Activity Heatmap", icon, isLoad
           </div>
         </div>
       </div>
+      )}
     </ChartContainer>
   );
 }
