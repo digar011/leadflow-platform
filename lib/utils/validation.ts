@@ -53,17 +53,17 @@ export const businessSchema = z.object({
     .trim(),
   business_type: z.string().max(100).optional().nullable(),
   industry_category: z.string().max(100).optional().nullable(),
-  phone: z.string().max(20).optional().nullable(),
+  phone: z.string().max(30).optional().nullable(),
   email: z.string().email().optional().or(z.literal("")).nullable(),
-  website_url: z.string().url().optional().or(z.literal("")).nullable(),
+  website_url: z.string().max(500).optional().or(z.literal("")).nullable(),
   street_address: z.string().max(255).optional().nullable(),
   city: z.string().max(100).optional().nullable(),
   state: z.string().max(100).optional().nullable(),
   zip_code: z.string().max(20).optional().nullable(),
   country: z.string().max(100).default("US"),
-  linkedin_url: z.string().url().optional().or(z.literal("")).nullable(),
-  facebook_url: z.string().url().optional().or(z.literal("")).nullable(),
-  instagram_url: z.string().url().optional().or(z.literal("")).nullable(),
+  linkedin_url: z.string().max(500).optional().or(z.literal("")).nullable(),
+  facebook_url: z.string().max(500).optional().or(z.literal("")).nullable(),
+  instagram_url: z.string().max(500).optional().or(z.literal("")).nullable(),
   status: z.enum([
     "new",
     "contacted",
@@ -81,6 +81,7 @@ export const businessSchema = z.object({
   notes: z.string().max(10000).optional().nullable(),
   deal_value: z.number().positive().max(999999999).optional().nullable(),
   expected_close_date: z.string().optional().nullable(),
+  next_follow_up: z.string().optional().nullable(),
   assigned_to: z.string().uuid().optional().nullable(),
 });
 
@@ -91,8 +92,8 @@ export const contactSchema = z.object({
   last_name: z.string().max(100).optional().nullable(),
   title: z.string().max(100).optional().nullable(),
   email: z.string().email().optional().or(z.literal("")).nullable(),
-  phone: z.string().max(20).optional().nullable(),
-  linkedin_url: z.string().url().optional().or(z.literal("")).nullable(),
+  phone: z.string().max(30).optional().nullable(),
+  linkedin_url: z.string().max(500).optional().or(z.literal("")).nullable(),
   is_primary: z.boolean().default(false),
 });
 

@@ -19,6 +19,7 @@ import {
   Zap,
   Megaphone,
   Clock,
+  Menu,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,7 @@ import { getSupabaseClient } from "@/lib/supabase/client";
 interface HeaderProps {
   title?: string;
   subtitle?: string;
+  onMenuClick?: () => void;
 }
 
 // Static notification items (in production these would come from DB)
@@ -74,7 +76,7 @@ const NOTIFICATIONS = [
   },
 ];
 
-export function Header({ title, subtitle }: HeaderProps) {
+export function Header({ title, subtitle, onMenuClick }: HeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
@@ -108,9 +110,18 @@ export function Header({ title, subtitle }: HeaderProps) {
   const unreadCount = NOTIFICATIONS.filter((n) => n.unread).length;
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-white/5 bg-background/80 px-6 backdrop-blur-xl">
-      {/* Left side - Title or Search */}
-      <div className="flex items-center gap-4">
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-white/5 bg-background/80 px-4 md:px-6 backdrop-blur-xl">
+      {/* Left side - Hamburger + Title or Search */}
+      <div className="flex items-center gap-3">
+        {/* Mobile hamburger */}
+        {onMenuClick && (
+          <button
+            onClick={onMenuClick}
+            className="rounded-lg p-2 text-text-muted hover:bg-white/5 hover:text-text-primary transition-colors md:hidden"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+        )}
         {title ? (
           <div>
             <h1 className="text-xl font-semibold text-text-primary">{title}</h1>
@@ -126,7 +137,7 @@ export function Header({ title, subtitle }: HeaderProps) {
               placeholder="Search leads, contacts, activities..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-10 w-80 rounded-lg bg-background-secondary border border-white/10 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-muted focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold transition-colors"
+              className="h-10 w-full sm:w-64 md:w-80 rounded-lg bg-background-secondary border border-white/10 pl-10 pr-4 text-sm text-text-primary placeholder:text-text-muted focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold transition-colors"
             />
           </div>
         )}

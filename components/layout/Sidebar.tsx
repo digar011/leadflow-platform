@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -62,12 +62,19 @@ const bottomNavigation = [
 
 interface SidebarProps {
   isAdmin?: boolean;
+  isMobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
-export function Sidebar({ isAdmin: isAdminProp }: SidebarProps) {
+export function Sidebar({ isAdmin: isAdminProp, isMobileOpen, onMobileClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
+
+  // Auto-close mobile sidebar on navigation
+  useEffect(() => {
+    onMobileClose?.();
+  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
   const { isAdminView } = useViewMode();
   const { can } = usePermissions();
   const { can: canFeature } = useSubscription();
@@ -90,12 +97,23 @@ export function Sidebar({ isAdmin: isAdminProp }: SidebarProps) {
   };
 
   return (
-    <aside
-      className={cn(
-        "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-white/5 bg-sidebar transition-all duration-300",
-        collapsed ? "w-16" : "w-64"
+    <>
+      {/* Mobile backdrop */}
+      {isMobileOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/60 md:hidden"
+          onClick={onMobileClose}
+        />
       )}
-    >
+      <aside
+        className={cn(
+          "fixed left-0 top-0 z-50 flex h-screen flex-col border-r border-white/5 bg-sidebar transition-all duration-300",
+          collapsed ? "w-16" : "w-64",
+          // Mobile: hidden by default, slide in when open
+          "max-md:-translate-x-full",
+          isMobileOpen && "max-md:translate-x-0"
+        )}
+      >
       {/* Logo */}
       <div className="flex h-16 items-center justify-between border-b border-white/5 px-4">
         <Link href="/dashboard" className="flex items-center gap-2">
@@ -212,5 +230,6 @@ export function Sidebar({ isAdmin: isAdminProp }: SidebarProps) {
         </ul>
       </div>
     </aside>
+    </>
   );
 }

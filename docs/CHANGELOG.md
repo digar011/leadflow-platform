@@ -1,5 +1,107 @@
 # LeadFlow CRM - Changelog
 
+## Sprint 4: CRM Pain Point Fixes — Follow-ups, Mobile, Dedup, Guided Workflow
+
+### Follow-up System (Fixed)
+The `next_follow_up` field existed in the lead form UI but was never persisted to the database. Now fully functional end-to-end.
+
+- **DB migration**: `supabase/migrations/20260209200000_add_next_follow_up.sql` — adds `next_follow_up DATE` column with partial index
+- **TypeScript types**: `next_follow_up: string | null` added to businesses Row/Insert/Update
+- **Zod validation**: `next_follow_up` added to `businessSchema`
+- **LeadForm**: `next_follow_up` now included in submit data (was missing before)
+- **Lead detail**: Follow-up date shown in Key Dates card, overdue dates highlighted in red with "(overdue)" label
+- **Quick action**: New "Set Follow-up" button (green CalendarClock icon) with date picker modal
+
+### Mobile Responsive Layout
+The app was completely unusable on mobile devices (fixed 256px sidebar, no hamburger menu). Now fully responsive.
+
+- **DashboardShell**: `pl-64` changed to `md:pl-64`, padding `p-6` to `p-4 md:p-6`
+- **Sidebar**: Hidden on mobile (`max-md:-translate-x-full`), slides in with backdrop overlay when hamburger is tapped, auto-closes on navigation
+- **Header**: Hamburger menu button (`md:hidden`) added before search bar, search bar made responsive (`w-full sm:w-64 md:w-80`)
+
+### Dashboard Follow-up Widgets
+New proactive dashboard alerts that surface overdue, due-today, and stale leads.
+
+- **`useFollowUpStats()` hook**: Queries overdue follow-ups, due-today, and stale leads (7+ days inactive)
+- **`FollowUpWidgets` component**: Red overdue alert banner with lead links, "Due Today" and "Stale (7+ days)" KPI cards
+- Integrated at top of dashboard page, above existing KPI cards
+
+### Duplicate Detection
+Prevents bad data by warning users when creating a lead that may already exist.
+
+- **API route**: `POST /api/leads/check-duplicates` — accepts `business_name`, `email`, `phone` and returns top 5 matches via `ilike` name search and exact email/phone digit matching
+- **`useDuplicateCheck` hook**: TanStack Query wrapper, fires when `business_name.length >= 3` in create mode, 10s stale time
+- **`DuplicateWarning` component**: Orange warning box with matching leads listed (name, email, status badge, link to detail)
+- **LeadForm integration**: Warning shown between Basic Information and Address cards (create mode only). Non-blocking — users can still submit
+
+### Next-Best-Action Suggestions
+Turns the CRM from a data entry tool into a guided workflow assistant.
+
+- **`lib/utils/nextBestAction.ts`**: Pure function that maps `(status, temperature, activity recency, follow-up, contact info, deal value)` to max 3 prioritized action suggestions
+- **`NextBestAction` component**: "Suggested Next Steps" card with Lightbulb icon in lead detail right sidebar
+- Status-specific suggestions: new → "Make introduction call/email", contacted + stale → "Send follow-up", qualified → "Schedule meeting", proposal → "Follow up on proposal", negotiation → "Address objections"
+- Cross-cutting: "Set follow-up date" if none set, urgent warning for hot leads idle 2+ days
+
+### Stage Transition Guidance
+Prevents accidental status jumps and captures win/loss reasons.
+
+- **`lib/utils/stageTransitions.ts`**: Transition map defining `suggested`, `allowed`, and `requiresReason` per status
+- **`StatusTransition` component**: Suggested transitions as prominent gold-bordered buttons, "More options" toggle for non-suggested statuses (dimmed)
+- Won/Lost opens a reason modal (textarea) — reason is logged as a `status_change` activity with metadata
+- Integrated below status badges in lead detail header
+
+### Zapier & Make Integration
+No-code integration guide for connecting LeadFlow to 5,000+ apps.
+
+- **`ZapierMakeGuide` component**: Connection instructions, supported events grid, platform-specific setup guides (Zapier/Make), one-click webhook creation with pre-filled defaults
+- **Webhook settings integration**: "Create Webhook for Zapier/Make" button pre-fills the existing webhook modal with platform name and all 6 events selected
+- Supported events: `lead.created`, `lead.updated`, `lead.deleted`, `contact.created`, `activity.logged`, `lead.status_changed`
+
+### E2E Tests
+5 new Playwright test suites covering all new features:
+
+| Test Suite | File | Test Cases |
+|------------|------|------------|
+| Follow-ups | `tests/e2e/follow-ups.spec.ts` | Form persistence, overdue styling, dashboard widgets |
+| Mobile Responsive | `tests/e2e/mobile-responsive.spec.ts` | Sidebar hidden/shown, hamburger, backdrop, auto-close |
+| Duplicate Detection | `tests/e2e/duplicate-detection.spec.ts` | No warning for unique, warning for matches, link to detail |
+| Next Best Action | `tests/e2e/next-best-action.spec.ts` | Status-specific suggestions, contextual actions |
+| Stage Transitions | `tests/e2e/stage-transitions.spec.ts` | Suggested buttons, more options, reason modal |
+
+### Files Summary
+
+**New files (16):**
+- `supabase/migrations/20260209200000_add_next_follow_up.sql`
+- `components/dashboard/FollowUpWidgets.tsx`
+- `app/api/leads/check-duplicates/route.ts`
+- `lib/hooks/useDuplicateCheck.ts`
+- `components/leads/DuplicateWarning.tsx`
+- `lib/utils/nextBestAction.ts`
+- `components/leads/NextBestAction.tsx`
+- `lib/utils/stageTransitions.ts`
+- `components/leads/StatusTransition.tsx`
+- `components/settings/ZapierMakeGuide.tsx`
+- `tests/e2e/follow-ups.spec.ts`
+- `tests/e2e/mobile-responsive.spec.ts`
+- `tests/e2e/duplicate-detection.spec.ts`
+- `tests/e2e/next-best-action.spec.ts`
+- `tests/e2e/stage-transitions.spec.ts`
+
+**Modified files (11):**
+- `lib/types/database.ts` — `next_follow_up` added to businesses
+- `lib/utils/validation.ts` — `next_follow_up` added to businessSchema
+- `components/leads/LeadForm.tsx` — `next_follow_up` in submit data, duplicate check integration
+- `components/leads/QuickActions.tsx` — "Set Follow-up" action type
+- `app/(dashboard)/leads/[id]/page.tsx` — Follow-up in Key Dates, NextBestAction, StatusTransition
+- `components/layout/DashboardShell.tsx` — Mobile responsive padding + sidebar state
+- `components/layout/Sidebar.tsx` — Mobile overlay mode with backdrop
+- `components/layout/Header.tsx` — Hamburger menu button
+- `lib/hooks/useAnalytics.ts` — `useFollowUpStats()` hook
+- `app/(dashboard)/dashboard/page.tsx` — FollowUpWidgets integration
+- `app/(dashboard)/settings/webhooks/page.tsx` — ZapierMakeGuide integration
+
+---
+
 ## Sprint 3: Automation Expansion, Realtime, Free Tier & UI Polish
 
 ### Automation Engine Expansion

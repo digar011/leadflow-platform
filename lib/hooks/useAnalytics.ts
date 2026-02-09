@@ -153,6 +153,58 @@ export function useDashboardStats(dateRange?: DateRange) {
   });
 }
 
+export interface FollowUpStats {
+  overdue: { id: string; business_name: string; next_follow_up: string }[];
+  dueToday: { id: string; business_name: string; next_follow_up: string }[];
+  staleLeads: { id: string; business_name: string; updated_at: string }[];
+}
+
+export function useFollowUpStats() {
+  const supabase = getSupabaseClient();
+
+  return useQuery({
+    queryKey: ["followUpStats"],
+    queryFn: async () => {
+      const today = format(new Date(), "yyyy-MM-dd");
+      const sevenDaysAgo = format(subDays(new Date(), 7), "yyyy-MM-dd'T'HH:mm:ss");
+
+      // Overdue follow-ups
+      const { data: overdue } = await supabase
+        .from("businesses")
+        .select("id, business_name, next_follow_up")
+        .lt("next_follow_up", today)
+        .not("status", "in", '("won","lost","do_not_contact")')
+        .not("next_follow_up", "is", null)
+        .order("next_follow_up", { ascending: true })
+        .limit(10);
+
+      // Due today
+      const { data: dueToday } = await supabase
+        .from("businesses")
+        .select("id, business_name, next_follow_up")
+        .eq("next_follow_up", today)
+        .not("status", "in", '("won","lost","do_not_contact")')
+        .order("business_name");
+
+      // Stale leads (not updated in 7+ days, active status)
+      const { data: stale } = await supabase
+        .from("businesses")
+        .select("id, business_name, updated_at")
+        .lt("updated_at", sevenDaysAgo)
+        .not("status", "in", '("won","lost","do_not_contact")')
+        .order("updated_at", { ascending: true })
+        .limit(10);
+
+      return {
+        overdue: overdue || [],
+        dueToday: dueToday || [],
+        staleLeads: stale || [],
+      } as FollowUpStats;
+    },
+    refetchInterval: 60000,
+  });
+}
+
 export function useLeadsTrend(days: number = 30) {
   const supabase = getSupabaseClient();
 

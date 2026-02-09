@@ -5,6 +5,7 @@ import {
   Phone,
   Mail,
   Calendar,
+  CalendarClock,
   FileText,
   MessageSquare,
   Send,
@@ -24,6 +25,7 @@ interface QuickActionsProps {
     description?: string;
     metadata?: Record<string, unknown>;
   }) => Promise<void>;
+  onSetFollowUp?: (date: string) => Promise<void>;
 }
 
 const actionTypes = [
@@ -57,12 +59,19 @@ const actionTypes = [
     icon: MessageSquare,
     color: "text-pink-400 bg-pink-500/20 border-pink-500/30",
   },
+  {
+    type: "follow_up",
+    label: "Set Follow-up",
+    icon: CalendarClock,
+    color: "text-emerald-400 bg-emerald-500/20 border-emerald-500/30",
+  },
 ];
 
 export function QuickActions({
   businessId,
   businessName,
   onLogActivity,
+  onSetFollowUp,
 }: QuickActionsProps) {
   const [activeAction, setActiveAction] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -72,6 +81,7 @@ export function QuickActions({
     description: "",
     duration: "",
     outcome: "",
+    followUpDate: "",
   });
 
   const selectedAction = actionTypes.find((a) => a.type === activeAction);
@@ -84,6 +94,7 @@ export function QuickActions({
       description: "",
       duration: "",
       outcome: "",
+      followUpDate: "",
     });
   };
 
@@ -93,15 +104,20 @@ export function QuickActions({
 
     setIsSubmitting(true);
     try {
-      await onLogActivity({
-        type: activeAction,
-        title: formData.title || `${selectedAction?.label} with ${businessName}`,
-        description: formData.description,
-        metadata: {
-          ...(formData.duration && { duration: formData.duration }),
-          ...(formData.outcome && { outcome: formData.outcome }),
-        },
-      });
+      if (activeAction === "follow_up" && onSetFollowUp) {
+        if (!formData.followUpDate) return;
+        await onSetFollowUp(formData.followUpDate);
+      } else {
+        await onLogActivity({
+          type: activeAction,
+          title: formData.title || `${selectedAction?.label} with ${businessName}`,
+          description: formData.description,
+          metadata: {
+            ...(formData.duration && { duration: formData.duration }),
+            ...(formData.outcome && { outcome: formData.outcome }),
+          },
+        });
+      }
       setIsModalOpen(false);
       setActiveAction(null);
     } catch (error) {
@@ -143,14 +159,28 @@ export function QuickActions({
         title={selectedAction?.label || "Log Activity"}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            label="Subject"
-            placeholder={`${selectedAction?.label} with ${businessName}`}
-            value={formData.title}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, title: e.target.value }))
-            }
-          />
+          {activeAction === "follow_up" ? (
+            <Input
+              label="Follow-up Date"
+              type="date"
+              value={formData.followUpDate}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, followUpDate: e.target.value }))
+              }
+              leftIcon={<CalendarClock className="h-4 w-4" />}
+            />
+          ) : (
+            <>
+              <Input
+                label="Subject"
+                placeholder={`${selectedAction?.label} with ${businessName}`}
+                value={formData.title}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, title: e.target.value }))
+                }
+              />
+            </>
+          )}
 
           {(activeAction === "call" || activeAction === "meeting") && (
             <Input
@@ -190,7 +220,7 @@ export function QuickActions({
             </div>
           )}
 
-          <div>
+          {activeAction !== "follow_up" && <div>
             <label className="block text-sm font-medium text-text-secondary mb-2">
               Notes
             </label>
@@ -203,7 +233,7 @@ export function QuickActions({
                 setFormData((prev) => ({ ...prev, description: e.target.value }))
               }
             />
-          </div>
+          </div>}
 
           <div className="flex justify-end gap-3 pt-4">
             <Button
@@ -219,9 +249,9 @@ export function QuickActions({
             <Button
               type="submit"
               isLoading={isSubmitting}
-              leftIcon={<Send className="h-4 w-4" />}
+              leftIcon={activeAction === "follow_up" ? <CalendarClock className="h-4 w-4" /> : <Send className="h-4 w-4" />}
             >
-              Log Activity
+              {activeAction === "follow_up" ? "Set Follow-up" : "Log Activity"}
             </Button>
           </div>
         </form>

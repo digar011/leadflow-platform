@@ -30,6 +30,7 @@ import {
   useWebhookStats,
   WEBHOOK_EVENTS,
 } from "@/lib/hooks/useWebhooks";
+import ZapierMakeGuide from "@/components/settings/ZapierMakeGuide";
 import { cn } from "@/lib/utils";
 
 export default function WebhooksSettingsPage() {
@@ -110,6 +111,20 @@ export default function WebhooksSettingsPage() {
         ? prev.events.filter((e) => e !== event)
         : [...prev.events, event],
     }));
+  };
+
+  const handleCreateFromGuide = (defaults: {
+    name: string;
+    type: "outbound";
+    events: string[];
+  }) => {
+    setNewWebhookType(defaults.type);
+    setNewWebhookData({
+      name: defaults.name,
+      url: "",
+      events: defaults.events,
+    });
+    setShowCreateModal(true);
   };
 
   return (
@@ -195,6 +210,9 @@ export default function WebhooksSettingsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Zapier & Make Integration Guide */}
+      <ZapierMakeGuide onCreateWebhook={handleCreateFromGuide} />
 
       {/* Webhooks List */}
       <Card variant="glass">

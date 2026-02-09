@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { LeadFilters } from "@/components/leads/LeadFilters";
 import { LeadTable } from "@/components/leads/LeadTable";
-import { useLeads, useLeadStats, useDeleteLead, type LeadFilters as LeadFiltersType, type LeadSort } from "@/lib/hooks/useLeads";
+import { useLeads, useLeadStats, useDeleteLead, useUpdateLead, type LeadFilters as LeadFiltersType, type LeadSort } from "@/lib/hooks/useLeads";
+import type { LeadStatus } from "@/lib/types/database";
 import { formatCurrency, formatCompactNumber } from "@/lib/utils/formatters";
 import { UsageLimitBar } from "@/components/subscription";
 import { useSubscription } from "@/lib/hooks/useSubscription";
@@ -23,6 +24,7 @@ export default function LeadsPage() {
   const { data, isLoading, error } = useLeads({ page, pageSize, filters, sort });
   const { data: stats } = useLeadStats();
   const deleteLead = useDeleteLead();
+  const updateLead = useUpdateLead();
   const { can } = useSubscription();
   const canPipeline = can("pipelineView");
 
@@ -43,6 +45,14 @@ export default function LeadsPage() {
       await deleteLead.mutateAsync(id);
     } catch (error) {
       console.error("Failed to delete lead:", error);
+    }
+  };
+
+  const handleStatusChange = async (id: string, status: LeadStatus) => {
+    try {
+      await updateLead.mutateAsync({ id, updates: { status } });
+    } catch (error) {
+      console.error("Failed to update lead status:", error);
     }
   };
 
@@ -170,6 +180,7 @@ export default function LeadsPage() {
         sortColumn={sort.column}
         sortDirection={sort.direction}
         onDelete={handleDelete}
+        onStatusChange={handleStatusChange}
         selectedLeads={selectedLeads}
         onSelectionChange={setSelectedLeads}
         isLoading={isLoading}

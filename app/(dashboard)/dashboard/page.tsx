@@ -25,6 +25,7 @@ import {
 } from "@/components/dashboard/Charts";
 import { RecentActivityFeed } from "@/components/dashboard/RecentActivityFeed";
 import { QuickActionsPanel } from "@/components/dashboard/QuickActionsPanel";
+import { FollowUpWidgets } from "@/components/dashboard/FollowUpWidgets";
 import {
   useDashboardStats,
   useLeadsTrend,
@@ -76,6 +77,9 @@ export default function DashboardPage() {
         </div>
         <DateRangeSelector value={dateRange} onChange={setDateRange} />
       </div>
+
+      {/* Follow-up Alerts */}
+      <FollowUpWidgets />
 
       {/* KPI Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

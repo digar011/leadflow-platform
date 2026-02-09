@@ -23,7 +23,7 @@ import {
   FileText,
   Tag,
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, differenceInDays } from "date-fns";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge, getStatusBadgeVariant, getTemperatureBadgeVariant } from "@/components/ui/Badge";
@@ -32,12 +32,14 @@ import { JourneyTimeline } from "@/components/leads/JourneyTimeline";
 import { EngagementScore } from "@/components/leads/EngagementScore";
 import { ContactsList } from "@/components/leads/ContactsList";
 import { QuickActions } from "@/components/leads/QuickActions";
+import { NextBestAction } from "@/components/leads/NextBestAction";
+import { StatusTransition } from "@/components/leads/StatusTransition";
 import { useLead, useDeleteLead, useUpdateLead } from "@/lib/hooks/useLeads";
 import { useCustomerJourney, useCreateActivity } from "@/lib/hooks/useActivities";
 import { useContacts, useSetPrimaryContact, useDeleteContact } from "@/lib/hooks/useContacts";
 import { formatCurrency, formatPhoneNumber, formatDate } from "@/lib/utils/formatters";
 import { cn } from "@/lib/utils";
-import type { ActivityType, Json } from "@/lib/types/database";
+import type { ActivityType, Json, LeadStatus } from "@/lib/types/database";
 
 export default function LeadDetailPage() {
   const params = useParams();
@@ -79,6 +81,23 @@ export default function LeadDetailPage() {
       description: activity.description || null,
       metadata: (activity.metadata as Json) || null,
     });
+  };
+
+  const handleSetFollowUp = async (date: string) => {
+    await updateLead.mutateAsync({ id: leadId, updates: { next_follow_up: date } });
+  };
+
+  const handleStatusTransition = async (newStatus: LeadStatus, reason?: string) => {
+    await updateLead.mutateAsync({ id: leadId, updates: { status: newStatus } });
+    if (reason) {
+      await createActivity.mutateAsync({
+        business_id: leadId,
+        activity_type: "status_change" as ActivityType,
+        subject: `Status changed to ${newStatus}`,
+        description: reason,
+        metadata: { from: lead?.status, to: newStatus, reason } as unknown as Json,
+      });
+    }
   };
 
   const handleSetPrimaryContact = async (contactId: string) => {
@@ -212,6 +231,13 @@ export default function LeadDetailPage() {
               )}
               {lead.source && <span>Source: {lead.source}</span>}
             </div>
+            <div className="mt-2">
+              <StatusTransition
+                currentStatus={lead.status}
+                onTransition={handleStatusTransition}
+                isLoading={updateLead.isPending}
+              />
+            </div>
           </div>
         </div>
 
@@ -239,6 +265,7 @@ export default function LeadDetailPage() {
             businessId={leadId}
             businessName={lead.business_name}
             onLogActivity={handleLogActivity}
+            onSetFollowUp={handleSetFollowUp}
           />
         </CardContent>
       </Card>
@@ -465,6 +492,26 @@ export default function LeadDetailPage() {
             </CardContent>
           </Card>
 
+          {/* Next Best Action */}
+          <NextBestAction
+            status={lead.status}
+            temperature={lead.lead_temperature}
+            daysSinceLastActivity={
+              lastActivity
+                ? differenceInDays(new Date(), new Date(lastActivity.created_at))
+                : null
+            }
+            hasFollowUp={!!lead.next_follow_up}
+            hasEmail={!!lead.email}
+            hasPhone={!!lead.phone}
+            hasDealValue={!!lead.deal_value}
+            onActionClick={(actionType) => {
+              // Scroll to quick actions and trigger the action
+              const el = document.getElementById("quick-actions");
+              el?.scrollIntoView({ behavior: "smooth" });
+            }}
+          />
+
           {/* Assigned To */}
           {lead.profiles && (
             <Card variant="glass">
@@ -521,6 +568,19 @@ export default function LeadDetailPage() {
                   {formatDate(lead.updated_at)}
                 </span>
               </div>
+              {lead.next_follow_up && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-text-muted">Next Follow-up</span>
+                  <span className={cn(
+                    new Date(lead.next_follow_up) < new Date(new Date().toDateString())
+                      ? "text-status-error font-medium"
+                      : "text-text-secondary"
+                  )}>
+                    {formatDate(lead.next_follow_up)}
+                    {new Date(lead.next_follow_up) < new Date(new Date().toDateString()) && " (overdue)"}
+                  </span>
+                </div>
+              )}
               {lead.expected_close_date && (
                 <div className="flex justify-between text-sm">
                   <span className="text-text-muted">Expected Close</span>

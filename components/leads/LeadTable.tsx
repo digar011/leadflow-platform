@@ -21,7 +21,19 @@ import { Button } from "@/components/ui/Button";
 import { ConfirmModal } from "@/components/ui/Modal";
 import { formatDate, formatCurrency, truncateText } from "@/lib/utils/formatters";
 import { formatLeadStatus, formatLeadTemperature } from "@/lib/utils/formatters";
-import type { Business } from "@/lib/types/database";
+import type { Business, LeadStatus } from "@/lib/types/database";
+import { cn } from "@/lib/utils";
+
+const LEAD_STATUSES: { value: LeadStatus; label: string }[] = [
+  { value: "new", label: "New" },
+  { value: "contacted", label: "Contacted" },
+  { value: "qualified", label: "Qualified" },
+  { value: "proposal", label: "Proposal" },
+  { value: "negotiation", label: "Negotiation" },
+  { value: "won", label: "Won" },
+  { value: "lost", label: "Lost" },
+  { value: "do_not_contact", label: "Do Not Contact" },
+];
 
 interface LeadWithProfile extends Business {
   profiles: { full_name: string; email: string } | null;
@@ -38,6 +50,7 @@ interface LeadTableProps {
   sortColumn?: string;
   sortDirection?: "asc" | "desc";
   onDelete?: (id: string) => void;
+  onStatusChange?: (id: string, status: LeadStatus) => void;
   selectedLeads?: string[];
   onSelectionChange?: (ids: string[]) => void;
   isLoading?: boolean;
@@ -54,12 +67,14 @@ export function LeadTable({
   sortColumn,
   sortDirection,
   onDelete,
+  onStatusChange,
   selectedLeads = [],
   onSelectionChange,
   isLoading,
 }: LeadTableProps) {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
+  const [statusMenuOpen, setStatusMenuOpen] = useState<string | null>(null);
 
   const handleSelectAll = (checked: boolean) => {
     if (onSelectionChange) {
@@ -201,9 +216,59 @@ export function LeadTable({
                     </Link>
                   </td>
                   <td className="px-4 py-4">
-                    <Badge variant={getStatusBadgeVariant(lead.status)}>
-                      {formatLeadStatus(lead.status)}
-                    </Badge>
+                    {onStatusChange ? (
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setStatusMenuOpen(statusMenuOpen === lead.id ? null : lead.id);
+                          }}
+                          className="cursor-pointer"
+                        >
+                          <Badge variant={getStatusBadgeVariant(lead.status)} className="hover:ring-1 hover:ring-gold/50 transition-all">
+                            {formatLeadStatus(lead.status)}
+                          </Badge>
+                        </button>
+                        {statusMenuOpen === lead.id && (
+                          <>
+                            <div
+                              className="fixed inset-0 z-10"
+                              onClick={() => setStatusMenuOpen(null)}
+                            />
+                            <div className="absolute left-0 top-full z-20 mt-1 w-44 rounded-lg bg-background-secondary border border-white/10 py-1 shadow-lg">
+                              {LEAD_STATUSES.map((s) => (
+                                <button
+                                  key={s.value}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onStatusChange(lead.id, s.value);
+                                    setStatusMenuOpen(null);
+                                  }}
+                                  className={cn(
+                                    "flex w-full items-center gap-2 px-3 py-1.5 text-sm transition-colors",
+                                    s.value === lead.status
+                                      ? "text-gold bg-gold/10"
+                                      : "text-text-secondary hover:bg-white/5 hover:text-text-primary"
+                                  )}
+                                >
+                                  <Badge variant={getStatusBadgeVariant(s.value)} className="text-[10px] px-1.5 py-0">
+                                    {s.label}
+                                  </Badge>
+                                  {s.value === lead.status && (
+                                    <span className="ml-auto text-xs text-gold">current</span>
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    ) : (
+                      <Badge variant={getStatusBadgeVariant(lead.status)}>
+                        {formatLeadStatus(lead.status)}
+                      </Badge>
+                    )}
                   </td>
                   <td className="px-4 py-4">
                     <Badge variant={getTemperatureBadgeVariant(lead.lead_temperature)}>

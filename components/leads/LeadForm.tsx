@@ -24,6 +24,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { businessSchema } from "@/lib/utils/validation";
 import { LEAD_STATUSES, LEAD_TEMPERATURES, LEAD_SOURCES, INDUSTRIES } from "@/lib/utils/constants";
+import { useDuplicateCheck } from "@/lib/hooks/useDuplicateCheck";
+import { DuplicateWarning } from "@/components/leads/DuplicateWarning";
 import type { Business, InsertTables, UpdateTables } from "@/lib/types/database";
 
 interface LeadFormProps {
@@ -58,6 +60,16 @@ export function LeadForm({ initialData, onSubmit, isLoading, mode }: LeadFormPro
     tags: initialData?.tags || [],
   });
 
+  // Duplicate detection (create mode only)
+  const { data: dupData } = useDuplicateCheck(
+    {
+      business_name: formData.business_name,
+      email: formData.email || undefined,
+      phone: formData.phone || undefined,
+    },
+    mode === "create"
+  );
+
   const updateField = (field: string, value: string | string[]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear error when field is updated
@@ -85,16 +97,35 @@ export function LeadForm({ initialData, onSubmit, isLoading, mode }: LeadFormPro
     );
   };
 
+  const normalizeUrl = (value: string): string => {
+    if (!value) return value;
+    const trimmed = value.trim();
+    if (/^https?:\/\//i.test(trimmed)) return trimmed;
+    return `https://${trimmed}`;
+  };
+
+  const normalizePhone = (value: string): string => {
+    if (!value) return value;
+    const digits = value.replace(/\D/g, "");
+    if (digits.length === 10) {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+    }
+    if (digits.length === 11 && digits[0] === "1") {
+      return `+1 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`;
+    }
+    return value;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
 
-    // Prepare data for validation
+    // Prepare data — normalize simple inputs before validation
     const submitData = {
       business_name: formData.business_name,
       email: formData.email || null,
-      phone: formData.phone || null,
-      website_url: formData.website_url || null,
+      phone: formData.phone ? normalizePhone(formData.phone) : null,
+      website_url: formData.website_url ? normalizeUrl(formData.website_url) : null,
       street_address: formData.street_address || null,
       city: formData.city || null,
       state: formData.state || null,
@@ -106,6 +137,7 @@ export function LeadForm({ initialData, onSubmit, isLoading, mode }: LeadFormPro
       source: formData.source || null,
       deal_value: formData.deal_value ? parseFloat(formData.deal_value) : null,
       expected_close_date: formData.expected_close_date || null,
+      next_follow_up: formData.next_follow_up || null,
       notes: formData.notes || null,
       tags: formData.tags.length > 0 ? formData.tags : null,
     };
@@ -171,8 +203,8 @@ export function LeadForm({ initialData, onSubmit, isLoading, mode }: LeadFormPro
           />
           <Input
             label="Website"
-            type="url"
-            placeholder="https://www.example.com"
+            type="text"
+            placeholder="example.com"
             value={formData.website_url}
             onChange={(e) => updateField("website_url", e.target.value)}
             error={errors.website_url}
@@ -188,6 +220,11 @@ export function LeadForm({ initialData, onSubmit, isLoading, mode }: LeadFormPro
           />
         </CardContent>
       </Card>
+
+      {/* Duplicate Warning */}
+      {mode === "create" && dupData?.duplicates && dupData.duplicates.length > 0 && (
+        <DuplicateWarning duplicates={dupData.duplicates} />
+      )}
 
       {/* Address */}
       <Card variant="glass">

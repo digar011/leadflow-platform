@@ -204,6 +204,7 @@ export interface Database {
           custom_fields: Json;
           deal_value: number | null;
           expected_close_date: string | null;
+          next_follow_up: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -250,6 +251,7 @@ export interface Database {
           custom_fields?: Json;
           deal_value?: number | null;
           expected_close_date?: string | null;
+          next_follow_up?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -295,6 +297,7 @@ export interface Database {
           custom_fields?: Json;
           deal_value?: number | null;
           expected_close_date?: string | null;
+          next_follow_up?: string | null;
           updated_at?: string;
         };
         Relationships: [];

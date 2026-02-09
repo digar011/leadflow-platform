@@ -69,6 +69,13 @@ export default function RegisterPage() {
         return;
       }
 
+      // Fire welcome email (fire-and-forget, don't block signup)
+      fetch("/api/email/welcome", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: formData.email, fullName: formData.fullName }),
+      }).catch(() => {}); // silently ignore email failures
+
       // Check if email confirmation is required
       if (data.user && !data.session) {
         setSuccess(true);
