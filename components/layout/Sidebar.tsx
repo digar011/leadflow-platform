@@ -44,9 +44,9 @@ const navigation: NavItem[] = [
   { name: "Leads", href: "/leads", icon: Building2 },
   { name: "Contacts", href: "/contacts", icon: Users },
   { name: "Activities", href: "/activities", icon: Activity },
-  { name: "Campaigns", href: "/campaigns", icon: Megaphone, requiredFeature: "campaigns" },
+  { name: "Campaigns", href: "/campaigns", icon: Megaphone },
+  { name: "Reports", href: "/reports", icon: BarChart3 },
   { name: "Automation", href: "/automation", icon: Zap, requiredFeature: "automationRules" },
-  { name: "Reports", href: "/reports", icon: FileText, requiredFeature: "savedReports" },
 ];
 
 const adminNavigation: NavItem[] = [
