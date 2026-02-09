@@ -14,9 +14,11 @@ export interface DashboardStats {
   newLeadsThisWeek: number;
   newLeadsPreviousWeek: number;
   pipelineValue: number;
+  previousPipelineValue: number;
   wonDealsCount: number;
   wonDealsValue: number;
   conversionRate: number;
+  previousConversionRate: number;
   avgDealSize: number;
   totalActivities: number;
   activitiesToday: number;
@@ -86,12 +88,31 @@ export function useDashboardStats(dateRange?: DateRange) {
         0
       ) || 0;
 
+      // Previous pipeline value (pipeline from leads created before this week)
+      const previousPipelineLeads = leads?.filter(
+        (l) =>
+          new Date(l.created_at) < weekAgo &&
+          !["won", "lost", "do_not_contact"].includes(l.status)
+      );
+      const previousPipelineValue = previousPipelineLeads?.reduce(
+        (sum, l) => sum + (l.deal_value || 0),
+        0
+      ) || 0;
+
       // Conversion rate
-      const qualifiedOrBetter = leads?.filter((l) =>
-        ["qualified", "proposal", "negotiation", "won"].includes(l.status)
-      ).length || 0;
       const conversionRate = totalLeads > 0
         ? (wonDealsCount / totalLeads) * 100
+        : 0;
+
+      // Previous conversion rate (leads created before this week)
+      const leadsBeforeThisWeek = leads?.filter(
+        (l) => new Date(l.created_at) < weekAgo
+      );
+      const wonBeforeThisWeek = leadsBeforeThisWeek?.filter(
+        (l) => l.status === "won"
+      ).length || 0;
+      const previousConversionRate = leadsBeforeThisWeek?.length
+        ? (wonBeforeThisWeek / leadsBeforeThisWeek.length) * 100
         : 0;
 
       // Average deal size
@@ -146,9 +167,11 @@ export function useDashboardStats(dateRange?: DateRange) {
         newLeadsThisWeek,
         newLeadsPreviousWeek,
         pipelineValue,
+        previousPipelineValue,
         wonDealsCount,
         wonDealsValue,
         conversionRate,
+        previousConversionRate,
         avgDealSize,
         totalActivities,
         activitiesToday,
