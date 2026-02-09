@@ -61,13 +61,17 @@ export async function POST(request: NextRequest) {
 
     const rawBody = await request.text();
 
-    // Verify webhook signature if configured
+    // Verify webhook signature — reject if secret is not configured
     const webhookSecret = process.env.RESEND_WEBHOOK_SECRET;
-    if (webhookSecret) {
-      const signature = request.headers.get("resend-signature") || request.headers.get("x-webhook-signature");
-      if (!verifyResendSignature(rawBody, signature, webhookSecret)) {
-        return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
-      }
+    if (!webhookSecret) {
+      return NextResponse.json(
+        { error: "Webhook not configured: RESEND_WEBHOOK_SECRET is required" },
+        { status: 503 }
+      );
+    }
+    const signature = request.headers.get("resend-signature") || request.headers.get("x-webhook-signature");
+    if (!verifyResendSignature(rawBody, signature, webhookSecret)) {
+      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
     }
 
     let payload;

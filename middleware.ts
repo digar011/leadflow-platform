@@ -13,14 +13,21 @@ const authRoutes = ["/login", "/register", "/forgot-password"];
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip middleware for static files and API routes (except protected ones)
+  // Skip middleware for static files and webhook/API routes that handle their own auth
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/webhooks/stripe") ||
     pathname.startsWith("/api/webhooks/email-inbound") ||
+    pathname.startsWith("/api/webhooks/n8n") ||
     pathname.includes(".")
   ) {
+    return NextResponse.next();
+  }
+
+  // Skip CSRF and session auth for API routes — they handle their own auth
+  // via supabase.auth.getUser() which supports both cookies and Bearer tokens
+  if (pathname.startsWith("/api/")) {
     return NextResponse.next();
   }
 
@@ -29,8 +36,8 @@ export async function middleware(request: NextRequest) {
     const origin = request.headers.get("origin");
     const host = request.headers.get("host");
 
-    // Allow same-origin requests
     if (origin && host) {
+      // Validate Origin matches Host
       const originHost = new URL(origin).host;
       if (originHost !== host) {
         return NextResponse.json(
@@ -38,6 +45,19 @@ export async function middleware(request: NextRequest) {
           { status: 403 }
         );
       }
+    } else if (!origin && host) {
+      // Origin missing — fall back to Referer header
+      const referer = request.headers.get("referer");
+      if (referer) {
+        const refererHost = new URL(referer).host;
+        if (refererHost !== host) {
+          return NextResponse.json(
+            { error: "CSRF validation failed" },
+            { status: 403 }
+          );
+        }
+      }
+      // If neither Origin nor Referer, allow (non-browser clients like curl)
     }
   }
 

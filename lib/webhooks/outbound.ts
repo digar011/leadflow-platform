@@ -112,11 +112,18 @@ async function deliverWebhook(
   // Retry loop with exponential backoff
   for (let attempt = 1; attempt <= webhook.retry_count; attempt++) {
     try {
+      // 10-second timeout to prevent hanging on unresponsive endpoints
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
+
       const response = await fetch(webhook.url, {
         method: "POST",
         headers,
         body: payloadString,
+        signal: controller.signal,
       });
+
+      clearTimeout(timeout);
 
       statusCode = response.status;
       const duration = Date.now() - startTime;
@@ -152,7 +159,11 @@ async function deliverWebhook(
         break;
       }
     } catch (error) {
+      clearTimeout(timeout);
       lastError = error instanceof Error ? error.message : "Unknown error";
+      if (error instanceof DOMException && error.name === "AbortError") {
+        lastError = "Request timed out after 10s";
+      }
 
       // Log failed attempt
       await logDelivery(webhook.id, eventType, payload, {
