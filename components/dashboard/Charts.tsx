@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -20,6 +21,15 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { formatCurrency, formatCompactNumber } from "@/lib/utils/formatters";
 import type { ChartDataPoint, PipelineFunnelData } from "@/lib/hooks/useAnalytics";
+
+// Prevents Recharts "Cannot read properties of undefined" and dimension
+// warnings that fire when ResponsiveContainer renders before the parent
+// element has a non-zero size (e.g. during SSR or first paint).
+function useMounted() {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  return mounted;
+}
 
 interface ChartContainerProps {
   title: string;
@@ -68,10 +78,11 @@ interface LeadsTrendChartProps {
 }
 
 export function LeadsTrendChart({ data, title = "Leads Trend", icon, isLoading }: LeadsTrendChartProps) {
+  const mounted = useMounted();
   return (
     <ChartContainer title={title} icon={icon} isLoading={isLoading}>
       <div className="h-[300px]">
-        <ResponsiveContainer width="100%" height="100%">
+        {mounted && <ResponsiveContainer width="100%" height="100%">
           <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="colorLeads" x1="0" y1="0" x2="0" y2="1">
@@ -92,6 +103,7 @@ export function LeadsTrendChart({ data, title = "Leads Trend", icon, isLoading }
               fontSize={12}
               tickLine={false}
               axisLine={false}
+              allowDecimals={false}
             />
             <Tooltip
               contentStyle={{
@@ -109,7 +121,7 @@ export function LeadsTrendChart({ data, title = "Leads Trend", icon, isLoading }
               fill="url(#colorLeads)"
             />
           </AreaChart>
-        </ResponsiveContainer>
+        </ResponsiveContainer>}
       </div>
     </ChartContainer>
   );
@@ -123,10 +135,11 @@ interface RevenueTrendChartProps {
 }
 
 export function RevenueTrendChart({ data, title = "Revenue Trend", icon, isLoading }: RevenueTrendChartProps) {
+  const mounted = useMounted();
   return (
     <ChartContainer title={title} icon={icon} isLoading={isLoading}>
       <div className="h-[300px]">
-        <ResponsiveContainer width="100%" height="100%">
+        {mounted && <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
             <XAxis
@@ -161,7 +174,7 @@ export function RevenueTrendChart({ data, title = "Revenue Trend", icon, isLoadi
               activeDot={{ r: 6 }}
             />
           </LineChart>
-        </ResponsiveContainer>
+        </ResponsiveContainer>}
       </div>
     </ChartContainer>
   );
@@ -175,10 +188,11 @@ interface PipelineFunnelChartProps {
 }
 
 export function PipelineFunnelChart({ data, title = "Pipeline Overview", icon, isLoading }: PipelineFunnelChartProps) {
+  const mounted = useMounted();
   return (
     <ChartContainer title={title} icon={icon} isLoading={isLoading}>
       <div className="h-[300px]">
-        <ResponsiveContainer width="100%" height="100%">
+        {mounted && <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={data}
             layout="vertical"
@@ -191,6 +205,7 @@ export function PipelineFunnelChart({ data, title = "Pipeline Overview", icon, i
               fontSize={12}
               tickLine={false}
               axisLine={false}
+              allowDecimals={false}
             />
             <YAxis
               type="category"
@@ -218,7 +233,7 @@ export function PipelineFunnelChart({ data, title = "Pipeline Overview", icon, i
               ))}
             </Bar>
           </BarChart>
-        </ResponsiveContainer>
+        </ResponsiveContainer>}
       </div>
     </ChartContainer>
   );
@@ -234,10 +249,11 @@ interface SourceDistributionChartProps {
 const COLORS = ["#d4af37", "#6366f1", "#22c55e", "#f97316", "#ec4899", "#8b5cf6", "#06b6d4", "#eab308"];
 
 export function SourceDistributionChart({ data, title = "Lead Sources", icon, isLoading }: SourceDistributionChartProps) {
+  const mounted = useMounted();
   return (
     <ChartContainer title={title} icon={icon} isLoading={isLoading}>
       <div className="h-[300px]">
-        <ResponsiveContainer width="100%" height="100%">
+        {mounted && <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
               data={data}
@@ -265,7 +281,7 @@ export function SourceDistributionChart({ data, title = "Lead Sources", icon, is
               formatter={(value) => <span className="text-text-secondary">{value}</span>}
             />
           </PieChart>
-        </ResponsiveContainer>
+        </ResponsiveContainer>}
       </div>
     </ChartContainer>
   );

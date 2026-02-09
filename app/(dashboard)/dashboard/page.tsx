@@ -57,6 +57,14 @@ export default function DashboardPage() {
     ? ((stats.newLeadsThisWeek - stats.newLeadsPreviousWeek) / stats.newLeadsPreviousWeek) * 100
     : 0;
 
+  const pipelineChange = stats && stats.previousPipelineValue > 0
+    ? ((stats.pipelineValue - stats.previousPipelineValue) / stats.previousPipelineValue) * 100
+    : 0;
+
+  const conversionChange = stats && stats.previousConversionRate > 0
+    ? stats.conversionRate - stats.previousConversionRate
+    : 0;
+
   // Prepare source distribution data
   const sourceData = stats?.sourceCounts
     ? Object.entries(stats.sourceCounts)
@@ -104,6 +112,8 @@ export default function DashboardPage() {
         <KPICard
           title="Pipeline Value"
           value={stats ? formatCurrency(stats.pipelineValue) : "$0"}
+          change={pipelineChange}
+          changeLabel="vs last week"
           icon={DollarSign}
           iconColor="text-gold"
           isLoading={statsLoading}
@@ -112,6 +122,8 @@ export default function DashboardPage() {
         <KPICard
           title="Conversion Rate"
           value={stats ? `${stats.conversionRate.toFixed(1)}%` : "0%"}
+          change={conversionChange}
+          changeLabel="pp vs last week"
           icon={Target}
           isLoading={statsLoading}
           href="/reports"

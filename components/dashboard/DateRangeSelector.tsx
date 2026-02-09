@@ -99,7 +99,7 @@ export function DateRangeSelector({ value, onChange }: DateRangeSelectorProps) {
   };
 
   return (
-    <div className="relative">
+    <div className="relative z-50">
       <Button
         variant="secondary"
         size="sm"
