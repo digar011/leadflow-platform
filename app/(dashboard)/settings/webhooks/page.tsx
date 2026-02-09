@@ -31,6 +31,7 @@ import {
   WEBHOOK_EVENTS,
 } from "@/lib/hooks/useWebhooks";
 import ZapierMakeGuide from "@/components/settings/ZapierMakeGuide";
+import { EmailCaptureSettings } from "@/components/settings/EmailCaptureSettings";
 import { cn } from "@/lib/utils";
 
 export default function WebhooksSettingsPage() {
@@ -210,6 +211,9 @@ export default function WebhooksSettingsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Email Capture */}
+      <EmailCaptureSettings />
 
       {/* Zapier & Make Integration Guide */}
       <ZapierMakeGuide onCreateWebhook={handleCreateFromGuide} />

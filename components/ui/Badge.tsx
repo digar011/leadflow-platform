@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   variant?:
     | "default"
+    | "secondary"
     | "success"
     | "warning"
     | "error"
@@ -25,6 +26,7 @@ const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
   ({ className, variant = "default", size = "sm", children, ...props }, ref) => {
     const variants = {
       default: "bg-white/10 text-text-secondary",
+      secondary: "bg-white/5 text-text-muted border border-white/10",
       success: "bg-status-success/20 text-status-success",
       warning: "bg-status-warning/20 text-status-warning",
       error: "bg-status-error/20 text-status-error",

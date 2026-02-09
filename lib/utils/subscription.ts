@@ -8,6 +8,7 @@ export type FeatureKey =
   | "pipelineView"
   | "savedReports"
   | "csvExport"
+  | "csvImport"
   | "reportScheduling"
   | "customReports"
   | "biIntegration"
@@ -50,6 +51,7 @@ export const PLAN_DEFINITIONS: Record<SubscriptionTier, PlanDefinition> = {
       pipelineView: false,
       savedReports: 0,
       csvExport: false,
+      csvImport: false,
       reportScheduling: false,
       customReports: false,
       biIntegration: false,
@@ -80,6 +82,7 @@ export const PLAN_DEFINITIONS: Record<SubscriptionTier, PlanDefinition> = {
       pipelineView: true,
       savedReports: 5,
       csvExport: false,
+      csvImport: false,
       reportScheduling: false,
       customReports: false,
       biIntegration: false,
@@ -110,6 +113,7 @@ export const PLAN_DEFINITIONS: Record<SubscriptionTier, PlanDefinition> = {
       pipelineView: true,
       savedReports: Infinity,
       csvExport: true,
+      csvImport: true,
       reportScheduling: false,
       customReports: false,
       biIntegration: false,
@@ -141,6 +145,7 @@ export const PLAN_DEFINITIONS: Record<SubscriptionTier, PlanDefinition> = {
       pipelineView: true,
       savedReports: Infinity,
       csvExport: true,
+      csvImport: true,
       reportScheduling: true,
       customReports: false,
       biIntegration: false,
@@ -171,6 +176,7 @@ export const PLAN_DEFINITIONS: Record<SubscriptionTier, PlanDefinition> = {
       pipelineView: true,
       savedReports: Infinity,
       csvExport: true,
+      csvImport: true,
       reportScheduling: true,
       customReports: true,
       biIntegration: true,
@@ -275,6 +281,7 @@ export const PLAN_FEATURE_ROWS: PlanFeatureRow[] = [
   { label: "Pipeline View", feature: "pipelineView", category: "core" },
   { label: "Saved Reports", feature: "savedReports", category: "reports" },
   { label: "CSV Export", feature: "csvExport", category: "reports" },
+  { label: "CSV Import", feature: "csvImport", category: "reports" },
   { label: "Report Scheduling", feature: "reportScheduling", category: "reports" },
   { label: "API Access", feature: "apiAccess", category: "integrations" },
   { label: "Webhooks", feature: "webhooks", category: "integrations" },

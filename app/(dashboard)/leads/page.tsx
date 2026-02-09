@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Plus, Download, LayoutGrid, List } from "lucide-react";
+import { Plus, Upload, LayoutGrid, List } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { LeadFilters } from "@/components/leads/LeadFilters";
 import { LeadTable } from "@/components/leads/LeadTable";
+import { ExportButton } from "@/components/leads/ExportButton";
+import { ImportModal } from "@/components/leads/ImportModal";
 import { useLeads, useLeadStats, useDeleteLead, useUpdateLead, type LeadFilters as LeadFiltersType, type LeadSort } from "@/lib/hooks/useLeads";
 import type { LeadStatus } from "@/lib/types/database";
 import { formatCurrency, formatCompactNumber } from "@/lib/utils/formatters";
@@ -20,6 +22,7 @@ export default function LeadsPage() {
   const [sort, setSort] = useState<LeadSort>({ column: "created_at", direction: "desc" });
   const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
   const [selectedLeads, setSelectedLeads] = useState<string[]>([]);
+  const [showImport, setShowImport] = useState(false);
 
   const { data, isLoading, error } = useLeads({ page, pageSize, filters, sort });
   const { data: stats } = useLeadStats();
@@ -67,9 +70,15 @@ export default function LeadsPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="secondary" size="sm" leftIcon={<Download className="h-4 w-4" />}>
-            Export
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => setShowImport(true)}
+            leftIcon={<Upload className="h-4 w-4" />}
+          >
+            Import
           </Button>
+          <ExportButton filters={filters} />
           <Link href="/leads/new">
             <Button leftIcon={<Plus className="h-4 w-4" />}>Add Lead</Button>
           </Link>
@@ -185,6 +194,9 @@ export default function LeadsPage() {
         onSelectionChange={setSelectedLeads}
         isLoading={isLoading}
       />
+
+      {/* Import Modal */}
+      <ImportModal isOpen={showImport} onClose={() => setShowImport(false)} />
     </div>
   );
 }

@@ -120,6 +120,7 @@ export interface Database {
           subscription_status: 'active' | 'past_due' | 'canceled' | 'unpaid' | 'trialing' | 'incomplete' | null;
           current_period_end: string | null;
           last_sign_in_at: string | null;
+          email_forwarding_address: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -138,6 +139,7 @@ export interface Database {
           subscription_status?: string | null;
           current_period_end?: string | null;
           last_sign_in_at?: string | null;
+          email_forwarding_address?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -156,6 +158,7 @@ export interface Database {
           subscription_status?: string | null;
           current_period_end?: string | null;
           last_sign_in_at?: string | null;
+          email_forwarding_address?: string | null;
           updated_at?: string;
         };
         Relationships: [];
@@ -940,6 +943,46 @@ export interface Database {
         };
         Relationships: [];
       };
+      captured_emails: {
+        Row: {
+          id: string;
+          user_id: string;
+          business_id: string | null;
+          direction: "inbound" | "outbound";
+          from_address: string;
+          to_addresses: string[];
+          cc_addresses: string[];
+          subject: string | null;
+          body_snippet: string | null;
+          message_id: string | null;
+          received_at: string;
+          matched: boolean;
+          activity_id: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          business_id?: string | null;
+          direction: "inbound" | "outbound";
+          from_address: string;
+          to_addresses?: string[];
+          cc_addresses?: string[];
+          subject?: string | null;
+          body_snippet?: string | null;
+          message_id?: string | null;
+          received_at?: string;
+          matched?: boolean;
+          activity_id?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          business_id?: string | null;
+          matched?: boolean;
+          activity_id?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -981,3 +1024,4 @@ export type LandingPage = Tables<"landing_pages">;
 export type AnalyticsSnapshot = Tables<"analytics_snapshots">;
 export type AutomationRule = Tables<"automation_rules">;
 export type Report = Tables<"reports">;
+export type CapturedEmail = Tables<"captured_emails">;

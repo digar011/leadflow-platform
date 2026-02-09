@@ -18,6 +18,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/webhooks/stripe") ||
+    pathname.startsWith("/api/webhooks/email-inbound") ||
     pathname.includes(".")
   ) {
     return NextResponse.next();

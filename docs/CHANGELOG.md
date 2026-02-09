@@ -1,5 +1,61 @@
 # LeadFlow CRM - Changelog
 
+## Sprint 5: CSV Import/Export + Email Auto-Capture
+
+### CSV Import/Export
+Users can now import and export leads as CSV files, removing the biggest adoption blocker.
+
+- **Export API**: `GET /api/leads/export` — server-side CSV generation with filter pass-through, rate limited (5/min)
+- **Import API**: `POST /api/leads/import` — batch insert with Zod validation, duplicate detection (skip/overwrite/create), auto-contact creation, automation triggers
+- **ExportButton component**: Feature-gated (Growth+), downloads filtered leads as CSV
+- **ImportModal component**: 4-step wizard (Upload → Map Columns → Preview → Import) with drag/drop, auto column mapping, progress bar, error reporting
+- **Field definitions**: `lib/utils/csvFields.ts` — shared export/import field mappings with auto-detection
+- **Subscription gating**: `csvImport` feature key added (same tiers as `csvExport`: Growth+)
+- **Leads page**: Import button + Export button replace old nonfunctional Export button
+- **Dependency**: `papaparse` for client-side CSV parsing
+
+### Email Auto-Capture (BCC Forwarding)
+Simplified email logging — no OAuth required. Each user gets a unique forwarding address to BCC/forward emails to.
+
+- **DB migration**: `supabase/migrations/20260209300000_email_capture.sql` — `captured_emails` table + `email_forwarding_address` column on profiles
+- **Email matching**: `lib/utils/emailCapture.ts` — deterministic forwarding address generation, email-to-lead matching via businesses.email and contacts.email, direction classification
+- **Inbound webhook**: `POST /api/webhooks/email-inbound` — receives parsed emails from Resend inbound, matches to leads, creates `email_received`/`email_sent` activities, deduplicates by Message-ID
+- **Settings UI**: `EmailCaptureSettings` component with copy-to-clipboard forwarding address, 3-step "How it works" guide, Gmail/Outlook setup instructions, recent captured emails list
+- **CSRF exclusion**: `/api/webhooks/email-inbound` added to middleware skip list
+- **Types**: `captured_emails` table types + `email_forwarding_address` on profiles
+
+### E2E Tests
+2 new Playwright test suites:
+
+| Test Suite | File | Test Cases |
+|------------|------|------------|
+| CSV Import/Export | `tests/e2e/csv-import-export.spec.ts` | Export button visible, import modal opens, file upload, column auto-mapping |
+| Email Capture | `tests/e2e/email-capture.spec.ts` | Settings visible, forwarding address shown, setup guides collapsible |
+
+### Files Summary
+
+**New files (11):**
+- `lib/utils/csvFields.ts`
+- `app/api/leads/export/route.ts`
+- `app/api/leads/import/route.ts`
+- `components/leads/ExportButton.tsx`
+- `components/leads/ImportModal.tsx`
+- `supabase/migrations/20260209300000_email_capture.sql`
+- `lib/utils/emailCapture.ts`
+- `app/api/webhooks/email-inbound/route.ts`
+- `components/settings/EmailCaptureSettings.tsx`
+- `tests/e2e/csv-import-export.spec.ts`
+- `tests/e2e/email-capture.spec.ts`
+
+**Modified files (5):**
+- `app/(dashboard)/leads/page.tsx` — Import/Export buttons, ImportModal integration
+- `lib/utils/subscription.ts` — `csvImport` feature key added to all tiers
+- `lib/types/database.ts` — `captured_emails` table + `email_forwarding_address` on profiles
+- `app/(dashboard)/settings/webhooks/page.tsx` — EmailCaptureSettings section
+- `middleware.ts` — CSRF exclusion for email-inbound webhook
+
+---
+
 ## Sprint 4: CRM Pain Point Fixes — Follow-ups, Mobile, Dedup, Guided Workflow
 
 ### Follow-up System (Fixed)
