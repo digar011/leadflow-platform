@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 interface ActivityItem {
   id: string;
   activity_type: string;
-  title: string | null;
+  subject: string | null;
   created_at: string;
   profiles?: { full_name: string } | null;
   businesses?: { business_name: string } | null;
@@ -120,7 +120,7 @@ export function RecentActivityFeed({ activities, isLoading }: RecentActivityFeed
                       {activity.businesses?.business_name || "Unknown"}
                     </p>
                     <p className="text-xs text-text-muted">
-                      {activity.title || activity.activity_type.replace(/_/g, " ")}
+                      {activity.subject || activity.activity_type.replace(/_/g, " ")}
                       {activity.profiles && ` by ${activity.profiles.full_name}`}
                     </p>
                   </div>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   MoreHorizontal,
   Mail,
@@ -72,9 +73,17 @@ export function LeadTable({
   onSelectionChange,
   isLoading,
 }: LeadTableProps) {
+  const router = useRouter();
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState<string | null>(null);
   const [statusMenuOpen, setStatusMenuOpen] = useState<string | null>(null);
+
+  const handleRowClick = (e: React.MouseEvent, leadId: string) => {
+    // Don't navigate if clicking on interactive elements
+    const target = e.target as HTMLElement;
+    if (target.closest("a, button, input, [role='menu']")) return;
+    router.push(`/leads/${leadId}`);
+  };
 
   const handleSelectAll = (checked: boolean) => {
     if (onSelectionChange) {
@@ -186,7 +195,8 @@ export function LeadTable({
               {leads.map((lead) => (
                 <tr
                   key={lead.id}
-                  className="hover:bg-white/[0.02] transition-colors"
+                  onClick={(e) => handleRowClick(e, lead.id)}
+                  className="hover:bg-white/[0.02] transition-colors cursor-pointer"
                 >
                   {onSelectionChange && (
                     <td className="px-4 py-4">

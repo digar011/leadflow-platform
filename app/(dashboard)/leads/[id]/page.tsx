@@ -23,7 +23,7 @@ import {
   FileText,
   Tag,
 } from "lucide-react";
-import { format, differenceInDays } from "date-fns";
+import { differenceInDays } from "date-fns";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge, getStatusBadgeVariant, getTemperatureBadgeVariant } from "@/components/ui/Badge";
@@ -342,7 +342,7 @@ export default function LeadDetailPage() {
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4 text-text-muted" />
                   <span className="text-text-secondary">
-                    Expected close: {format(new Date(lead.expected_close_date), "MMM d, yyyy")}
+                    Expected close: {formatDate(lead.expected_close_date)}
                   </span>
                 </div>
               )}
@@ -484,8 +484,8 @@ export default function LeadDetailPage() {
             </CardHeader>
             <CardContent>
               <EngagementScore
-                score={lead.lead_score || 50}
-                previousScore={45}
+                score={lead.lead_score || 0}
+                previousScore={0}
                 lastActivityDate={lastActivity?.created_at || undefined}
                 factors={engagementFactors}
               />

@@ -66,21 +66,26 @@ export function useUsers() {
   });
 }
 
+// Helper: call the admin API route (uses service role server-side)
+async function adminUserAction(body: Record<string, unknown>) {
+  const res = await fetch("/api/admin/users", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: "Request failed" }));
+    throw new Error(err.error || "Admin action failed");
+  }
+  return res.json();
+}
+
 export function useUpdateUserRole() {
-  const supabase = createClient();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ userId, role }: { userId: string; role: string }) => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .update({ role })
-        .eq("id", userId)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return adminUserAction({ userId, action: "updateRole", role });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
@@ -89,20 +94,11 @@ export function useUpdateUserRole() {
 }
 
 export function useToggleUserActive() {
-  const supabase = createClient();
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ userId, isActive }: { userId: string; isActive: boolean }) => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .update({ is_active: isActive })
-        .eq("id", userId)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return adminUserAction({ userId, action: "toggleActive", isActive });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
@@ -111,7 +107,6 @@ export function useToggleUserActive() {
 }
 
 export function useUpdateUserPermissions() {
-  const supabase = createClient();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -122,15 +117,7 @@ export function useUpdateUserPermissions() {
       userId: string;
       permissions: UserPermissions;
     }) => {
-      const { data, error } = await supabase
-        .from("profiles")
-        .update({ permissions: permissions as unknown as Record<string, unknown> })
-        .eq("id", userId)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return adminUserAction({ userId, action: "updatePermissions", permissions });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
@@ -139,7 +126,6 @@ export function useUpdateUserPermissions() {
 }
 
 export function useUpdateUserTier() {
-  const supabase = createClient();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -152,18 +138,7 @@ export function useUpdateUserTier() {
       tier: SubscriptionTier;
       billingCycle?: BillingCycle;
     }) => {
-      const updates: Record<string, unknown> = { subscription_tier: tier };
-      if (billingCycle) updates.subscription_billing_cycle = billingCycle;
-
-      const { data, error } = await supabase
-        .from("profiles")
-        .update(updates)
-        .eq("id", userId)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
+      return adminUserAction({ userId, action: "updateTier", tier, billingCycle });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });

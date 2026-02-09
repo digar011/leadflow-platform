@@ -122,17 +122,24 @@ export function useDashboardStats(dateRange?: DateRange) {
         }
       });
 
-      // Get today's activities count
-      const today = startOfDay(now);
-      const { count: activitiesToday } = await supabase
-        .from("activities")
-        .select("*", { count: "exact", head: true })
-        .gte("created_at", today.toISOString());
+      // Get today's activities count (resilient — don't break dashboard if activities table fails)
+      let activitiesToday = 0;
+      let totalActivities = 0;
+      try {
+        const today = startOfDay(now);
+        const todayResult = await supabase
+          .from("activities")
+          .select("*", { count: "exact", head: true })
+          .gte("created_at", today.toISOString());
+        activitiesToday = todayResult.count || 0;
 
-      // Total activities
-      const { count: totalActivities } = await supabase
-        .from("activities")
-        .select("*", { count: "exact", head: true });
+        const totalResult = await supabase
+          .from("activities")
+          .select("*", { count: "exact", head: true });
+        totalActivities = totalResult.count || 0;
+      } catch {
+        // Activities table may not be ready — continue with 0s
+      }
 
       return {
         totalLeads,
@@ -143,8 +150,8 @@ export function useDashboardStats(dateRange?: DateRange) {
         wonDealsValue,
         conversionRate,
         avgDealSize,
-        totalActivities: totalActivities || 0,
-        activitiesToday: activitiesToday || 0,
+        totalActivities,
+        activitiesToday,
         statusCounts,
         temperatureCounts,
         sourceCounts,
@@ -323,6 +330,7 @@ export function useActivityHeatmap(weeks: number = 12) {
 
   return useQuery({
     queryKey: ["activityHeatmap", weeks],
+    retry: 1,
     queryFn: async () => {
       const startDate = subWeeks(new Date(), weeks);
 
@@ -375,13 +383,14 @@ export function useRecentActivities(limit: number = 10) {
 
   return useQuery({
     queryKey: ["recentActivities", limit],
+    retry: 1,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("activities")
         .select(`
           id,
           activity_type,
-          title,
+          subject,
           created_at,
           profiles(full_name),
           businesses(business_name)
