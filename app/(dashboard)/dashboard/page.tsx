@@ -86,6 +86,7 @@ export default function DashboardPage() {
           changeLabel="vs last week"
           icon={Building2}
           isLoading={statsLoading}
+          href="/leads"
         />
         <KPICard
           title="New This Week"
@@ -94,6 +95,7 @@ export default function DashboardPage() {
           changeLabel="vs previous week"
           icon={Users}
           isLoading={statsLoading}
+          href="/leads"
         />
         <KPICard
           title="Pipeline Value"
@@ -101,12 +103,14 @@ export default function DashboardPage() {
           icon={DollarSign}
           iconColor="text-gold"
           isLoading={statsLoading}
+          href="/leads/kanban"
         />
         <KPICard
           title="Conversion Rate"
           value={stats ? `${stats.conversionRate.toFixed(1)}%` : "0%"}
           icon={Target}
           isLoading={statsLoading}
+          href="/reports"
         />
       </div>
 
@@ -168,58 +172,66 @@ export default function DashboardPage() {
 
       {/* Quick Stats Row */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card variant="glass" padding="sm">
-          <CardContent className="flex items-center gap-4 pt-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-status-success/20">
-              <TrendingUp className="h-5 w-5 text-status-success" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-text-primary">
-                {stats?.wonDealsCount || 0}
-              </p>
-              <p className="text-sm text-text-muted">Deals Won</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card variant="glass" padding="sm">
-          <CardContent className="flex items-center gap-4 pt-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gold/20">
-              <DollarSign className="h-5 w-5 text-gold" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-text-primary">
-                {stats ? formatCurrency(stats.wonDealsValue) : "$0"}
-              </p>
-              <p className="text-sm text-text-muted">Revenue Won</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card variant="glass" padding="sm">
-          <CardContent className="flex items-center gap-4 pt-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-status-info/20">
-              <Activity className="h-5 w-5 text-status-info" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-text-primary">
-                {stats?.activitiesToday || 0}
-              </p>
-              <p className="text-sm text-text-muted">Activities Today</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card variant="glass" padding="sm">
-          <CardContent className="flex items-center gap-4 pt-2">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/20">
-              <Target className="h-5 w-5 text-purple-400" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-text-primary">
-                {stats ? formatCurrency(stats.avgDealSize) : "$0"}
-              </p>
-              <p className="text-sm text-text-muted">Avg Deal Size</p>
-            </div>
-          </CardContent>
-        </Card>
+        <Link href="/leads?status=won">
+          <Card variant="glass" padding="sm" hover className="cursor-pointer">
+            <CardContent className="flex items-center gap-4 pt-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-status-success/20">
+                <TrendingUp className="h-5 w-5 text-status-success" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-text-primary">
+                  {stats?.wonDealsCount || 0}
+                </p>
+                <p className="text-sm text-text-muted">Deals Won</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/leads?status=won">
+          <Card variant="glass" padding="sm" hover className="cursor-pointer">
+            <CardContent className="flex items-center gap-4 pt-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gold/20">
+                <DollarSign className="h-5 w-5 text-gold" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-text-primary">
+                  {stats ? formatCurrency(stats.wonDealsValue) : "$0"}
+                </p>
+                <p className="text-sm text-text-muted">Revenue Won</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/activities">
+          <Card variant="glass" padding="sm" hover className="cursor-pointer">
+            <CardContent className="flex items-center gap-4 pt-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-status-info/20">
+                <Activity className="h-5 w-5 text-status-info" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-text-primary">
+                  {stats?.activitiesToday || 0}
+                </p>
+                <p className="text-sm text-text-muted">Activities Today</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/reports">
+          <Card variant="glass" padding="sm" hover className="cursor-pointer">
+            <CardContent className="flex items-center gap-4 pt-2">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/20">
+                <Target className="h-5 w-5 text-purple-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-text-primary">
+                  {stats ? formatCurrency(stats.avgDealSize) : "$0"}
+                </p>
+                <p className="text-sm text-text-muted">Avg Deal Size</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
     </div>
   );

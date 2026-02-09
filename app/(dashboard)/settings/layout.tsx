@@ -10,6 +10,7 @@ import {
   Bell,
   CreditCard,
   Settings,
+  MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -49,6 +50,12 @@ const settingsNavItems = [
     icon: Bell,
     label: "Notifications",
     description: "Notification preferences",
+  },
+  {
+    href: "/settings/support",
+    icon: MessageSquare,
+    label: "Support",
+    description: "Submit issues & feedback",
   },
 ];
 

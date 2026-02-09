@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { ArrowUpRight, ArrowDownRight, Minus, LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
@@ -12,6 +13,7 @@ interface KPICardProps {
   icon: LucideIcon;
   iconColor?: string;
   isLoading?: boolean;
+  href?: string;
 }
 
 export function KPICard({
@@ -22,6 +24,7 @@ export function KPICard({
   icon: Icon,
   iconColor = "text-gold",
   isLoading,
+  href,
 }: KPICardProps) {
   const changeType = change === undefined ? null : change > 0 ? "positive" : change < 0 ? "negative" : "neutral";
 
@@ -44,8 +47,8 @@ export function KPICard({
     );
   }
 
-  return (
-    <Card hover>
+  const cardContent = (
+    <Card hover className={href ? "cursor-pointer" : undefined}>
       <CardContent className="pt-6">
         <div className="flex items-center justify-between">
           <div>
@@ -82,4 +85,10 @@ export function KPICard({
       </CardContent>
     </Card>
   );
+
+  if (href) {
+    return <Link href={href}>{cardContent}</Link>;
+  }
+
+  return cardContent;
 }

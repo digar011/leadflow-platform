@@ -20,6 +20,7 @@ import {
   UserCog,
   ScrollText,
   Cog,
+  MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getSupabaseClient } from "@/lib/supabase/client";
@@ -40,16 +41,17 @@ interface NavItem {
 
 const navigation: NavItem[] = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Leads", href: "/leads", icon: Building2, permission: "leads.view" },
-  { name: "Contacts", href: "/contacts", icon: Users, permission: "contacts.view" },
-  { name: "Activities", href: "/activities", icon: Activity, permission: "activities.view" },
-  { name: "Campaigns", href: "/campaigns", icon: Megaphone, permission: "campaigns.view", requiredFeature: "campaigns" },
-  { name: "Automation", href: "/automation", icon: Zap, permission: "automation.view", requiredFeature: "automationRules" },
-  { name: "Reports", href: "/reports", icon: FileText, permission: "reports.view", requiredFeature: "savedReports" },
+  { name: "Leads", href: "/leads", icon: Building2 },
+  { name: "Contacts", href: "/contacts", icon: Users },
+  { name: "Activities", href: "/activities", icon: Activity },
+  { name: "Campaigns", href: "/campaigns", icon: Megaphone, requiredFeature: "campaigns" },
+  { name: "Automation", href: "/automation", icon: Zap, requiredFeature: "automationRules" },
+  { name: "Reports", href: "/reports", icon: FileText, requiredFeature: "savedReports" },
 ];
 
 const adminNavigation: NavItem[] = [
   { name: "User Management", href: "/admin/users", icon: UserCog },
+  { name: "Support Tickets", href: "/admin/support", icon: MessageSquare },
   { name: "System Settings", href: "/admin/settings", icon: Cog },
   { name: "Audit Logs", href: "/admin/audit", icon: ScrollText, requiredFeature: "auditLogs" },
 ];

@@ -881,6 +881,62 @@ export interface Database {
         };
         Relationships: [];
       };
+      support_tickets: {
+        Row: {
+          id: string;
+          user_id: string;
+          subject: string;
+          description: string;
+          category: string;
+          priority: string;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          subject: string;
+          description: string;
+          category?: string;
+          priority?: string;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          subject?: string;
+          description?: string;
+          category?: string;
+          priority?: string;
+          status?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      support_messages: {
+        Row: {
+          id: string;
+          ticket_id: string;
+          sender_id: string | null;
+          message: string;
+          is_admin_reply: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          ticket_id: string;
+          sender_id: string;
+          message: string;
+          is_admin_reply?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          message?: string;
+          is_admin_reply?: boolean;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
