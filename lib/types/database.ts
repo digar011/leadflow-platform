@@ -115,6 +115,10 @@ export interface Database {
           permissions: Json;
           subscription_tier: SubscriptionTier;
           subscription_billing_cycle: BillingCycle;
+          stripe_customer_id: string | null;
+          stripe_subscription_id: string | null;
+          subscription_status: 'active' | 'past_due' | 'canceled' | 'unpaid' | 'trialing' | 'incomplete' | null;
+          current_period_end: string | null;
           last_sign_in_at: string | null;
           created_at: string;
           updated_at: string;
@@ -129,6 +133,10 @@ export interface Database {
           permissions?: Json;
           subscription_tier?: SubscriptionTier;
           subscription_billing_cycle?: BillingCycle;
+          stripe_customer_id?: string | null;
+          stripe_subscription_id?: string | null;
+          subscription_status?: string | null;
+          current_period_end?: string | null;
           last_sign_in_at?: string | null;
           created_at?: string;
           updated_at?: string;
@@ -143,6 +151,10 @@ export interface Database {
           permissions?: Json;
           subscription_tier?: SubscriptionTier;
           subscription_billing_cycle?: BillingCycle;
+          stripe_customer_id?: string | null;
+          stripe_subscription_id?: string | null;
+          subscription_status?: string | null;
+          current_period_end?: string | null;
           last_sign_in_at?: string | null;
           updated_at?: string;
         };
@@ -732,6 +744,8 @@ export interface Database {
           key_hash: string;
           key_prefix: string;
           scopes: string[];
+          integration_type: string | null;
+          external_key: string | null;
           last_used_at: string | null;
           expires_at: string | null;
           is_active: boolean;
@@ -744,6 +758,8 @@ export interface Database {
           key_hash: string;
           key_prefix: string;
           scopes?: string[];
+          integration_type?: string | null;
+          external_key?: string | null;
           last_used_at?: string | null;
           expires_at?: string | null;
           is_active?: boolean;
@@ -754,9 +770,80 @@ export interface Database {
           key_hash?: string;
           key_prefix?: string;
           scopes?: string[];
+          integration_type?: string | null;
+          external_key?: string | null;
           last_used_at?: string | null;
           expires_at?: string | null;
           is_active?: boolean;
+        };
+        Relationships: [];
+      };
+      automation_logs: {
+        Row: {
+          id: string;
+          rule_id: string;
+          business_id: string | null;
+          status: 'pending' | 'running' | 'success' | 'failed' | 'skipped';
+          trigger_data: Json;
+          action_result: Json;
+          error_message: string | null;
+          started_at: string;
+          completed_at: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          rule_id: string;
+          business_id?: string | null;
+          status: string;
+          trigger_data?: Json;
+          action_result?: Json;
+          error_message?: string | null;
+          started_at?: string;
+          completed_at?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          status?: string;
+          trigger_data?: Json;
+          action_result?: Json;
+          error_message?: string | null;
+          completed_at?: string | null;
+        };
+        Relationships: [];
+      };
+      scheduled_tasks: {
+        Row: {
+          id: string;
+          rule_id: string | null;
+          business_id: string;
+          contact_id: string | null;
+          task_type: string;
+          task_config: Json;
+          status: string;
+          scheduled_for: string;
+          executed_at: string | null;
+          error_message: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          rule_id?: string | null;
+          business_id: string;
+          contact_id?: string | null;
+          task_type: string;
+          task_config?: Json;
+          status?: string;
+          scheduled_for: string;
+          executed_at?: string | null;
+          error_message?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          status?: string;
+          task_config?: Json;
+          executed_at?: string | null;
+          error_message?: string | null;
         };
         Relationships: [];
       };

@@ -168,8 +168,27 @@ export function useCreateLead() {
 
       return data;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["leads"] });
+
+      // Fire automation rules for "lead_created" trigger (fire-and-forget)
+      if (data) {
+        fetch("/api/automation/execute", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            triggerType: "lead_created",
+            triggerData: {
+              businessId: data.id,
+              businessName: data.business_name,
+              email: data.email,
+              contactName: data.business_name,
+            },
+          }),
+        }).catch((err) => {
+          console.error("Automation trigger failed:", err);
+        });
+      }
     },
   });
 }

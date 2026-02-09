@@ -10,6 +10,8 @@ export interface ApiKey {
   name: string;
   key_prefix: string;
   scopes: string[];
+  integration_type: string | null;
+  external_key: string | null;
   last_used_at: string | null;
   expires_at: string | null;
   is_active: boolean;
@@ -19,8 +21,20 @@ export interface ApiKey {
 export interface CreateApiKeyInput {
   name: string;
   scopes: string[];
+  integration_type?: string;
+  external_key?: string;
   expires_at?: string;
 }
+
+// Integration types with descriptions
+export const INTEGRATION_TYPES = [
+  { value: "supabase", label: "Supabase", desc: "Database & Auth", placeholder: "Paste your Supabase API key (e.g., eyJhbGciOiJI...)" },
+  { value: "email", label: "Email Service", desc: "SendGrid, Mailgun, etc.", placeholder: "Paste your email service API key" },
+  { value: "phone", label: "Phone / SMS", desc: "Twilio, Vonage, etc.", placeholder: "Paste your SMS service API key" },
+  { value: "webhook", label: "Webhook", desc: "n8n, Zapier, Make", placeholder: "Paste your webhook secret or API key" },
+  { value: "crm", label: "CRM Sync", desc: "Salesforce, HubSpot", placeholder: "Paste your CRM API key" },
+  { value: "custom", label: "Custom", desc: "Custom integration", placeholder: "Paste your API key or secret" },
+] as const;
 
 // Scopes
 export const API_SCOPES = [
@@ -72,6 +86,8 @@ export function useCreateApiKey() {
           key_hash: keyHash,
           key_prefix: keyPrefix,
           scopes: input.scopes,
+          integration_type: input.integration_type || null,
+          external_key: input.external_key || null,
           expires_at: input.expires_at,
         })
         .select()

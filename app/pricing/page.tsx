@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Check, X, Sparkles } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -13,6 +14,7 @@ import {
   formatPrice,
   formatLimit,
 } from "@/lib/utils/subscription";
+import { useStripeCheckout } from "@/lib/hooks/useStripeCheckout";
 import type { SubscriptionTier, BillingCycle } from "@/lib/types/database";
 
 const TIER_COLORS: Record<SubscriptionTier, string> = {
@@ -76,6 +78,20 @@ const PLAN_FEATURES: Record<SubscriptionTier, string[]> = {
 
 export default function PricingPage() {
   const [billingCycle, setBillingCycle] = useState<BillingCycle>("monthly");
+  const router = useRouter();
+  const { checkout, isLoading: isCheckoutLoading } = useStripeCheckout();
+
+  const handlePlanSelect = (tierKey: SubscriptionTier) => {
+    if (tierKey === "free") {
+      router.push("/register");
+      return;
+    }
+    if (tierKey === "enterprise") {
+      window.location.href = "mailto:sales@leadflow.com?subject=Enterprise%20Plan%20Inquiry";
+      return;
+    }
+    checkout(tierKey, billingCycle);
+  };
 
   return (
     <div className="space-y-16">
@@ -208,8 +224,12 @@ export default function PricingPage() {
                 <Button
                   variant={plan.ctaVariant === "primary" ? "primary" : "outline"}
                   className="w-full"
+                  onClick={() => handlePlanSelect(tierKey)}
+                  disabled={isCheckoutLoading && tierKey !== "free" && tierKey !== "enterprise"}
                 >
-                  {plan.ctaLabel}
+                  {isCheckoutLoading && tierKey !== "free" && tierKey !== "enterprise"
+                    ? "Redirecting..."
+                    : plan.ctaLabel}
                 </Button>
               </div>
             </Card>

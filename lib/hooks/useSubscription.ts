@@ -27,17 +27,28 @@ export function useSubscription() {
 
       const { data: profile, error } = await supabase
         .from("profiles")
-        .select("subscription_tier, subscription_billing_cycle")
+        .select("subscription_tier, subscription_billing_cycle, stripe_customer_id, stripe_subscription_id, subscription_status, current_period_end")
         .eq("id", user.id)
         .single();
 
       if (error) {
         // Gracefully handle missing columns (migration not yet applied)
-        return { tier: "free" as SubscriptionTier, billingCycle: "monthly" as BillingCycle };
+        return {
+          tier: "free" as SubscriptionTier,
+          billingCycle: "monthly" as BillingCycle,
+          stripeCustomerId: null as string | null,
+          stripeSubscriptionId: null as string | null,
+          subscriptionStatus: null as string | null,
+          currentPeriodEnd: null as string | null,
+        };
       }
       return {
         tier: (profile.subscription_tier as SubscriptionTier) ?? "free",
         billingCycle: (profile.subscription_billing_cycle as BillingCycle) ?? "monthly",
+        stripeCustomerId: (profile as Record<string, unknown>).stripe_customer_id as string | null ?? null,
+        stripeSubscriptionId: (profile as Record<string, unknown>).stripe_subscription_id as string | null ?? null,
+        subscriptionStatus: (profile as Record<string, unknown>).subscription_status as string | null ?? null,
+        currentPeriodEnd: (profile as Record<string, unknown>).current_period_end as string | null ?? null,
       };
     },
     staleTime: 5 * 60 * 1000,
@@ -45,6 +56,10 @@ export function useSubscription() {
 
   const tier: SubscriptionTier = data?.tier ?? "free";
   const billingCycle: BillingCycle = data?.billingCycle ?? "monthly";
+  const stripeCustomerId = data?.stripeCustomerId ?? null;
+  const stripeSubscriptionId = data?.stripeSubscriptionId ?? null;
+  const subscriptionStatus = data?.subscriptionStatus ?? null;
+  const currentPeriodEnd = data?.currentPeriodEnd ?? null;
   const plan = getPlanDefinition(tier);
 
   const can = (feature: FeatureKey): boolean => hasFeature(tier, feature);
@@ -67,6 +82,10 @@ export function useSubscription() {
     tier,
     billingCycle,
     plan,
+    stripeCustomerId,
+    stripeSubscriptionId,
+    subscriptionStatus,
+    currentPeriodEnd,
     can,
     limit,
     nearLimit,

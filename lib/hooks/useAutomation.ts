@@ -154,7 +154,7 @@ export function useAutomationLogs(ruleId?: string) {
           automation_rules(name),
           businesses(business_name)
         `)
-        .order("executed_at", { ascending: false })
+        .order("created_at", { ascending: false })
         .limit(100);
 
       if (ruleId) {

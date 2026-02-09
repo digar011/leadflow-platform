@@ -284,7 +284,7 @@ export default function AutomationPage() {
                         </p>
                         <p className="text-xs text-text-muted">
                           {log.businesses?.business_name || "Unknown"} •{" "}
-                          {format(new Date(log.executed_at), "MMM d, h:mm a")}
+                          {format(new Date(log.created_at), "MMM d, h:mm a")}
                         </p>
                       </div>
                     </div>

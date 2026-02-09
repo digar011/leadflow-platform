@@ -29,8 +29,27 @@ import {
   useDeleteApiKey,
   useToggleApiKey,
   API_SCOPES,
+  INTEGRATION_TYPES,
 } from "@/lib/hooks/useApiKeys";
 import { cn } from "@/lib/utils";
+
+const INTEGRATION_ICONS: Record<string, typeof Database> = {
+  supabase: Database,
+  email: Mail,
+  phone: Phone,
+  webhook: Webhook,
+  crm: Globe,
+  custom: Key,
+};
+
+const INTEGRATION_COLORS: Record<string, string> = {
+  supabase: "text-emerald-400 bg-emerald-500/20",
+  email: "text-blue-400 bg-blue-500/20",
+  phone: "text-purple-400 bg-purple-500/20",
+  webhook: "text-orange-400 bg-orange-500/20",
+  crm: "text-pink-400 bg-pink-500/20",
+  custom: "text-gold bg-gold/20",
+};
 
 export default function ApiKeysSettingsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -38,11 +57,14 @@ export default function ApiKeysSettingsPage() {
   const [newKeyData, setNewKeyData] = useState({
     name: "",
     integrationType: "",
+    externalKey: "",
     scopes: [] as string[],
     expiresIn: "",
   });
   const [createdKey, setCreatedKey] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState(false);
+  const [showExternalKeys, setShowExternalKeys] = useState<Record<string, boolean>>({});
+  const [createError, setCreateError] = useState<string | null>(null);
 
   const { data: apiKeys, isLoading } = useApiKeys();
   const createApiKey = useCreateApiKey();
@@ -50,6 +72,7 @@ export default function ApiKeysSettingsPage() {
   const toggleApiKey = useToggleApiKey();
 
   const handleCreate = async () => {
+    setCreateError(null);
     try {
       let expiresAt: string | undefined;
       if (newKeyData.expiresIn) {
@@ -62,19 +85,25 @@ export default function ApiKeysSettingsPage() {
       const result = await createApiKey.mutateAsync({
         name: newKeyData.name,
         scopes: newKeyData.scopes,
+        integration_type: newKeyData.integrationType || undefined,
+        external_key: newKeyData.externalKey || undefined,
         expires_at: expiresAt,
       });
 
       setCreatedKey(result.fullKey);
     } catch (error) {
       console.error("Failed to create API key:", error);
+      setCreateError(
+        error instanceof Error ? error.message : "Failed to create API key. Please try again."
+      );
     }
   };
 
   const handleCloseCreateModal = () => {
     setShowCreateModal(false);
     setCreatedKey(null);
-    setNewKeyData({ name: "", integrationType: "", scopes: [], expiresIn: "" });
+    setCreateError(null);
+    setNewKeyData({ name: "", integrationType: "", externalKey: "", scopes: [], expiresIn: "" });
   };
 
   const handleDelete = async (id: string) => {
@@ -109,13 +138,24 @@ export default function ApiKeysSettingsPage() {
     }));
   };
 
+  const toggleExternalKeyVisibility = (id: string) => {
+    setShowExternalKeys((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const selectedIntegration = INTEGRATION_TYPES.find(
+    (t) => t.value === newKeyData.integrationType
+  );
+
+  // Button is enabled when name and integration type are provided
+  const canCreate = newKeyData.name.trim() !== "" && newKeyData.integrationType !== "";
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-semibold text-text-primary">API Keys</h2>
           <p className="text-text-secondary mt-1">
-            Create and manage API keys for programmatic access
+            Create and manage API keys for integrations and programmatic access
           </p>
         </div>
         <Button
@@ -154,93 +194,145 @@ export default function ApiKeysSettingsPage() {
               <Key className="h-12 w-12 mx-auto text-text-muted mb-4" />
               <p className="text-text-secondary">No API keys created</p>
               <p className="text-sm text-text-muted mt-1">
-                Create an API key to access the LeadFlow API
+                Create an API key to connect integrations or access the LeadFlow API
               </p>
             </div>
           ) : (
             <div className="space-y-3">
-              {apiKeys.map((apiKey) => (
-                <div
-                  key={apiKey.id}
-                  className="p-4 rounded-lg border border-white/10 bg-white/5"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <div className="h-10 w-10 rounded-lg bg-gold/20 flex items-center justify-center">
-                        <Key className="h-5 w-5 text-gold" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium text-text-primary">
-                            {apiKey.name}
-                          </p>
-                          <Badge
-                            variant={apiKey.is_active ? "default" : "secondary"}
-                            className={
-                              apiKey.is_active
-                                ? "bg-green-500/20 text-green-400"
-                                : "bg-white/10 text-text-muted"
-                            }
-                          >
-                            {apiKey.is_active ? "Active" : "Inactive"}
-                          </Badge>
+              {apiKeys.map((apiKey) => {
+                const IntegrationIcon =
+                  INTEGRATION_ICONS[apiKey.integration_type || "custom"] || Key;
+                const integrationColor =
+                  INTEGRATION_COLORS[apiKey.integration_type || "custom"] || "text-gold bg-gold/20";
+
+                return (
+                  <div
+                    key={apiKey.id}
+                    className="p-4 rounded-lg border border-white/10 bg-white/5"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div
+                          className={cn(
+                            "h-10 w-10 rounded-lg flex items-center justify-center",
+                            integrationColor
+                          )}
+                        >
+                          <IntegrationIcon className="h-5 w-5" />
                         </div>
-                        <div className="flex items-center gap-4 mt-1">
-                          <code className="text-sm text-text-muted font-mono">
-                            {apiKey.key_prefix}...
-                          </code>
-                          <span className="text-xs text-text-muted">
-                            Created {format(new Date(apiKey.created_at), "MMM d, yyyy")}
-                          </span>
-                          {apiKey.last_used_at && (
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-text-primary">
+                              {apiKey.name}
+                            </p>
+                            {apiKey.integration_type && (
+                              <Badge variant="secondary" size="sm">
+                                {INTEGRATION_TYPES.find(
+                                  (t) => t.value === apiKey.integration_type
+                                )?.label || apiKey.integration_type}
+                              </Badge>
+                            )}
+                            <Badge
+                              variant={apiKey.is_active ? "default" : "secondary"}
+                              className={
+                                apiKey.is_active
+                                  ? "bg-green-500/20 text-green-400"
+                                  : "bg-white/10 text-text-muted"
+                              }
+                            >
+                              {apiKey.is_active ? "Active" : "Inactive"}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-4 mt-1">
+                            <code className="text-sm text-text-muted font-mono">
+                              {apiKey.key_prefix}...
+                            </code>
                             <span className="text-xs text-text-muted">
-                              Last used {format(new Date(apiKey.last_used_at), "MMM d, yyyy")}
+                              Created {format(new Date(apiKey.created_at), "MMM d, yyyy")}
                             </span>
-                          )}
-                          {apiKey.expires_at && (
-                            <span className="text-xs text-yellow-400">
-                              Expires {format(new Date(apiKey.expires_at), "MMM d, yyyy")}
-                            </span>
-                          )}
+                            {apiKey.last_used_at && (
+                              <span className="text-xs text-text-muted">
+                                Last used {format(new Date(apiKey.last_used_at), "MMM d, yyyy")}
+                              </span>
+                            )}
+                            {apiKey.expires_at && (
+                              <span className="text-xs text-yellow-400">
+                                Expires {format(new Date(apiKey.expires_at), "MMM d, yyyy")}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleToggle(apiKey.id, apiKey.is_active)}
-                      >
-                        {apiKey.is_active ? "Disable" : "Enable"}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-status-error hover:text-status-error"
-                        onClick={() => setShowDeleteModal(apiKey.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Scopes */}
-                  {apiKey.scopes?.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-white/10">
-                      <p className="text-xs text-text-muted mb-2">Scopes</p>
-                      <div className="flex flex-wrap gap-1">
-                        {apiKey.scopes.map((scope) => (
-                          <Badge key={scope} variant="secondary" size="sm">
-                            <Shield className="h-3 w-3 mr-1" />
-                            {scope}
-                          </Badge>
-                        ))}
+                      <div className="flex items-center gap-2">
+                        {apiKey.external_key && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => toggleExternalKeyVisibility(apiKey.id)}
+                            title={showExternalKeys[apiKey.id] ? "Hide key" : "Show key"}
+                          >
+                            {showExternalKeys[apiKey.id] ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleToggle(apiKey.id, apiKey.is_active)}
+                        >
+                          {apiKey.is_active ? "Disable" : "Enable"}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-status-error hover:text-status-error"
+                          onClick={() => setShowDeleteModal(apiKey.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
-                  )}
-                </div>
-              ))}
+
+                    {/* External Key Preview */}
+                    {apiKey.external_key && showExternalKeys[apiKey.id] && (
+                      <div className="mt-3 pt-3 border-t border-white/10">
+                        <p className="text-xs text-text-muted mb-1">External Key</p>
+                        <div className="flex items-center gap-2">
+                          <code className="text-sm text-text-secondary font-mono bg-white/5 px-2 py-1 rounded break-all flex-1">
+                            {apiKey.external_key}
+                          </code>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => copyToClipboard(apiKey.external_key!)}
+                          >
+                            <Copy className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Scopes */}
+                    {apiKey.scopes?.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-white/10">
+                        <p className="text-xs text-text-muted mb-2">Scopes</p>
+                        <div className="flex flex-wrap gap-1">
+                          {apiKey.scopes.map((scope) => (
+                            <Badge key={scope} variant="secondary" size="sm">
+                              <Shield className="h-3 w-3 mr-1" />
+                              {scope}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </CardContent>
@@ -251,6 +343,7 @@ export default function ApiKeysSettingsPage() {
         isOpen={showCreateModal}
         onClose={handleCloseCreateModal}
         title={createdKey ? "API Key Created" : "Create API Key"}
+        size="lg"
       >
         {createdKey ? (
           <div className="space-y-4">
@@ -262,7 +355,7 @@ export default function ApiKeysSettingsPage() {
                     API key created successfully
                   </p>
                   <p className="text-sm text-text-muted mt-1">
-                    Copy this key now. You won't be able to see it again.
+                    Copy this key now. You won&apos;t be able to see it again.
                   </p>
                 </div>
               </div>
@@ -302,48 +395,55 @@ export default function ApiKeysSettingsPage() {
                 Select what this API key will be used for
               </p>
               <div className="grid grid-cols-2 gap-2">
-                {[
-                  { value: "supabase", label: "Supabase", desc: "Database & Auth", icon: Database, color: "text-emerald-400 bg-emerald-500/20" },
-                  { value: "email", label: "Email Service", desc: "SendGrid, Mailgun, etc.", icon: Mail, color: "text-blue-400 bg-blue-500/20" },
-                  { value: "phone", label: "Phone / SMS", desc: "Twilio, Vonage, etc.", icon: Phone, color: "text-purple-400 bg-purple-500/20" },
-                  { value: "webhook", label: "Webhook", desc: "n8n, Zapier, Make", icon: Webhook, color: "text-orange-400 bg-orange-500/20" },
-                  { value: "crm", label: "CRM Sync", desc: "Salesforce, HubSpot", icon: Globe, color: "text-pink-400 bg-pink-500/20" },
-                  { value: "custom", label: "Custom", desc: "Custom integration", icon: Key, color: "text-gold bg-gold/20" },
-                ].map((type) => (
-                  <button
-                    key={type.value}
-                    type="button"
-                    onClick={() =>
-                      setNewKeyData((prev) => ({
-                        ...prev,
-                        integrationType: type.value,
-                        name: prev.name || `${type.label} Key`,
-                      }))
-                    }
-                    className={cn(
-                      "flex items-center gap-3 p-3 rounded-lg border text-left transition-all",
-                      newKeyData.integrationType === type.value
-                        ? "border-gold bg-gold/10 ring-1 ring-gold/30"
-                        : "border-white/10 hover:border-white/20"
-                    )}
-                  >
-                    <div className={cn("flex h-9 w-9 shrink-0 items-center justify-center rounded-lg", type.color)}>
-                      <type.icon className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <p className={cn(
-                        "text-sm font-medium",
-                        newKeyData.integrationType === type.value ? "text-gold" : "text-text-secondary"
-                      )}>
-                        {type.label}
-                      </p>
-                      <p className="text-xs text-text-muted">{type.desc}</p>
-                    </div>
-                  </button>
-                ))}
+                {INTEGRATION_TYPES.map((type) => {
+                  const Icon = INTEGRATION_ICONS[type.value] || Key;
+                  const color = INTEGRATION_COLORS[type.value] || "text-gold bg-gold/20";
+                  return (
+                    <button
+                      key={type.value}
+                      type="button"
+                      onClick={() =>
+                        setNewKeyData((prev) => ({
+                          ...prev,
+                          integrationType: type.value,
+                          name: prev.name || `${type.label} Key`,
+                        }))
+                      }
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-lg border text-left transition-all",
+                        newKeyData.integrationType === type.value
+                          ? "border-gold bg-gold/10 ring-1 ring-gold/30"
+                          : "border-white/10 hover:border-white/20"
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
+                          color
+                        )}
+                      >
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <p
+                          className={cn(
+                            "text-sm font-medium",
+                            newKeyData.integrationType === type.value
+                              ? "text-gold"
+                              : "text-text-secondary"
+                          )}
+                        >
+                          {type.label}
+                        </p>
+                        <p className="text-xs text-text-muted">{type.desc}</p>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
+            {/* Key Name */}
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-2">
                 Key Name
@@ -353,10 +453,31 @@ export default function ApiKeysSettingsPage() {
                 onChange={(e) =>
                   setNewKeyData({ ...newKeyData, name: e.target.value })
                 }
-                placeholder="e.g., Production Email Key"
+                placeholder="e.g., Production Supabase Key"
               />
             </div>
 
+            {/* External Key Input - shown when integration type is selected */}
+            {selectedIntegration && (
+              <div>
+                <label className="block text-sm font-medium text-text-secondary mb-2">
+                  API Key / Secret
+                </label>
+                <p className="text-xs text-text-muted mb-2">
+                  Paste your {selectedIntegration.label} API key to store it securely
+                </p>
+                <Input
+                  type="password"
+                  value={newKeyData.externalKey}
+                  onChange={(e) =>
+                    setNewKeyData({ ...newKeyData, externalKey: e.target.value })
+                  }
+                  placeholder={selectedIntegration.placeholder}
+                />
+              </div>
+            )}
+
+            {/* Expiration */}
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-2">
                 Expiration (optional)
@@ -376,14 +497,19 @@ export default function ApiKeysSettingsPage() {
               </select>
             </div>
 
+            {/* Scopes */}
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">
-                Scopes
+              <label className="block text-sm font-medium text-text-secondary mb-1">
+                Scopes (optional)
               </label>
+              <p className="text-xs text-text-muted mb-2">
+                Restrict what this key can access. Leave empty for full access.
+              </p>
               <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
                 {API_SCOPES.map((scope) => (
                   <button
                     key={scope.value}
+                    type="button"
                     onClick={() => toggleScope(scope.value)}
                     className={cn(
                       "p-3 rounded-lg border text-left transition-colors",
@@ -410,13 +536,21 @@ export default function ApiKeysSettingsPage() {
               </div>
             </div>
 
+            {/* Error message */}
+            {createError && (
+              <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                <p className="text-sm text-red-400">{createError}</p>
+              </div>
+            )}
+
             <div className="flex justify-end gap-3 pt-4">
               <Button variant="outline" onClick={handleCloseCreateModal}>
                 Cancel
               </Button>
               <Button
                 onClick={handleCreate}
-                disabled={!newKeyData.name || !newKeyData.integrationType || newKeyData.scopes.length === 0}
+                disabled={!canCreate}
+                loading={createApiKey.isPending}
               >
                 Create Key
               </Button>
@@ -431,7 +565,7 @@ export default function ApiKeysSettingsPage() {
         onClose={() => setShowDeleteModal(null)}
         onConfirm={() => showDeleteModal && handleDelete(showDeleteModal)}
         title="Delete API Key"
-        description="Are you sure you want to delete this API key? Any applications using this key will lose access."
+        message="Are you sure you want to delete this API key? Any applications using this key will lose access."
         confirmText="Delete"
         variant="danger"
       />

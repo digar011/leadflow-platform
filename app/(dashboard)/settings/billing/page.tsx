@@ -1,17 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { Crown, ExternalLink } from "lucide-react";
+import { Crown, ExternalLink, CreditCard } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { UsageLimitBar } from "@/components/subscription/UsageLimitBar";
 import { useSubscription } from "@/lib/hooks/useSubscription";
+import { useStripeCheckout } from "@/lib/hooks/useStripeCheckout";
 import { useLeadStats } from "@/lib/hooks/useLeads";
 import { formatPrice } from "@/lib/utils/subscription";
 
 export default function BillingPage() {
-  const { tier, billingCycle, plan, isLoading } = useSubscription();
+  const { tier, billingCycle, plan, stripeSubscriptionId, subscriptionStatus, currentPeriodEnd, isLoading } = useSubscription();
+  const { openPortal, isLoading: isPortalLoading } = useStripeCheckout();
   const { data: leadStats } = useLeadStats();
 
   if (isLoading) {
@@ -50,6 +52,19 @@ export default function BillingPage() {
                     {plan.name}
                   </h3>
                   <Badge className={tierColors[tier]}>{tier}</Badge>
+                  {subscriptionStatus && (
+                    <Badge
+                      className={
+                        subscriptionStatus === "active"
+                          ? "bg-emerald-500/20 text-emerald-400"
+                          : subscriptionStatus === "past_due"
+                          ? "bg-amber-500/20 text-amber-400"
+                          : "bg-red-500/20 text-red-400"
+                      }
+                    >
+                      {subscriptionStatus.replace("_", " ")}
+                    </Badge>
+                  )}
                 </div>
                 <p className="text-text-secondary">
                   {plan.monthlyPrice === null
@@ -64,14 +79,33 @@ export default function BillingPage() {
                         billingCycle === "annual" ? " (billed annually)" : ""
                       }`}
                 </p>
+                {currentPeriodEnd && (
+                  <p className="text-xs text-text-muted mt-1">
+                    {subscriptionStatus === "canceled"
+                      ? `Access until ${new Date(currentPeriodEnd).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`
+                      : `Renews ${new Date(currentPeriodEnd).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`}
+                  </p>
+                )}
               </div>
             </div>
-            <Link href="/pricing">
-              <Button variant="outline">
-                <ExternalLink className="h-4 w-4 mr-1.5" />
-                {tier === "enterprise" ? "View Plans" : "Change Plan"}
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              {stripeSubscriptionId && (
+                <Button
+                  variant="outline"
+                  onClick={openPortal}
+                  disabled={isPortalLoading}
+                >
+                  <CreditCard className="h-4 w-4 mr-1.5" />
+                  {isPortalLoading ? "Loading..." : "Manage Subscription"}
+                </Button>
+              )}
+              <Link href="/pricing">
+                <Button variant="outline">
+                  <ExternalLink className="h-4 w-4 mr-1.5" />
+                  {tier === "enterprise" ? "View Plans" : "Change Plan"}
+                </Button>
+              </Link>
+            </div>
           </div>
         </CardContent>
       </Card>

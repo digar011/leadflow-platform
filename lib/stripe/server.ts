@@ -1,0 +1,18 @@
+import Stripe from "stripe";
+
+let _stripe: Stripe | null = null;
+
+export function getStripe(): Stripe {
+  if (!_stripe) {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      throw new Error(
+        "STRIPE_SECRET_KEY is not set. Add it to your .env.local file."
+      );
+    }
+    _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2025-01-27.acacia",
+      typescript: true,
+    });
+  }
+  return _stripe;
+}
