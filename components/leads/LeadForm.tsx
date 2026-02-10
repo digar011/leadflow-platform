@@ -26,11 +26,11 @@ import { businessSchema } from "@/lib/utils/validation";
 import { LEAD_STATUSES, LEAD_TEMPERATURES, LEAD_SOURCES, INDUSTRIES } from "@/lib/utils/constants";
 import { useDuplicateCheck } from "@/lib/hooks/useDuplicateCheck";
 import { DuplicateWarning } from "@/components/leads/DuplicateWarning";
-import type { Business, InsertTables, UpdateTables } from "@/lib/types/database";
+import type { Business, InsertTables } from "@/lib/types/database";
 
 interface LeadFormProps {
   initialData?: Partial<Business>;
-  onSubmit: (data: InsertTables<"businesses"> | UpdateTables<"businesses">) => Promise<void>;
+  onSubmit: (data: Partial<InsertTables<"businesses">>) => Promise<void>;
   isLoading?: boolean;
   mode: "create" | "edit";
 }
@@ -216,7 +216,7 @@ export function LeadForm({ initialData, onSubmit, isLoading, mode }: LeadFormPro
             onChange={(e) => updateField("industry_category", e.target.value)}
             error={errors.industry_category}
             placeholder="Select industry..."
-            options={INDUSTRIES}
+            options={[...INDUSTRIES]}
           />
         </CardContent>
       </Card>
@@ -283,14 +283,14 @@ export function LeadForm({ initialData, onSubmit, isLoading, mode }: LeadFormPro
             value={formData.status}
             onChange={(e) => updateField("status", e.target.value)}
             error={errors.status}
-            options={LEAD_STATUSES}
+            options={[...LEAD_STATUSES]}
           />
           <Select
             label="Temperature"
             value={formData.lead_temperature}
             onChange={(e) => updateField("lead_temperature", e.target.value)}
             error={errors.lead_temperature}
-            options={LEAD_TEMPERATURES}
+            options={[...LEAD_TEMPERATURES]}
           />
           <Select
             label="Source"
@@ -298,7 +298,7 @@ export function LeadForm({ initialData, onSubmit, isLoading, mode }: LeadFormPro
             onChange={(e) => updateField("source", e.target.value)}
             error={errors.source}
             placeholder="Select source..."
-            options={LEAD_SOURCES}
+            options={[...LEAD_SOURCES]}
           />
         </CardContent>
       </Card>

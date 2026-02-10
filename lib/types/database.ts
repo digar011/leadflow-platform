@@ -1941,6 +1941,7 @@ export type AutomationAction =
   | "update_score"
   | "add_to_campaign"
   | "send_webhook"
+  | "send_slack_message"
   | "add_tag";
 
 export type PermissionKey =

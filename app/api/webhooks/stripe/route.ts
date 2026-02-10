@@ -87,13 +87,20 @@ async function handleCheckoutComplete(
 
   const subscriptionId = session.subscription as string;
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-  const priceId = subscription.items.data[0]?.price.id;
+  const firstItem = subscription.items.data[0];
+  const priceId = firstItem?.price.id;
+  if (!priceId) {
+    console.error("No price ID found on subscription items");
+    return;
+  }
 
   const tierInfo = tierFromPriceId(priceId);
   if (!tierInfo) {
     console.error(`Unknown price ID from checkout: ${priceId}`);
     return;
   }
+
+  const periodEnd = firstItem?.current_period_end;
 
   await supabase
     .from("profiles")
@@ -103,9 +110,9 @@ async function handleCheckoutComplete(
       subscription_tier: tierInfo.tier,
       subscription_billing_cycle: tierInfo.billingCycle,
       subscription_status: subscription.status,
-      current_period_end: new Date(
-        subscription.current_period_end * 1000
-      ).toISOString(),
+      current_period_end: periodEnd
+        ? new Date(periodEnd * 1000).toISOString()
+        : null,
     })
     .eq("id", userId);
 }
@@ -117,14 +124,16 @@ async function handleSubscriptionUpdated(
   const userId = subscription.metadata?.supabase_user_id;
   if (!userId) return;
 
-  const priceId = subscription.items.data[0]?.price.id;
-  const tierInfo = tierFromPriceId(priceId);
+  const firstItem = subscription.items.data[0];
+  const priceId = firstItem?.price.id;
+  const tierInfo = priceId ? tierFromPriceId(priceId) : null;
 
+  const periodEnd = firstItem?.current_period_end;
   const updates: Record<string, unknown> = {
     subscription_status: subscription.status,
-    current_period_end: new Date(
-      subscription.current_period_end * 1000
-    ).toISOString(),
+    current_period_end: periodEnd
+      ? new Date(periodEnd * 1000).toISOString()
+      : null,
   };
 
   if (tierInfo) {

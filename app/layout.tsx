@@ -20,8 +20,8 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default: "LeadFlow - Lead Intelligence Platform",
-    template: "%s | LeadFlow",
+    default: "Goldyon - Lead Intelligence Platform",
+    template: "%s | Goldyon",
   },
   description:
     "Full-stack lead intelligence and CRM platform for local business lead generation. Manage leads, track customer journeys, automate workflows, and grow your business.",
@@ -34,9 +34,9 @@ export const metadata: Metadata = {
     "Business Intelligence",
     "Workflow Automation",
   ],
-  authors: [{ name: "LeadFlow Team" }],
+  authors: [{ name: "Goldyon Team" }],
   openGraph: {
-    title: "LeadFlow - Lead Intelligence Platform",
+    title: "Goldyon - Lead Intelligence Platform",
     description:
       "Full-stack lead intelligence and CRM platform for local business lead generation.",
     type: "website",

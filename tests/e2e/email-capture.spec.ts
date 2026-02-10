@@ -15,7 +15,7 @@ test.describe("Email Capture Settings", () => {
     await page.goto("/settings/webhooks");
     await expect(page.getByText("Email Capture")).toBeVisible({ timeout: 10000 });
 
-    // Forwarding address should contain "crm-" and "@inbound.leadflow.app"
+    // Forwarding address should contain "crm-" and "@inbound.goldyon.app"
     const addressContainer = page.locator(".font-mono");
     await expect(addressContainer).toBeVisible({ timeout: 5000 });
 

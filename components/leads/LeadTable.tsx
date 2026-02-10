@@ -236,8 +236,8 @@ export function LeadTable({
                           }}
                           className="cursor-pointer"
                         >
-                          <Badge variant={getStatusBadgeVariant(lead.status)} className="hover:ring-1 hover:ring-gold/50 transition-all">
-                            {formatLeadStatus(lead.status)}
+                          <Badge variant={getStatusBadgeVariant(lead.status ?? "")} className="hover:ring-1 hover:ring-gold/50 transition-all">
+                            {formatLeadStatus(lead.status ?? "")}
                           </Badge>
                         </button>
                         {statusMenuOpen === lead.id && (
@@ -275,14 +275,14 @@ export function LeadTable({
                         )}
                       </div>
                     ) : (
-                      <Badge variant={getStatusBadgeVariant(lead.status)}>
-                        {formatLeadStatus(lead.status)}
+                      <Badge variant={getStatusBadgeVariant(lead.status ?? "")}>
+                        {formatLeadStatus(lead.status ?? "")}
                       </Badge>
                     )}
                   </td>
                   <td className="px-4 py-4">
-                    <Badge variant={getTemperatureBadgeVariant(lead.lead_temperature)}>
-                      {formatLeadTemperature(lead.lead_temperature)}
+                    <Badge variant={getTemperatureBadgeVariant(lead.lead_temperature ?? "")}>
+                      {formatLeadTemperature(lead.lead_temperature ?? "")}
                     </Badge>
                   </td>
                   <td className="px-4 py-4">
@@ -349,7 +349,7 @@ export function LeadTable({
                     </div>
                   </td>
                   <td className="px-4 py-4 text-sm text-text-secondary">
-                    {formatDate(lead.created_at)}
+                    {formatDate(lead.created_at ?? "")}
                   </td>
                   <td className="px-4 py-4">
                     <div className="relative flex justify-end">

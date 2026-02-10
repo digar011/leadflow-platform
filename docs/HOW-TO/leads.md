@@ -1,6 +1,6 @@
 # Leads Management Guide
 
-This guide covers all aspects of managing leads in LeadFlow Platform.
+This guide covers all aspects of managing leads in Goldyon Platform.
 
 ## Table of Contents
 - [Leads List](#leads-list)

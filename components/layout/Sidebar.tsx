@@ -121,7 +121,7 @@ export function Sidebar({ isAdmin: isAdminProp, isMobileOpen, onMobileClose }: S
             <span className="text-lg font-bold text-background">LF</span>
           </div>
           {!collapsed && (
-            <span className="text-xl font-bold text-text-primary">LeadFlow</span>
+            <span className="text-xl font-bold text-text-primary">Goldyon</span>
           )}
         </Link>
         <button

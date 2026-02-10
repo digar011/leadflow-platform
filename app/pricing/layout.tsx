@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Pricing - LeadFlow",
+  title: "Pricing - Goldyon",
   description:
     "Choose the right plan for your business. From free to enterprise.",
 };
@@ -19,7 +19,7 @@ export default function PricingLayout({
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gold">
             <span className="text-lg font-bold text-background">LF</span>
           </div>
-          <span className="text-xl font-bold text-text-primary">LeadFlow</span>
+          <span className="text-xl font-bold text-text-primary">Goldyon</span>
         </Link>
         <Link
           href="/login"
@@ -32,7 +32,7 @@ export default function PricingLayout({
       <main className="max-w-7xl mx-auto px-6 py-12">{children}</main>
 
       <footer className="py-8 text-center text-sm text-text-muted border-t border-white/5">
-        <p>&copy; {new Date().getFullYear()} LeadFlow. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} Goldyon. All rights reserved.</p>
       </footer>
     </div>
   );

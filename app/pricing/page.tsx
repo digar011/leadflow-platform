@@ -87,7 +87,7 @@ export default function PricingPage() {
       return;
     }
     if (tierKey === "enterprise") {
-      window.location.href = "mailto:sales@leadflow.com?subject=Enterprise%20Plan%20Inquiry";
+      window.location.href = "mailto:sales@goldyon.com?subject=Enterprise%20Plan%20Inquiry";
       return;
     }
     checkout(tierKey, billingCycle);

@@ -1,6 +1,6 @@
 # Admin Guide
 
-This guide covers administrative features in LeadFlow Platform.
+This guide covers administrative features in Goldyon Platform.
 
 ## Accessing Admin Panel
 

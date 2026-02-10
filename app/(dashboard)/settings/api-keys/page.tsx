@@ -194,7 +194,7 @@ export default function ApiKeysSettingsPage() {
               <Key className="h-12 w-12 mx-auto text-text-muted mb-4" />
               <p className="text-text-secondary">No API keys created</p>
               <p className="text-sm text-text-muted mt-1">
-                Create an API key to connect integrations or access the LeadFlow API
+                Create an API key to connect integrations or access the Goldyon API
               </p>
             </div>
           ) : (

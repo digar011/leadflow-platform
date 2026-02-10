@@ -32,6 +32,7 @@ import {
 } from "@/lib/hooks/useWebhooks";
 import ZapierMakeGuide from "@/components/settings/ZapierMakeGuide";
 import { EmailCaptureSettings } from "@/components/settings/EmailCaptureSettings";
+import { SlackIntegration } from "@/components/settings/SlackIntegration";
 import { cn } from "@/lib/utils";
 
 export default function WebhooksSettingsPage() {
@@ -211,6 +212,9 @@ export default function WebhooksSettingsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Slack Integration */}
+      <SlackIntegration />
 
       {/* Email Capture */}
       <EmailCaptureSettings />

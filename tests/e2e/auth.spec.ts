@@ -6,7 +6,7 @@ test.describe("Authentication", () => {
       await page.goto("/login");
 
       // Check page title
-      await expect(page).toHaveTitle(/LeadFlow/);
+      await expect(page).toHaveTitle(/Goldyon/);
 
       // Check form elements are present
       await expect(page.getByLabel("Email")).toBeVisible();
