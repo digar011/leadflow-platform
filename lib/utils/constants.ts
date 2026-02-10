@@ -165,7 +165,7 @@ export const DEFAULT_PAGE_SIZE = 25;
 export const PAGE_SIZE_OPTIONS = [10, 25, 50, 100] as const;
 
 // App info
-export const APP_NAME = "LeadFlow";
+export const APP_NAME = "Goldyon";
 export const APP_DESCRIPTION = "Lead Intelligence & CRM Platform";
 export const APP_VERSION = "1.0.0";
 

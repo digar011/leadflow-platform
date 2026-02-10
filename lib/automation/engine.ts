@@ -208,7 +208,7 @@ async function executeSendEmail(
       const templateData = {
         businessName: triggerData.businessName,
         contactName: triggerData.contactName || undefined,
-        companyName: (actionConfig.company_name as string) || "LeadFlow",
+        companyName: (actionConfig.company_name as string) || "Goldyon",
         senderName: (actionConfig.sender_name as string) || undefined,
       };
       subject =
@@ -220,7 +220,7 @@ async function executeSendEmail(
     }
     default: {
       subject =
-        (actionConfig.subject as string) || "Hello from LeadFlow";
+        (actionConfig.subject as string) || "Hello from Goldyon";
       html =
         (actionConfig.html as string) ||
         "<p>Thank you for your interest.</p>";

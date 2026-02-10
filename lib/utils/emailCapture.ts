@@ -6,7 +6,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  */
 export function generateForwardingAddress(userId: string): string {
   const hash = userId.replace(/-/g, "").slice(0, 12);
-  return `crm-${hash}@inbound.leadflow.app`;
+  return `crm-${hash}@inbound.Goldyon.app`;
 }
 
 /**

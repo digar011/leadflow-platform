@@ -1,6 +1,6 @@
 # Billing & Subscription Guide
 
-This guide covers everything about LeadFlow's pricing tiers, subscription management, and feature gating.
+This guide covers everything about Goldyon's pricing tiers, subscription management, and feature gating.
 
 ## Table of Contents
 - [Pricing Tiers Overview](#pricing-tiers-overview)
@@ -18,7 +18,7 @@ This guide covers everything about LeadFlow's pricing tiers, subscription manage
 
 ## Pricing Tiers Overview
 
-LeadFlow offers five subscription tiers:
+Goldyon offers five subscription tiers:
 
 | Tier | Monthly | Annual (per month) | Target Audience |
 |------|---------|-------------------|-----------------|

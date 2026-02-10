@@ -20,9 +20,9 @@ const faqSections: FAQSection[] = [
     title: "Getting Started",
     items: [
       {
-        question: "What is LeadFlow?",
+        question: "What is Goldyon?",
         answer:
-          "LeadFlow is a customer relationship management (CRM) platform designed to help you manage leads, track deals, organize contacts, run campaigns, and monitor your sales pipeline — all in one place.",
+          "Goldyon is a customer relationship management (CRM) platform designed to help you manage leads, track deals, organize contacts, run campaigns, and monitor your sales pipeline — all in one place.",
       },
       {
         question: "How do I add my first lead?",
@@ -152,7 +152,7 @@ const faqSections: FAQSection[] = [
       {
         question: "What plans are available?",
         answer:
-          "LeadFlow offers four plans: Free (up to 25 leads, basic features), Starter (100 leads, campaigns, automations), Professional (500 leads, advanced analytics, API access), and Enterprise (unlimited everything with priority support).",
+          "Goldyon offers four plans: Free (up to 25 leads, basic features), Starter (100 leads, campaigns, automations), Professional (500 leads, advanced analytics, API access), and Enterprise (unlimited everything with priority support).",
       },
       {
         question: "How do I upgrade my plan?",
@@ -182,7 +182,7 @@ const faqSections: FAQSection[] = [
       {
         question: "How do I invite team members?",
         answer:
-          "Go to Settings > Team and click \"Invite Member.\" Enter their email address and select a role. They'll receive an invitation email to join your LeadFlow workspace.",
+          "Go to Settings > Team and click \"Invite Member.\" Enter their email address and select a role. They'll receive an invitation email to join your Goldyon workspace.",
       },
       {
         question: "Can I reassign leads between team members?",
@@ -197,17 +197,17 @@ const faqSections: FAQSection[] = [
       {
         question: "How do webhooks work?",
         answer:
-          "Webhooks send real-time notifications to your external services when events happen in LeadFlow (e.g., new lead created, status changed). Configure them under Settings > Webhooks with your endpoint URL and selected events.",
+          "Webhooks send real-time notifications to your external services when events happen in Goldyon (e.g., new lead created, status changed). Configure them under Settings > Webhooks with your endpoint URL and selected events.",
       },
       {
         question: "How do I get an API key?",
         answer:
-          "Navigate to Settings > API Keys and click \"Generate New Key.\" Copy the key immediately — it won't be shown again. Use this key to authenticate API requests to the LeadFlow API.",
+          "Navigate to Settings > API Keys and click \"Generate New Key.\" Copy the key immediately — it won't be shown again. Use this key to authenticate API requests to the Goldyon API.",
       },
       {
         question: "What can I do with the API?",
         answer:
-          "The LeadFlow API allows you to programmatically create, read, update, and delete leads, contacts, activities, and campaigns. It's available on the Professional plan and above.",
+          "The Goldyon API allows you to programmatically create, read, update, and delete leads, contacts, activities, and campaigns. It's available on the Professional plan and above.",
       },
     ],
   },
@@ -222,7 +222,7 @@ const faqSections: FAQSection[] = [
       {
         question: "Is my data secure?",
         answer:
-          "Yes. LeadFlow uses Supabase with row-level security (RLS) policies, ensuring users can only access their own data. All connections are encrypted via HTTPS, and we enforce strict Content Security Policy headers.",
+          "Yes. Goldyon uses Supabase with row-level security (RLS) policies, ensuring users can only access their own data. All connections are encrypted via HTTPS, and we enforce strict Content Security Policy headers.",
       },
       {
         question: "How do I update my profile information?",
@@ -284,7 +284,7 @@ export default function FAQPage() {
           Frequently Asked Questions
         </h2>
         <p className="text-sm text-text-secondary">
-          Find answers to common questions about LeadFlow
+          Find answers to common questions about Goldyon
         </p>
       </div>
 

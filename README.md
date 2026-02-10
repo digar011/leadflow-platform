@@ -1,6 +1,6 @@
-# LeadFlow -- Lead Intelligence & CRM Platform
+# Goldyon -- Lead Intelligence & CRM Platform
 
-LeadFlow is a full-stack lead intelligence and customer relationship management platform built for local business lead generation. It provides a unified workspace to manage leads, track customer journeys, run marketing campaigns, automate workflows, and analyze sales performance -- all through a modern dark-themed interface with a gold accent design language.
+Goldyon is a full-stack lead intelligence and customer relationship management platform built for local business lead generation. It provides a unified workspace to manage leads, track customer journeys, run marketing campaigns, automate workflows, and analyze sales performance -- all through a modern dark-themed interface with a gold accent design language.
 
 ---
 
@@ -156,7 +156,7 @@ LeadFlow is a full-stack lead intelligence and customer relationship management 
 ## Project Structure
 
 ```
-leadflow-platform/
+Goldyon-platform/
 |-- app/                          # Next.js App Router pages
 |   |-- (auth)/                   # Auth routes (login, register, forgot-password)
 |   |   |-- layout.tsx            # Centered auth layout with branding
@@ -289,7 +289,7 @@ leadflow-platform/
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd leadflow-platform
+cd Goldyon-platform
 
 # Install dependencies
 npm install
@@ -401,7 +401,7 @@ The application uses the following tables, all with Row Level Security (RLS) ena
 
 ## Authentication and Authorization
 
-LeadFlow uses Supabase Auth with email/password authentication. Three user roles are supported:
+Goldyon uses Supabase Auth with email/password authentication. Three user roles are supported:
 
 | Role      | Access                                                                                          |
 | --------- | ----------------------------------------------------------------------------------------------- |
@@ -420,7 +420,7 @@ How authentication is enforced:
 
 ## Subscription and Pricing Tiers
 
-LeadFlow uses a five-tier subscription model. Each user's tier is stored in the `profiles` table (`subscription_tier` column) and defaults to `free`.
+Goldyon uses a five-tier subscription model. Each user's tier is stored in the `profiles` table (`subscription_tier` column) and defaults to `free`.
 
 | Feature | Free | Starter | Growth | Business | Enterprise |
 | --- | --- | --- | --- | --- | --- |

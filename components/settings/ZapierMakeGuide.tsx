@@ -72,17 +72,17 @@ const SETUP_INSTRUCTIONS: StepContent[] = [
       {
         title: "Copy the Zapier webhook URL",
         detail:
-          "Zapier will generate a unique URL. Copy it -- you will paste it into LeadFlow in the next step.",
+          "Zapier will generate a unique URL. Copy it -- you will paste it into Goldyon in the next step.",
       },
       {
-        title: "Create an Outbound Webhook in LeadFlow",
+        title: "Create an Outbound Webhook in Goldyon",
         detail:
           'Click the "Create Webhook for Zapier" button below. Paste the Zapier URL and select the events you want to send.',
       },
       {
         title: "Test the connection",
         detail:
-          'Go back to Zapier and click "Test trigger" to verify that LeadFlow can send data. Then configure your Zap actions (e.g., send to Google Sheets, Slack, email).',
+          'Go back to Zapier and click "Test trigger" to verify that Goldyon can send data. Then configure your Zap actions (e.g., send to Google Sheets, Slack, email).',
       },
     ],
   },
@@ -102,17 +102,17 @@ const SETUP_INSTRUCTIONS: StepContent[] = [
       {
         title: "Copy the Make webhook URL",
         detail:
-          "Make will display a unique URL for your webhook. Copy it for use in LeadFlow.",
+          "Make will display a unique URL for your webhook. Copy it for use in Goldyon.",
       },
       {
-        title: "Create an Outbound Webhook in LeadFlow",
+        title: "Create an Outbound Webhook in Goldyon",
         detail:
           'Click the "Create Webhook for Make" button below. Paste the Make URL and select the events you want to forward.',
       },
       {
         title: "Test and configure the scenario",
         detail:
-          'Click "Run once" in Make, then trigger a test event in LeadFlow. Make will detect the data structure automatically. Add your action modules (e.g., Google Sheets, CRM, email).',
+          'Click "Run once" in Make, then trigger a test event in Goldyon. Make will detect the data structure automatically. Add your action modules (e.g., Google Sheets, CRM, email).',
       },
     ],
   },
@@ -170,7 +170,7 @@ export default function ZapierMakeGuide({
             <div>
               <CardTitle>Zapier &amp; Make Integration</CardTitle>
               <p className="text-sm text-text-muted mt-1">
-                Connect LeadFlow to 5,000+ apps using Zapier or Make
+                Connect Goldyon to 5,000+ apps using Zapier or Make
               </p>
             </div>
           </div>
@@ -190,9 +190,9 @@ export default function ZapierMakeGuide({
                   How it works
                 </p>
                 <p className="text-sm text-text-secondary">
-                  LeadFlow uses outbound webhooks to push real-time event data to
+                  Goldyon uses outbound webhooks to push real-time event data to
                   Zapier and Make. When something happens in your CRM (e.g., a
-                  new lead is created), LeadFlow sends a JSON payload to the
+                  new lead is created), Goldyon sends a JSON payload to the
                   webhook URL you configure. Zapier or Make receives the payload
                   and triggers your automation workflow.
                 </p>
@@ -240,7 +240,7 @@ export default function ZapierMakeGuide({
               Inbound Webhook Endpoint
             </p>
             <p className="text-xs text-text-muted mb-2">
-              To send data <em>into</em> LeadFlow from Zapier or Make, use this
+              To send data <em>into</em> Goldyon from Zapier or Make, use this
               endpoint with an inbound webhook:
             </p>
             <code className="block text-xs bg-black/30 text-gold px-3 py-2 rounded-md font-mono break-all">

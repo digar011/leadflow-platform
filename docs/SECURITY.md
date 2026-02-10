@@ -1,6 +1,6 @@
-# LeadFlow Security Guide
+# Goldyon Security Guide
 
-This document outlines the comprehensive security measures implemented in LeadFlow Platform.
+This document outlines the comprehensive security measures implemented in Goldyon Platform.
 
 ## Authentication & Authorization
 

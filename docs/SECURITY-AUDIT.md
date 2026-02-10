@@ -1,4 +1,4 @@
-# LeadFlow CRM -- Security Audit Report
+# Goldyon CRM -- Security Audit Report
 
 **Audit Date:** 2026-02-08
 **Platform:** Next.js 14 + Supabase + TanStack React Query + Tailwind CSS
@@ -8,7 +8,7 @@
 
 ## Executive Summary
 
-The LeadFlow CRM platform implements several good security practices: Zod validation on all client-side forms, CSRF origin checking in middleware, Row-Level Security enabled on every database table, HMAC webhook signature verification with timing-safe comparison, and API keys stored as SHA-256 hashes.
+The Goldyon CRM platform implements several good security practices: Zod validation on all client-side forms, CSRF origin checking in middleware, Row-Level Security enabled on every database table, HMAC webhook signature verification with timing-safe comparison, and API keys stored as SHA-256 hashes.
 
 However, this audit identified **17 distinct vulnerabilities** -- including 2 Critical issues that together allow any anonymous internet user to register an admin account with an enterprise subscription, gaining total control over the platform and bypassing all billing.
 
