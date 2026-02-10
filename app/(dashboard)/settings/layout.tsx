@@ -11,6 +11,7 @@ import {
   CreditCard,
   Settings,
   MessageSquare,
+  HelpCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -56,6 +57,12 @@ const settingsNavItems = [
     icon: MessageSquare,
     label: "Support",
     description: "Submit issues & feedback",
+  },
+  {
+    href: "/settings/faq",
+    icon: HelpCircle,
+    label: "FAQ",
+    description: "Frequently asked questions",
   },
 ];
 
