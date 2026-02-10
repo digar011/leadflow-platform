@@ -28,8 +28,8 @@ interface CampaignCardProps {
     name: string;
     campaign_type: string;
     status: string;
-    start_date: string | null;
-    end_date: string | null;
+    started_at: string | null;
+    ended_at: string | null;
     budget: number | null;
     spent: number | null;
     target_count: number | null;
@@ -66,12 +66,12 @@ export function CampaignCard({ campaign, onStatusChange }: CampaignCardProps) {
         <CardContent className="pt-4">
           {/* Header */}
           <div className="flex items-start justify-between gap-2 mb-3">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gold/20 text-gold">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gold/20 text-gold">
                 {typeIcon}
               </div>
-              <div>
-                <h3 className="font-medium text-text-primary line-clamp-2">
+              <div className="min-w-0">
+                <h3 className="font-medium text-text-primary break-words">
                   {campaign.name}
                 </h3>
                 <p className="text-xs text-text-muted capitalize">
@@ -99,12 +99,12 @@ export function CampaignCard({ campaign, onStatusChange }: CampaignCardProps) {
                 </span>
               </div>
             )}
-            {campaign.start_date && (
+            {campaign.started_at && (
               <div className="flex items-center gap-2 text-sm">
                 <Calendar className="h-4 w-4 text-text-muted" />
                 <span className="text-text-secondary">
-                  {format(new Date(campaign.start_date), "MMM d")}
-                  {campaign.end_date && ` - ${format(new Date(campaign.end_date), "MMM d")}`}
+                  {format(new Date(campaign.started_at), "MMM d")}
+                  {campaign.ended_at && ` - ${format(new Date(campaign.ended_at), "MMM d")}`}
                 </span>
               </div>
             )}

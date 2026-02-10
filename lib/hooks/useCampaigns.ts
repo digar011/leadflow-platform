@@ -57,7 +57,7 @@ export function useCampaign(id: string) {
             id,
             business_id,
             status,
-            added_at,
+            created_at,
             businesses(business_name, email, status)
           )
         `)

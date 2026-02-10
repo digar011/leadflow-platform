@@ -313,19 +313,19 @@ export default function CampaignDetailPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {campaign.start_date && (
+              {campaign.started_at && (
                 <div className="flex justify-between">
                   <span className="text-text-muted">Start Date</span>
                   <span className="text-text-primary">
-                    {format(new Date(campaign.start_date), "MMM d, yyyy")}
+                    {format(new Date(campaign.started_at), "MMM d, yyyy")}
                   </span>
                 </div>
               )}
-              {campaign.end_date && (
+              {campaign.ended_at && (
                 <div className="flex justify-between">
                   <span className="text-text-muted">End Date</span>
                   <span className="text-text-primary">
-                    {format(new Date(campaign.end_date), "MMM d, yyyy")}
+                    {format(new Date(campaign.ended_at), "MMM d, yyyy")}
                   </span>
                 </div>
               )}

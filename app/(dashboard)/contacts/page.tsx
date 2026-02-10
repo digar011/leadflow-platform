@@ -28,16 +28,16 @@ export default function ContactsPage() {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
-      contact.first_name.toLowerCase().includes(query) ||
-      contact.last_name.toLowerCase().includes(query) ||
+      (contact.first_name ?? "").toLowerCase().includes(query) ||
+      (contact.last_name ?? "").toLowerCase().includes(query) ||
       contact.email?.toLowerCase().includes(query) ||
-      contact.job_title?.toLowerCase().includes(query)
+      contact.title?.toLowerCase().includes(query)
     );
   });
 
   // Group contacts by first letter
   const groupedContacts = filteredContacts?.reduce((acc, contact) => {
-    const letter = contact.first_name[0].toUpperCase();
+    const letter = (contact.first_name ?? "?")[0].toUpperCase();
     if (!acc[letter]) acc[letter] = [];
     acc[letter].push(contact);
     return acc;
@@ -135,8 +135,8 @@ export default function ContactsPage() {
                               : "bg-white/10 text-text-secondary"
                           )}
                         >
-                          {contact.first_name[0]}
-                          {contact.last_name[0]}
+                          {(contact.first_name ?? "?")[0]}
+                          {(contact.last_name ?? "")[0]}
                         </div>
 
                         {/* Info */}
@@ -152,9 +152,9 @@ export default function ContactsPage() {
                               </Badge>
                             )}
                           </div>
-                          {contact.job_title && (
+                          {contact.title && (
                             <p className="text-sm text-text-secondary">
-                              {contact.job_title}
+                              {contact.title}
                               {contact.department && ` - ${contact.department}`}
                             </p>
                           )}
