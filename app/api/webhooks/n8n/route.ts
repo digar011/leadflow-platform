@@ -8,27 +8,7 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// Rate limiting map (in production, use Redis)
-const rateLimitMap = new Map<string, { count: number; timestamp: number }>();
-const RATE_LIMIT_WINDOW = 60000; // 1 minute
-const RATE_LIMIT_MAX = 100; // 100 requests per minute
-
-function isRateLimited(identifier: string): boolean {
-  const now = Date.now();
-  const record = rateLimitMap.get(identifier);
-
-  if (!record || now - record.timestamp > RATE_LIMIT_WINDOW) {
-    rateLimitMap.set(identifier, { count: 1, timestamp: now });
-    return false;
-  }
-
-  if (record.count >= RATE_LIMIT_MAX) {
-    return true;
-  }
-
-  record.count++;
-  return false;
-}
+import { rateLimit } from "@/lib/utils/security";
 
 function verifySignature(
   payload: string,
@@ -58,7 +38,7 @@ export async function POST(request: NextRequest) {
     const ip = request.headers.get("x-forwarded-for") || "unknown";
 
     // Rate limiting check
-    if (isRateLimited(ip)) {
+    if (!rateLimit(`n8n:${ip}`, 100, 60000).success) {
       return NextResponse.json(
         { error: "Rate limit exceeded" },
         { status: 429 }

@@ -9,20 +9,7 @@ import {
   getBodySnippet,
 } from "@/lib/utils/emailCapture";
 
-// Rate limiting (100 requests/min per IP)
-const rateLimitMap = new Map<string, { count: number; timestamp: number }>();
-
-function isRateLimited(identifier: string): boolean {
-  const now = Date.now();
-  const record = rateLimitMap.get(identifier);
-  if (!record || now - record.timestamp > 60000) {
-    rateLimitMap.set(identifier, { count: 1, timestamp: now });
-    return false;
-  }
-  if (record.count >= 100) return true;
-  record.count++;
-  return false;
-}
+import { rateLimit } from "@/lib/utils/security";
 
 function getSupabase() {
   return createClient(
@@ -55,7 +42,7 @@ export async function POST(request: NextRequest) {
   try {
     const ip = request.headers.get("x-forwarded-for") || "unknown";
 
-    if (isRateLimited(ip)) {
+    if (!rateLimit(`email-inbound:${ip}`, 100, 60000).success) {
       return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
     }
 
