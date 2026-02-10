@@ -5,6 +5,7 @@ import { getSupabaseClient } from "@/lib/supabase/client";
 import type { Business, InsertTables, UpdateTables } from "@/lib/types/database";
 import { checkResourceLimit } from "@/lib/hooks/useGatedMutation";
 import { useRealtimeSubscription } from "@/lib/hooks/useRealtime";
+import { useViewMode } from "@/lib/contexts/ViewModeContext";
 
 export interface LeadFilters {
   status?: string;
@@ -32,10 +33,11 @@ export interface UseLeadsOptions {
 export function useLeads(options: UseLeadsOptions = {}) {
   const { page = 1, pageSize = 25, filters = {}, sort } = options;
   const supabase = getSupabaseClient();
+  const { isAdminView } = useViewMode();
   useRealtimeSubscription("businesses", [["leads"]]);
 
   return useQuery({
-    queryKey: ["leads", page, pageSize, filters, sort],
+    queryKey: ["leads", page, pageSize, filters, sort, isAdminView],
     queryFn: async () => {
       let query = supabase
         .from("businesses")
@@ -298,9 +300,10 @@ export function useBulkUpdateLeads() {
 
 export function useLeadStats() {
   const supabase = getSupabaseClient();
+  const { isAdminView } = useViewMode();
 
   return useQuery({
-    queryKey: ["leadStats"],
+    queryKey: ["leadStats", isAdminView],
     queryFn: async () => {
       // Get counts by status
       const { data: statusCounts, error: statusError } = await supabase
