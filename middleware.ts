@@ -106,13 +106,14 @@ export async function middleware(request: NextRequest) {
     "max-age=31536000; includeSubDomains"
   );
   // CSP: unsafe-inline is required for Next.js inline scripts and Tailwind styles.
-  // unsafe-eval is NOT included — Next.js production builds do not require it.
+  // unsafe-eval is required in dev mode for React Fast Refresh but excluded in production.
   // frame-ancestors 'none' replaces X-Frame-Options for modern browsers.
+  const isDev = process.env.NODE_ENV === "development";
   response.headers.set(
     "Content-Security-Policy",
     [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' https://js.stripe.com",
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://js.stripe.com`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: https:",
       "font-src 'self' data:",
@@ -122,7 +123,7 @@ export async function middleware(request: NextRequest) {
       "base-uri 'self'",
       "form-action 'self'",
       "object-src 'none'",
-      "upgrade-insecure-requests",
+      ...(isDev ? [] : ["upgrade-insecure-requests"]),
     ].join("; ")
   );
 

@@ -13,7 +13,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         isMobileOpen={mobileOpen}
         onMobileClose={() => setMobileOpen(false)}
       />
-      <div className="md:pl-64 transition-all duration-300">
+      <div className="md:pl-64 transition-all duration-300 overflow-x-hidden">
         <Header onMenuClick={() => setMobileOpen(true)} />
         <main className="p-4 md:p-6">{children}</main>
       </div>
