@@ -4,13 +4,15 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import type { InsertTables, UpdateTables } from "@/lib/types/database";
 import { useRealtimeSubscription } from "@/lib/hooks/useRealtime";
+import { useViewMode } from "@/lib/contexts/ViewModeContext";
 
 export function useContacts(businessId?: string) {
   const supabase = getSupabaseClient();
+  const { isAdminView } = useViewMode();
   useRealtimeSubscription("contacts", [["contacts", businessId], ["contacts"]]);
 
   return useQuery({
-    queryKey: ["contacts", businessId],
+    queryKey: ["contacts", businessId, isAdminView],
     queryFn: async () => {
       let query = supabase
         .from("contacts")

@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import { subDays, startOfDay, endOfDay, format, subWeeks, subMonths } from "date-fns";
+import { useViewMode } from "@/lib/contexts/ViewModeContext";
 
 export interface DateRange {
   from: Date;
@@ -42,9 +43,10 @@ export interface PipelineFunnelData {
 
 export function useDashboardStats(dateRange?: DateRange) {
   const supabase = getSupabaseClient();
+  const { isAdminView } = useViewMode();
 
   return useQuery({
-    queryKey: ["dashboardStats", dateRange?.from?.toISOString(), dateRange?.to?.toISOString()],
+    queryKey: ["dashboardStats", dateRange?.from?.toISOString(), dateRange?.to?.toISOString(), isAdminView],
     queryFn: async () => {
       // Get all leads
       const { data: leads, error: leadsError } = await supabase
@@ -191,9 +193,10 @@ export interface FollowUpStats {
 
 export function useFollowUpStats() {
   const supabase = getSupabaseClient();
+  const { isAdminView } = useViewMode();
 
   return useQuery({
-    queryKey: ["followUpStats"],
+    queryKey: ["followUpStats", isAdminView],
     queryFn: async () => {
       const today = format(new Date(), "yyyy-MM-dd");
       const sevenDaysAgo = format(subDays(new Date(), 7), "yyyy-MM-dd'T'HH:mm:ss");
@@ -237,9 +240,10 @@ export function useFollowUpStats() {
 
 export function useLeadsTrend(days: number = 30) {
   const supabase = getSupabaseClient();
+  const { isAdminView } = useViewMode();
 
   return useQuery({
-    queryKey: ["leadsTrend", days],
+    queryKey: ["leadsTrend", days, isAdminView],
     queryFn: async () => {
       const startDate = subDays(new Date(), days);
 
@@ -276,9 +280,10 @@ export function useLeadsTrend(days: number = 30) {
 
 export function useRevenueTrend(months: number = 6) {
   const supabase = getSupabaseClient();
+  const { isAdminView } = useViewMode();
 
   return useQuery({
-    queryKey: ["revenueTrend", months],
+    queryKey: ["revenueTrend", months, isAdminView],
     queryFn: async () => {
       const startDate = subMonths(new Date(), months);
 
@@ -316,9 +321,10 @@ export function useRevenueTrend(months: number = 6) {
 
 export function usePipelineFunnel() {
   const supabase = getSupabaseClient();
+  const { isAdminView } = useViewMode();
 
   return useQuery({
-    queryKey: ["pipelineFunnel"],
+    queryKey: ["pipelineFunnel", isAdminView],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("businesses")
@@ -350,9 +356,10 @@ export function usePipelineFunnel() {
 
 export function useActivityHeatmap(weeks: number = 12) {
   const supabase = getSupabaseClient();
+  const { isAdminView } = useViewMode();
 
   return useQuery({
-    queryKey: ["activityHeatmap", weeks],
+    queryKey: ["activityHeatmap", weeks, isAdminView],
     retry: 1,
     queryFn: async () => {
       const startDate = subWeeks(new Date(), weeks);
@@ -403,9 +410,10 @@ export function useActivityHeatmap(weeks: number = 12) {
 
 export function useRecentActivities(limit: number = 10) {
   const supabase = getSupabaseClient();
+  const { isAdminView } = useViewMode();
 
   return useQuery({
-    queryKey: ["recentActivities", limit],
+    queryKey: ["recentActivities", limit, isAdminView],
     retry: 1,
     queryFn: async () => {
       const { data, error } = await supabase
@@ -429,9 +437,10 @@ export function useRecentActivities(limit: number = 10) {
 
 export function useTopPerformers() {
   const supabase = getSupabaseClient();
+  const { isAdminView } = useViewMode();
 
   return useQuery({
-    queryKey: ["topPerformers"],
+    queryKey: ["topPerformers", isAdminView],
     queryFn: async () => {
       // Get activities grouped by user
       const { data: activities, error: activitiesError } = await supabase

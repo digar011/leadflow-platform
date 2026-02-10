@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getSupabaseClient } from "@/lib/supabase/client";
 import type { InsertTables, UpdateTables } from "@/lib/types/database";
 import { checkResourceLimit } from "@/lib/hooks/useGatedMutation";
+import { useViewMode } from "@/lib/contexts/ViewModeContext";
 
 export interface CampaignFilters {
   status?: string;
@@ -13,9 +14,10 @@ export interface CampaignFilters {
 
 export function useCampaigns(filters: CampaignFilters = {}) {
   const supabase = getSupabaseClient();
+  const { isAdminView } = useViewMode();
 
   return useQuery({
-    queryKey: ["campaigns", filters],
+    queryKey: ["campaigns", filters, isAdminView],
     queryFn: async () => {
       let query = supabase
         .from("campaigns")

@@ -71,7 +71,7 @@ export function CampaignCard({ campaign, onStatusChange }: CampaignCardProps) {
                 {typeIcon}
               </div>
               <div>
-                <h3 className="font-medium text-text-primary line-clamp-1">
+                <h3 className="font-medium text-text-primary line-clamp-2">
                   {campaign.name}
                 </h3>
                 <p className="text-xs text-text-muted capitalize">

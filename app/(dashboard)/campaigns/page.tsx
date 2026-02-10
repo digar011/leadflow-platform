@@ -20,12 +20,16 @@ import { CampaignCard } from "@/components/campaigns/CampaignCard";
 import { useCampaigns, useCampaignStats } from "@/lib/hooks/useCampaigns";
 import { formatCurrency } from "@/lib/utils/formatters";
 import { UsageLimitBar } from "@/components/subscription";
+import { useSubscription } from "@/lib/hooks/useSubscription";
 import { CAMPAIGN_TYPES, CAMPAIGN_STATUSES } from "@/lib/utils/constants";
 
 export default function CampaignsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [typeFilter, setTypeFilter] = useState("");
+
+  const { can } = useSubscription();
+  const hasCampaigns = can("campaigns");
 
   const { data: campaigns, isLoading, error } = useCampaigns({
     search: searchQuery || undefined,
@@ -44,11 +48,32 @@ export default function CampaignsPage() {
             Manage your marketing campaigns and outreach
           </p>
         </div>
-        <Link href="/campaigns/new">
-          <Button leftIcon={<Plus className="h-4 w-4" />}>New Campaign</Button>
-        </Link>
+        {hasCampaigns && (
+          <Link href="/campaigns/new">
+            <Button leftIcon={<Plus className="h-4 w-4" />}>New Campaign</Button>
+          </Link>
+        )}
       </div>
 
+      {/* Upgrade prompt for plans without campaigns */}
+      {!hasCampaigns && (
+        <>
+          <UsageLimitBar feature="campaigns" currentUsage={0} showAlways />
+          <div className="text-center py-12">
+            <Megaphone className="h-16 w-16 mx-auto text-text-muted mb-4" />
+            <h2 className="text-xl font-semibold text-text-primary mb-2">
+              Campaigns are not available on your current plan
+            </h2>
+            <p className="text-text-secondary">
+              Upgrade to Starter or higher to create and manage marketing campaigns.
+            </p>
+          </div>
+        </>
+      )}
+
+      {/* Only show campaign content when plan allows it */}
+      {hasCampaigns && (
+        <>
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -100,7 +125,7 @@ export default function CampaignsPage() {
       )}
 
       {/* Usage Limit */}
-      <UsageLimitBar feature="campaigns" currentUsage={campaigns?.length || 0} showAlways />
+      <UsageLimitBar feature="campaigns" currentUsage={campaigns?.length || 0} />
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
@@ -181,6 +206,8 @@ export default function CampaignsPage() {
             <CampaignCard key={campaign.id} campaign={campaign} />
           ))}
         </div>
+      )}
+        </>
       )}
     </div>
   );
