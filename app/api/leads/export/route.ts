@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (!rateLimit(`export:${user.id}`, 5, 60000).success) {
+    if (!(await rateLimit(`export:${user.id}`, 5, 60000)).success) {
       return NextResponse.json({ error: "Rate limit exceeded. Max 5 exports per minute." }, { status: 429 });
     }
 

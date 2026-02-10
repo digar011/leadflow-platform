@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Rate limit: 20 emails per minute per user
-    const rateLimitResult = rateLimit(`email:${user.id}`, 20, 60000);
+    const rateLimitResult = await rateLimit(`email:${user.id}`, 20, 60000);
     if (!rateLimitResult.success) {
       return NextResponse.json(
         { error: "Rate limit exceeded" },

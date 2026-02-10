@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (!rateLimit(`import:${user.id}`, 10, 60000).success) {
+    if (!(await rateLimit(`import:${user.id}`, 10, 60000)).success) {
       return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
     }
 
