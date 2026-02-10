@@ -27,8 +27,8 @@ interface CampaignFormProps {
     campaign_type: string;
     status: string;
     description: string | null;
-    start_date: string | null;
-    end_date: string | null;
+    started_at: string | null;
+    ended_at: string | null;
     budget: number | null;
     target_count: number | null;
     target_criteria: Record<string, unknown> | null;
@@ -51,8 +51,8 @@ export function CampaignForm({
     campaign_type: initialData?.campaign_type || "email",
     status: initialData?.status || "draft",
     description: initialData?.description || "",
-    start_date: initialData?.start_date?.split("T")[0] || "",
-    end_date: initialData?.end_date?.split("T")[0] || "",
+    started_at: initialData?.started_at?.split("T")[0] || "",
+    ended_at: initialData?.ended_at?.split("T")[0] || "",
     budget: initialData?.budget?.toString() || "",
     target_count: initialData?.target_count?.toString() || "",
   });
@@ -77,8 +77,8 @@ export function CampaignForm({
       campaign_type: formData.campaign_type,
       status: formData.status,
       description: formData.description || null,
-      start_date: formData.start_date || null,
-      end_date: formData.end_date || null,
+      started_at: formData.started_at || null,
+      ended_at: formData.ended_at || null,
       budget: formData.budget ? parseFloat(formData.budget) : null,
       target_count: formData.target_count ? parseInt(formData.target_count) : null,
     };
@@ -193,16 +193,16 @@ export function CampaignForm({
           <Input
             label="Start Date"
             type="date"
-            value={formData.start_date}
-            onChange={(e) => updateField("start_date", e.target.value)}
+            value={formData.started_at}
+            onChange={(e) => updateField("started_at", e.target.value)}
             error={errors.start_date}
             leftIcon={<Calendar className="h-4 w-4" />}
           />
           <Input
             label="End Date"
             type="date"
-            value={formData.end_date}
-            onChange={(e) => updateField("end_date", e.target.value)}
+            value={formData.ended_at}
+            onChange={(e) => updateField("ended_at", e.target.value)}
             error={errors.end_date}
             leftIcon={<Calendar className="h-4 w-4" />}
           />
