@@ -1,5 +1,6 @@
 import DOMPurify from "isomorphic-dompurify";
 import { LRUCache } from "lru-cache";
+import { createClient } from "@supabase/supabase-js";
 import crypto from "crypto";
 
 // XSS Prevention
@@ -28,15 +29,16 @@ interface RateLimitResult {
   reset: number;
 }
 
+// In-memory fallback (used when Supabase is unavailable)
 const rateLimitCache = new LRUCache<string, number[]>({
   max: 10000,
-  ttl: 60000, // 1 minute default
+  ttl: 60000,
 });
 
-export function rateLimit(
+function rateLimitInMemory(
   identifier: string,
-  limit: number = 60,
-  windowMs: number = 60000
+  limit: number,
+  windowMs: number
 ): RateLimitResult {
   const now = Date.now();
   const windowStart = now - windowMs;
@@ -45,13 +47,7 @@ export function rateLimit(
   const recentRequests = requests.filter((time) => time > windowStart);
 
   if (recentRequests.length >= limit) {
-    const oldestRequest = Math.min(...recentRequests);
-    const resetTime = oldestRequest + windowMs;
-    return {
-      success: false,
-      remaining: 0,
-      reset: resetTime,
-    };
+    return { success: false, remaining: 0, reset: now + windowMs };
   }
 
   recentRequests.push(now);
@@ -62,6 +58,51 @@ export function rateLimit(
     remaining: limit - recentRequests.length,
     reset: now + windowMs,
   };
+}
+
+// Supabase client for persistent rate limiting (service role)
+let _rateLimitClient: ReturnType<typeof createClient> | null = null;
+function getRateLimitClient() {
+  if (_rateLimitClient) return _rateLimitClient;
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return null;
+  _rateLimitClient = createClient(url, key);
+  return _rateLimitClient;
+}
+
+/**
+ * Rate limit check — uses Supabase persistent storage (works across
+ * serverless instances), with in-memory LRU fallback.
+ */
+export async function rateLimit(
+  identifier: string,
+  limit: number = 60,
+  windowMs: number = 60000
+): Promise<RateLimitResult> {
+  const supabase = getRateLimitClient();
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.rpc("check_rate_limit", {
+        p_identifier: identifier,
+        p_limit: limit,
+        p_window_seconds: Math.ceil(windowMs / 1000),
+      });
+
+      if (!error && data && data.length > 0) {
+        return {
+          success: data[0].allowed,
+          remaining: data[0].remaining,
+          reset: Date.now() + windowMs,
+        };
+      }
+    } catch {
+      // Fall through to in-memory
+    }
+  }
+
+  return rateLimitInMemory(identifier, limit, windowMs);
 }
 
 // Webhook Signature Verification
@@ -153,10 +194,13 @@ export function generateCSPHeader(): string {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
     "font-src 'self' data:",
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com",
+    "frame-src https://js.stripe.com",
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
+    "object-src 'none'",
+    "upgrade-insecure-requests",
   ].join("; ");
 }
 
