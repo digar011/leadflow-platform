@@ -2,22 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { businessSchema } from "@/lib/utils/validation";
 import { getNumericLimit } from "@/lib/utils/subscription";
+import { rateLimit } from "@/lib/utils/security";
 import type { SubscriptionTier } from "@/lib/types/database";
-
-// Rate limiting (10 imports/min per user)
-const rateLimitMap = new Map<string, { count: number; timestamp: number }>();
-
-function isRateLimited(userId: string): boolean {
-  const now = Date.now();
-  const record = rateLimitMap.get(userId);
-  if (!record || now - record.timestamp > 60000) {
-    rateLimitMap.set(userId, { count: 1, timestamp: now });
-    return false;
-  }
-  if (record.count >= 10) return true;
-  record.count++;
-  return false;
-}
 
 interface ImportRow {
   [key: string]: string | number | null | undefined;
@@ -38,7 +24,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (isRateLimited(user.id)) {
+    if (!rateLimit(`import:${user.id}`, 10, 60000).success) {
       return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
     }
 

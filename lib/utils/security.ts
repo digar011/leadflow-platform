@@ -149,7 +149,7 @@ export function sanitizeSearchInput(input: string): string {
 export function generateCSPHeader(): string {
   return [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+    "script-src 'self' 'unsafe-inline' https://js.stripe.com",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
     "font-src 'self' data:",

@@ -1,22 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { CSV_EXPORT_FIELDS } from "@/lib/utils/csvFields";
+import { rateLimit } from "@/lib/utils/security";
 import Papa from "papaparse";
-
-// Rate limiting (5 exports/min per user)
-const rateLimitMap = new Map<string, { count: number; timestamp: number }>();
-
-function isRateLimited(userId: string): boolean {
-  const now = Date.now();
-  const record = rateLimitMap.get(userId);
-  if (!record || now - record.timestamp > 60000) {
-    rateLimitMap.set(userId, { count: 1, timestamp: now });
-    return false;
-  }
-  if (record.count >= 5) return true;
-  record.count++;
-  return false;
-}
 
 export async function GET(request: NextRequest) {
   try {
@@ -27,7 +13,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    if (isRateLimited(user.id)) {
+    if (!rateLimit(`export:${user.id}`, 5, 60000).success) {
       return NextResponse.json({ error: "Rate limit exceeded. Max 5 exports per minute." }, { status: 429 });
     }
 
