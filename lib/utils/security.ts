@@ -188,9 +188,10 @@ export function sanitizeSearchInput(input: string): string {
 
 // Content Security Policy Header Generator
 export function generateCSPHeader(): string {
+  const isDev = process.env.NODE_ENV === "development";
   return [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' https://js.stripe.com",
+    `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://js.stripe.com`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
     "font-src 'self' data:",
@@ -200,7 +201,7 @@ export function generateCSPHeader(): string {
     "base-uri 'self'",
     "form-action 'self'",
     "object-src 'none'",
-    "upgrade-insecure-requests",
+    ...(isDev ? [] : ["upgrade-insecure-requests"]),
   ].join("; ");
 }
 

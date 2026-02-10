@@ -104,7 +104,7 @@ export default function CampaignsPage() {
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
+        <div className="flex-1 min-w-0 sm:min-w-[200px]">
           <Input
             placeholder="Search campaigns..."
             value={searchQuery}
@@ -112,7 +112,7 @@ export default function CampaignsPage() {
             leftIcon={<Search className="h-4 w-4" />}
           />
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 shrink-0">
           <Select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
