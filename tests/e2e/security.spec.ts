@@ -123,9 +123,10 @@ test.describe("Security", () => {
     });
 
     test("should not execute script tags in form fields", async ({ page }) => {
-      await page.goto("/leads/new");
+      await page.goto("/leads/new", { waitUntil: "networkidle" });
 
       const nameInput = page.getByLabel(/business name/i);
+      await expect(nameInput).toBeVisible({ timeout: 15000 });
       await nameInput.fill('<img src=x onerror="alert(1)">');
 
       // Page should still be functional
