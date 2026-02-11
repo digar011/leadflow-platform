@@ -21,6 +21,8 @@ import { useUsers } from "@/lib/hooks/useAdmin";
 import { cn } from "@/lib/utils";
 
 const roleConfig = {
+  super_admin: { label: "Super Admin", icon: Crown, color: "text-purple-400 bg-purple-500/20" },
+  org_admin: { label: "Org Admin", icon: Crown, color: "text-gold bg-gold/20" },
   admin: { label: "Admin", icon: Crown, color: "text-gold bg-gold/20" },
   manager: { label: "Manager", icon: Briefcase, color: "text-blue-400 bg-blue-500/20" },
   user: { label: "User", icon: UserIcon, color: "text-text-muted bg-white/10" },
@@ -94,7 +96,7 @@ export default function TeamSettingsPage() {
               </div>
               <div>
                 <p className="text-2xl font-bold text-text-primary">
-                  {users?.filter((u) => u.role === "admin").length || 0}
+                  {users?.filter((u) => ["super_admin", "org_admin", "admin"].includes(u.role)).length || 0}
                 </p>
                 <p className="text-sm text-text-muted">Admins</p>
               </div>
