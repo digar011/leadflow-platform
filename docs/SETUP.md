@@ -1,6 +1,6 @@
-# LeadFlow Setup Guide
+# Goldyon Setup Guide
 
-This guide will walk you through setting up LeadFlow for local development.
+This guide will walk you through setting up Goldyon for local development.
 
 ## Prerequisites
 
@@ -29,7 +29,7 @@ NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_APP_NAME=LeadFlow
+NEXT_PUBLIC_APP_NAME=Goldyon
 N8N_WEBHOOK_SECRET=your-webhook-secret
 ```
 

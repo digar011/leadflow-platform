@@ -74,6 +74,9 @@ export function useCreateApiKey() {
 
   return useMutation({
     mutationFn: async (input: CreateApiKeyInput) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
       // Generate the actual API key
       const apiKey = generateApiKey();
       const keyHash = await hashApiKey(apiKey);
@@ -82,6 +85,7 @@ export function useCreateApiKey() {
       const { data, error } = await supabase
         .from("api_keys")
         .insert({
+          user_id: user.id,
           name: input.name,
           key_hash: keyHash,
           key_prefix: keyPrefix,

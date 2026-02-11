@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Stage Transitions", () => {
   test.describe("Authenticated", () => {
-    test.skip("should show StatusTransition component on lead detail page", async ({ page }) => {
+    test("should show StatusTransition component on lead detail page", async ({ page }) => {
       await page.goto("/leads");
 
       // Click the first lead to open its detail page
@@ -31,7 +31,7 @@ test.describe("Stage Transitions", () => {
       expect(hasTransitions || hasMoreOptions).toBeTruthy();
     });
 
-    test.skip("should show suggested transitions as prominent buttons", async ({ page }) => {
+    test("should show suggested transitions as prominent buttons", async ({ page }) => {
       await page.goto("/leads");
 
       // Find a lead with "new" status to have predictable suggested transitions
@@ -59,7 +59,7 @@ test.describe("Stage Transitions", () => {
       await expect(moveToContacted).toHaveClass(/border-gold/);
     });
 
-    test.skip("should reveal other statuses when More options toggle is clicked", async ({ page }) => {
+    test("should reveal other statuses when More options toggle is clicked", async ({ page }) => {
       await page.goto("/leads");
 
       // Find a "new" lead which has other allowed transitions beyond "contacted"
@@ -93,7 +93,7 @@ test.describe("Stage Transitions", () => {
       await expect(page.getByRole("button", { name: "Do Not Contact" })).toBeVisible();
     });
 
-    test.skip("should open a reason modal when moving to Won or Lost", async ({ page }) => {
+    test("should open a reason modal when moving to Won or Lost", async ({ page }) => {
       await page.goto("/leads");
 
       // Find a lead in "negotiation" status which has "won" and "lost" as suggested

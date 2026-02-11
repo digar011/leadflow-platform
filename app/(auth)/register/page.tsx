@@ -123,7 +123,7 @@ export default function RegisterPage() {
       <CardHeader className="text-center">
         <CardTitle className="text-2xl">Create an account</CardTitle>
         <CardDescription>
-          Get started with LeadFlow today
+          Get started with Goldyon today
         </CardDescription>
       </CardHeader>
 

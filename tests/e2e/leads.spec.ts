@@ -2,16 +2,17 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Leads Management", () => {
   test.describe("Leads List Page", () => {
-    test("should display leads list page correctly", async ({ page }) => {
-      await page.goto("/leads");
+    test.describe("Unauthenticated", () => {
+      test.use({ storageState: { cookies: [], origins: [] } });
 
-      // Should redirect to login for unauthenticated users
-      await expect(page).toHaveURL(/login/);
+      test("should redirect to login for unauthenticated users", async ({ page }) => {
+        await page.goto("/leads");
+        await expect(page).toHaveURL(/login/);
+      });
     });
 
     test.describe("Authenticated", () => {
-      // These tests require authentication setup
-      test.skip("should display page header and actions", async ({ page }) => {
+      test("should display page header and actions", async ({ page }) => {
         await page.goto("/leads");
 
         await expect(page.getByRole("heading", { name: /leads/i })).toBeVisible();
@@ -19,7 +20,7 @@ test.describe("Leads Management", () => {
         await expect(page.getByRole("button", { name: /export/i })).toBeVisible();
       });
 
-      test.skip("should display stats cards", async ({ page }) => {
+      test("should display stats cards", async ({ page }) => {
         await page.goto("/leads");
 
         await expect(page.getByText(/total leads/i)).toBeVisible();
@@ -28,7 +29,7 @@ test.describe("Leads Management", () => {
         await expect(page.getByText(/won deals/i)).toBeVisible();
       });
 
-      test.skip("should display filter controls", async ({ page }) => {
+      test("should display filter controls", async ({ page }) => {
         await page.goto("/leads");
 
         // Search input
@@ -40,7 +41,7 @@ test.describe("Leads Management", () => {
         await expect(page.getByRole("combobox", { name: /source/i })).toBeVisible();
       });
 
-      test.skip("should display leads table with columns", async ({ page }) => {
+      test("should display leads table with columns", async ({ page }) => {
         await page.goto("/leads");
 
         // Table headers
@@ -49,7 +50,7 @@ test.describe("Leads Management", () => {
         await expect(page.getByRole("columnheader", { name: /contact/i })).toBeVisible();
       });
 
-      test.skip("should navigate to kanban view", async ({ page }) => {
+      test("should navigate to kanban view", async ({ page }) => {
         await page.goto("/leads");
 
         await page.getByRole("link", { name: /kanban/i }).click();
@@ -57,7 +58,7 @@ test.describe("Leads Management", () => {
         await expect(page).toHaveURL(/leads\/kanban/);
       });
 
-      test.skip("should navigate to add lead page", async ({ page }) => {
+      test("should navigate to add lead page", async ({ page }) => {
         await page.goto("/leads");
 
         await page.getByRole("link", { name: /add lead/i }).click();
@@ -68,14 +69,17 @@ test.describe("Leads Management", () => {
   });
 
   test.describe("Add Lead Page", () => {
-    test("should redirect to login for unauthenticated users", async ({ page }) => {
-      await page.goto("/leads/new");
+    test.describe("Unauthenticated", () => {
+      test.use({ storageState: { cookies: [], origins: [] } });
 
-      await expect(page).toHaveURL(/login/);
+      test("should redirect to login for unauthenticated users", async ({ page }) => {
+        await page.goto("/leads/new");
+        await expect(page).toHaveURL(/login/);
+      });
     });
 
     test.describe("Authenticated", () => {
-      test.skip("should display add lead form", async ({ page }) => {
+      test("should display add lead form", async ({ page }) => {
         await page.goto("/leads/new");
 
         await expect(page.getByRole("heading", { name: /add new lead/i })).toBeVisible();
@@ -101,7 +105,7 @@ test.describe("Leads Management", () => {
         await expect(page.getByRole("button", { name: /cancel/i })).toBeVisible();
       });
 
-      test.skip("should show validation error for missing business name", async ({ page }) => {
+      test("should show validation error for missing business name", async ({ page }) => {
         await page.goto("/leads/new");
 
         await page.getByRole("button", { name: /create lead/i }).click();
@@ -109,7 +113,7 @@ test.describe("Leads Management", () => {
         await expect(page.getByText(/business name is required/i)).toBeVisible();
       });
 
-      test.skip("should show validation error for invalid email", async ({ page }) => {
+      test("should show validation error for invalid email", async ({ page }) => {
         await page.goto("/leads/new");
 
         await page.getByLabel(/business name/i).fill("Test Business");
@@ -119,7 +123,7 @@ test.describe("Leads Management", () => {
         await expect(page.getByText(/valid email/i)).toBeVisible();
       });
 
-      test.skip("should navigate back when cancel is clicked", async ({ page }) => {
+      test("should navigate back when cancel is clicked", async ({ page }) => {
         await page.goto("/leads/new");
 
         await page.getByRole("button", { name: /cancel/i }).click();
@@ -130,14 +134,17 @@ test.describe("Leads Management", () => {
   });
 
   test.describe("Lead Detail Page", () => {
-    test("should redirect to login for unauthenticated users", async ({ page }) => {
-      await page.goto("/leads/test-id");
+    test.describe("Unauthenticated", () => {
+      test.use({ storageState: { cookies: [], origins: [] } });
 
-      await expect(page).toHaveURL(/login/);
+      test("should redirect to login for unauthenticated users", async ({ page }) => {
+        await page.goto("/leads/test-id");
+        await expect(page).toHaveURL(/login/);
+      });
     });
 
     test.describe("Authenticated", () => {
-      test.skip("should display 360-degree customer view", async ({ page }) => {
+      test("should display 360-degree customer view", async ({ page }) => {
         await page.goto("/leads/test-id");
 
         // Header with business name and status
@@ -162,14 +169,14 @@ test.describe("Leads Management", () => {
         await expect(page.getByText(/key dates/i)).toBeVisible();
       });
 
-      test.skip("should display journey timeline", async ({ page }) => {
+      test("should display journey timeline", async ({ page }) => {
         await page.goto("/leads/test-id");
 
         // Timeline tab should be active by default
         await expect(page.getByText(/customer journey/i)).toBeVisible();
       });
 
-      test.skip("should switch to contacts tab", async ({ page }) => {
+      test("should switch to contacts tab", async ({ page }) => {
         await page.goto("/leads/test-id");
 
         await page.getByRole("tab", { name: /contacts/i }).click();
@@ -177,7 +184,7 @@ test.describe("Leads Management", () => {
         await expect(page.getByRole("button", { name: /add contact/i })).toBeVisible();
       });
 
-      test.skip("should open quick action modal", async ({ page }) => {
+      test("should open quick action modal", async ({ page }) => {
         await page.goto("/leads/test-id");
 
         await page.getByRole("button", { name: /log call/i }).click();
@@ -186,7 +193,7 @@ test.describe("Leads Management", () => {
         await expect(page.getByLabel(/subject/i)).toBeVisible();
       });
 
-      test.skip("should navigate to edit page", async ({ page }) => {
+      test("should navigate to edit page", async ({ page }) => {
         await page.goto("/leads/test-id");
 
         await page.getByRole("link", { name: /edit/i }).click();
@@ -194,7 +201,7 @@ test.describe("Leads Management", () => {
         await expect(page).toHaveURL(/leads\/test-id\/edit/);
       });
 
-      test.skip("should show delete confirmation modal", async ({ page }) => {
+      test("should show delete confirmation modal", async ({ page }) => {
         await page.goto("/leads/test-id");
 
         await page.getByRole("button", { name: /delete/i }).click();
@@ -207,14 +214,17 @@ test.describe("Leads Management", () => {
   });
 
   test.describe("Kanban Board", () => {
-    test("should redirect to login for unauthenticated users", async ({ page }) => {
-      await page.goto("/leads/kanban");
+    test.describe("Unauthenticated", () => {
+      test.use({ storageState: { cookies: [], origins: [] } });
 
-      await expect(page).toHaveURL(/login/);
+      test("should redirect to login for unauthenticated users", async ({ page }) => {
+        await page.goto("/leads/kanban");
+        await expect(page).toHaveURL(/login/);
+      });
     });
 
     test.describe("Authenticated", () => {
-      test.skip("should display kanban board with columns", async ({ page }) => {
+      test("should display kanban board with columns", async ({ page }) => {
         await page.goto("/leads/kanban");
 
         await expect(page.getByRole("heading", { name: /pipeline/i })).toBeVisible();
@@ -228,14 +238,14 @@ test.describe("Leads Management", () => {
         await expect(page.getByText(/won/i)).toBeVisible();
       });
 
-      test.skip("should display stats summary", async ({ page }) => {
+      test("should display stats summary", async ({ page }) => {
         await page.goto("/leads/kanban");
 
         await expect(page.getByText(/total in pipeline/i)).toBeVisible();
         await expect(page.getByText(/pipeline value/i)).toBeVisible();
       });
 
-      test.skip("should navigate to list view", async ({ page }) => {
+      test("should navigate to list view", async ({ page }) => {
         await page.goto("/leads/kanban");
 
         await page.getByRole("link", { name: /list view/i }).click();
@@ -243,7 +253,7 @@ test.describe("Leads Management", () => {
         await expect(page).toHaveURL("/leads");
       });
 
-      test.skip("should navigate to add lead page", async ({ page }) => {
+      test("should navigate to add lead page", async ({ page }) => {
         await page.goto("/leads/kanban");
 
         await page.getByRole("link", { name: /add lead/i }).click();

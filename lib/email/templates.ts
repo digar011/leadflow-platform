@@ -6,11 +6,11 @@ export interface NewUserWelcomeData {
 }
 
 export function getNewUserWelcomeSubject(): string {
-  return "Welcome to LeadFlow – Your CRM is ready!";
+  return "Welcome to Goldyon – Your CRM is ready!";
 }
 
 export function getNewUserWelcomeHtml(data: NewUserWelcomeData): string {
-  const loginUrl = data.loginUrl || "https://app.leadflow.com/login";
+  const loginUrl = data.loginUrl || "https://app.goldyon.com/login";
   return `<!DOCTYPE html>
 <html>
   <head>
@@ -21,13 +21,13 @@ export function getNewUserWelcomeHtml(data: NewUserWelcomeData): string {
     <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
       <div style="background: #13131a; border-radius: 12px; padding: 32px; border: 1px solid rgba(255,255,255,0.05);">
         <div style="text-align: center; margin-bottom: 24px;">
-          <span style="font-size: 28px; font-weight: 700; color: #c8a55a;">LeadFlow</span>
+          <span style="font-size: 28px; font-weight: 700; color: #c8a55a;">Goldyon</span>
         </div>
         <h1 style="color: #f0f0f5; font-size: 22px; margin: 0 0 16px; text-align: center;">
           Welcome aboard, ${data.fullName}!
         </h1>
         <p style="color: #9ca3af; font-size: 15px; line-height: 1.7; text-align: center;">
-          Your LeadFlow CRM account is all set. Here's what you can do right away:
+          Your Goldyon CRM account is all set. Here's what you can do right away:
         </p>
         <ul style="color: #9ca3af; font-size: 14px; line-height: 2; padding-left: 20px;">
           <li>Add your first leads and track their progress</li>
@@ -45,7 +45,7 @@ export function getNewUserWelcomeHtml(data: NewUserWelcomeData): string {
         </p>
         <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.05); margin: 24px 0;" />
         <p style="color: #4b5563; font-size: 12px; text-align: center;">
-          &copy; ${new Date().getFullYear()} LeadFlow. All rights reserved.
+          &copy; ${new Date().getFullYear()} Goldyon. All rights reserved.
         </p>
       </div>
     </div>
@@ -63,7 +63,7 @@ export interface WelcomeEmailData {
 }
 
 export function getWelcomeEmailSubject(data: WelcomeEmailData): string {
-  return `Welcome to ${data.companyName || "LeadFlow"}, ${data.contactName || data.businessName}!`;
+  return `Welcome to ${data.companyName || "Goldyon"}, ${data.contactName || data.businessName}!`;
 }
 
 export function getWelcomeEmailHtml(data: WelcomeEmailData): string {

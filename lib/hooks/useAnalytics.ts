@@ -63,19 +63,19 @@ export function useDashboardStats(dateRange?: DateRange) {
       const totalLeads = leads?.length || 0;
 
       const newLeadsThisWeek = leads?.filter(
-        (l) => new Date(l.created_at) >= weekAgo
+        (l) => new Date(l.created_at!) >= weekAgo
       ).length || 0;
 
       const newLeadsPreviousWeek = leads?.filter(
         (l) => {
-          const date = new Date(l.created_at);
+          const date = new Date(l.created_at!);
           return date >= twoWeeksAgo && date < weekAgo;
         }
       ).length || 0;
 
       // Pipeline value (excluding won and lost)
       const pipelineLeads = leads?.filter(
-        (l) => !["won", "lost", "do_not_contact"].includes(l.status)
+        (l) => !["won", "lost", "do_not_contact"].includes(l.status ?? "")
       );
       const pipelineValue = pipelineLeads?.reduce(
         (sum, l) => sum + (l.deal_value || 0),
@@ -93,8 +93,8 @@ export function useDashboardStats(dateRange?: DateRange) {
       // Previous pipeline value (pipeline from leads created before this week)
       const previousPipelineLeads = leads?.filter(
         (l) =>
-          new Date(l.created_at) < weekAgo &&
-          !["won", "lost", "do_not_contact"].includes(l.status)
+          new Date(l.created_at!) < weekAgo &&
+          !["won", "lost", "do_not_contact"].includes(l.status ?? "")
       );
       const previousPipelineValue = previousPipelineLeads?.reduce(
         (sum, l) => sum + (l.deal_value || 0),
@@ -108,7 +108,7 @@ export function useDashboardStats(dateRange?: DateRange) {
 
       // Previous conversion rate (leads created before this week)
       const leadsBeforeThisWeek = leads?.filter(
-        (l) => new Date(l.created_at) < weekAgo
+        (l) => new Date(l.created_at!) < weekAgo
       );
       const wonBeforeThisWeek = leadsBeforeThisWeek?.filter(
         (l) => l.status === "won"
@@ -126,7 +126,8 @@ export function useDashboardStats(dateRange?: DateRange) {
       // Status counts
       const statusCounts: Record<string, number> = {};
       leads?.forEach((l) => {
-        statusCounts[l.status] = (statusCounts[l.status] || 0) + 1;
+        const s = l.status ?? "unknown";
+        statusCounts[s] = (statusCounts[s] || 0) + 1;
       });
 
       // Temperature counts
@@ -258,7 +259,7 @@ export function useLeadsTrend(days: number = 30) {
       // Group by date
       const grouped: Record<string, number> = {};
       data?.forEach((lead) => {
-        const date = format(new Date(lead.created_at), "yyyy-MM-dd");
+        const date = format(new Date(lead.created_at!), "yyyy-MM-dd");
         grouped[date] = (grouped[date] || 0) + 1;
       });
 
@@ -298,7 +299,7 @@ export function useRevenueTrend(months: number = 6) {
       // Group by month
       const grouped: Record<string, number> = {};
       data?.forEach((lead) => {
-        const month = format(new Date(lead.created_at), "yyyy-MM");
+        const month = format(new Date(lead.created_at!), "yyyy-MM");
         grouped[month] = (grouped[month] || 0) + (lead.deal_value || 0);
       });
 
@@ -385,7 +386,7 @@ export function useActivityHeatmap(weeks: number = 12) {
       const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
       data?.forEach((activity) => {
-        const date = new Date(activity.created_at);
+        const date = new Date(activity.created_at!);
         const dayName = dayNames[date.getDay()];
         const hour = date.getHours();
         heatmap[dayName][hour] = (heatmap[dayName][hour] || 0) + 1;
@@ -471,7 +472,7 @@ export function useTopPerformers() {
         if (a.user_id && a.profiles) {
           if (!userStats[a.user_id]) {
             userStats[a.user_id] = {
-              name: a.profiles.full_name,
+              name: a.profiles.full_name ?? "Unknown",
               activities: 0,
               wonDeals: 0,
               wonValue: 0,

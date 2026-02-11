@@ -64,7 +64,7 @@ async function executeRule(
   rule: Record<string, unknown>,
   triggerData: TriggerData,
   userId: string,
-  supabase: ReturnType<typeof createClient>
+  supabase: ReturnType<typeof getSupabase>
 ): Promise<ExecutionResult> {
   const ruleId = rule.id as string;
   const ruleName = rule.name as string;
@@ -122,6 +122,14 @@ async function executeRule(
         break;
       case "send_webhook":
         actionResult = await executeSendWebhook(
+          actionConfig,
+          triggerData,
+          userId,
+          supabase
+        );
+        break;
+      case "send_slack_message":
+        actionResult = await executeSendSlackMessage(
           actionConfig,
           triggerData,
           userId,
@@ -189,7 +197,7 @@ async function executeSendEmail(
   actionConfig: Record<string, unknown>,
   triggerData: TriggerData,
   userId: string,
-  supabase: ReturnType<typeof createClient>
+  supabase: ReturnType<typeof getSupabase>
 ): Promise<Record<string, unknown>> {
   const recipientEmail = (actionConfig.to as string) || triggerData.email;
   if (!recipientEmail) {
@@ -208,7 +216,7 @@ async function executeSendEmail(
       const templateData = {
         businessName: triggerData.businessName,
         contactName: triggerData.contactName || undefined,
-        companyName: (actionConfig.company_name as string) || "LeadFlow",
+        companyName: (actionConfig.company_name as string) || "Goldyon",
         senderName: (actionConfig.sender_name as string) || undefined,
       };
       subject =
@@ -220,7 +228,7 @@ async function executeSendEmail(
     }
     default: {
       subject =
-        (actionConfig.subject as string) || "Hello from LeadFlow";
+        (actionConfig.subject as string) || "Hello from Goldyon";
       html =
         (actionConfig.html as string) ||
         "<p>Thank you for your interest.</p>";
@@ -266,7 +274,7 @@ async function executeCreateTask(
   triggerData: TriggerData,
   ruleId: string,
   userId: string,
-  supabase: ReturnType<typeof createClient>
+  supabase: ReturnType<typeof getSupabase>
 ): Promise<Record<string, unknown>> {
   const taskType = (actionConfig.task_type as string) || "follow_up";
   const dueDays = (actionConfig.due_days as number) || 1;
@@ -310,7 +318,7 @@ async function executeUpdateStatus(
   actionConfig: Record<string, unknown>,
   triggerData: TriggerData,
   userId: string,
-  supabase: ReturnType<typeof createClient>
+  supabase: ReturnType<typeof getSupabase>
 ): Promise<Record<string, unknown>> {
   const newStatus = actionConfig.new_status as string;
   if (!newStatus) {
@@ -342,7 +350,7 @@ async function executeAssignUser(
   actionConfig: Record<string, unknown>,
   triggerData: TriggerData,
   userId: string,
-  supabase: ReturnType<typeof createClient>
+  supabase: ReturnType<typeof getSupabase>
 ): Promise<Record<string, unknown>> {
   const assignTo = actionConfig.assign_to as string;
   if (!assignTo) {
@@ -383,7 +391,7 @@ async function executeSendWebhook(
   actionConfig: Record<string, unknown>,
   triggerData: TriggerData,
   userId: string,
-  supabase: ReturnType<typeof createClient>
+  supabase: ReturnType<typeof getSupabase>
 ): Promise<Record<string, unknown>> {
   const url = actionConfig.url as string;
   if (!url) {
@@ -433,6 +441,80 @@ async function executeSendWebhook(
     });
 
     return { url, status: response.status, success: true };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function executeSendSlackMessage(
+  actionConfig: Record<string, unknown>,
+  triggerData: TriggerData,
+  userId: string,
+  supabase: ReturnType<typeof getSupabase>
+): Promise<Record<string, unknown>> {
+  // Look up user's Slack webhook from api_keys
+  const { data: slackKey } = await supabase
+    .from("api_keys")
+    .select("external_key, scopes, is_active")
+    .eq("integration_type", "slack")
+    .eq("user_id", userId)
+    .eq("is_active", true)
+    .limit(1)
+    .maybeSingle();
+
+  if (!slackKey?.external_key) {
+    throw new Error("Slack not configured — no active webhook URL found");
+  }
+
+  // Build the message
+  const messageTemplate = actionConfig.message_template as string | undefined;
+  let text: string;
+
+  if (messageTemplate) {
+    text = messageTemplate.replace(/\{\{(\w+)\}\}/g, (_match, key) => {
+      return (triggerData[key] as string) || "";
+    });
+  } else {
+    text = `Goldyon CRM: ${triggerData.businessName}`;
+  }
+
+  // SSRF prevention
+  const webhookUrl = slackKey.external_key;
+  if (
+    !webhookUrl.startsWith("https://hooks.slack.com/") &&
+    !webhookUrl.startsWith("https://hooks.slack-gov.com/")
+  ) {
+    throw new Error("Invalid Slack webhook URL");
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+
+  try {
+    const response = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      const responseText = await response.text().catch(() => "");
+      throw new Error(
+        `Slack returned ${response.status}: ${responseText || response.statusText}`
+      );
+    }
+
+    await supabase.from("activities").insert({
+      business_id: triggerData.businessId,
+      user_id: userId,
+      activity_type: "note",
+      subject: "Slack message sent",
+      description: `Automated Slack notification sent for "${triggerData.businessName}"`,
+      metadata: { slack: true, automated: true },
+    });
+
+    return { sent: true, text };
   } finally {
     clearTimeout(timeout);
   }

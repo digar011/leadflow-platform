@@ -45,7 +45,7 @@ function KanbanCard({ lead, onDragStart, onDragEnd }: KanbanCardProps) {
   return (
     <div
       draggable
-      onDragStart={(e) => onDragStart(e, lead.id, lead.status)}
+      onDragStart={(e) => onDragStart(e, lead.id, lead.status ?? "")}
       onDragEnd={onDragEnd}
       className="group cursor-grab active:cursor-grabbing"
     >
@@ -68,8 +68,8 @@ function KanbanCard({ lead, onDragStart, onDragEnd }: KanbanCardProps) {
 
           {/* Details */}
           <div className="space-y-1.5 text-xs text-text-muted">
-            {lead.industry && (
-              <p className="truncate">{lead.industry}</p>
+            {lead.industry_category && (
+              <p className="truncate">{lead.industry_category}</p>
             )}
             {lead.city && (
               <p className="truncate">{lead.city}, {lead.state}</p>

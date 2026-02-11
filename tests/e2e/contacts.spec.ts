@@ -2,21 +2,24 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Contacts Management", () => {
   test.describe("Contacts List Page", () => {
-    test("should redirect to login for unauthenticated users", async ({ page }) => {
-      await page.goto("/contacts");
+    test.describe("Unauthenticated", () => {
+      test.use({ storageState: { cookies: [], origins: [] } });
 
-      await expect(page).toHaveURL(/login/);
+      test("should redirect to login for unauthenticated users", async ({ page }) => {
+        await page.goto("/contacts");
+        await expect(page).toHaveURL(/login/);
+      });
     });
 
     test.describe("Authenticated", () => {
-      test.skip("should display contacts page correctly", async ({ page }) => {
+      test("should display contacts page correctly", async ({ page }) => {
         await page.goto("/contacts");
 
         await expect(page.getByRole("heading", { name: /contacts/i })).toBeVisible();
         await expect(page.getByPlaceholder(/search contacts/i)).toBeVisible();
       });
 
-      test.skip("should filter contacts by search", async ({ page }) => {
+      test("should filter contacts by search", async ({ page }) => {
         await page.goto("/contacts");
 
         await page.getByPlaceholder(/search contacts/i).fill("John");
@@ -25,14 +28,14 @@ test.describe("Contacts Management", () => {
         await expect(page.getByPlaceholder(/search contacts/i)).toHaveValue("John");
       });
 
-      test.skip("should display contact cards with correct information", async ({ page }) => {
+      test("should display contact cards with correct information", async ({ page }) => {
         await page.goto("/contacts");
 
         // Contact cards should show name, email, phone
         // This test would need actual data to verify
       });
 
-      test.skip("should navigate to lead when clicking view lead", async ({ page }) => {
+      test("should navigate to lead when clicking view lead", async ({ page }) => {
         await page.goto("/contacts");
 
         // Click view lead link on a contact
@@ -45,14 +48,17 @@ test.describe("Contacts Management", () => {
   });
 
   test.describe("Add Contact Page", () => {
-    test("should redirect to login for unauthenticated users", async ({ page }) => {
-      await page.goto("/leads/test-id/contacts/new");
+    test.describe("Unauthenticated", () => {
+      test.use({ storageState: { cookies: [], origins: [] } });
 
-      await expect(page).toHaveURL(/login/);
+      test("should redirect to login for unauthenticated users", async ({ page }) => {
+        await page.goto("/leads/test-id/contacts/new");
+        await expect(page).toHaveURL(/login/);
+      });
     });
 
     test.describe("Authenticated", () => {
-      test.skip("should display add contact form", async ({ page }) => {
+      test("should display add contact form", async ({ page }) => {
         await page.goto("/leads/test-id/contacts/new");
 
         await expect(page.getByRole("heading", { name: /add contact/i })).toBeVisible();
@@ -75,7 +81,7 @@ test.describe("Contacts Management", () => {
         await expect(page.getByRole("button", { name: /cancel/i })).toBeVisible();
       });
 
-      test.skip("should show validation error for missing first name", async ({ page }) => {
+      test("should show validation error for missing first name", async ({ page }) => {
         await page.goto("/leads/test-id/contacts/new");
 
         await page.getByLabel(/last name/i).fill("Doe");
@@ -84,7 +90,7 @@ test.describe("Contacts Management", () => {
         await expect(page.getByText(/first name is required/i)).toBeVisible();
       });
 
-      test.skip("should show validation error for missing last name", async ({ page }) => {
+      test("should show validation error for missing last name", async ({ page }) => {
         await page.goto("/leads/test-id/contacts/new");
 
         await page.getByLabel(/first name/i).fill("John");
@@ -93,7 +99,7 @@ test.describe("Contacts Management", () => {
         await expect(page.getByText(/last name is required/i)).toBeVisible();
       });
 
-      test.skip("should show validation error for invalid email", async ({ page }) => {
+      test("should show validation error for invalid email", async ({ page }) => {
         await page.goto("/leads/test-id/contacts/new");
 
         await page.getByLabel(/first name/i).fill("John");
@@ -104,7 +110,7 @@ test.describe("Contacts Management", () => {
         await expect(page.getByText(/valid email/i)).toBeVisible();
       });
 
-      test.skip("should navigate back when cancel is clicked", async ({ page }) => {
+      test("should navigate back when cancel is clicked", async ({ page }) => {
         await page.goto("/leads/test-id/contacts/new");
 
         await page.getByRole("button", { name: /cancel/i }).click();
@@ -115,14 +121,17 @@ test.describe("Contacts Management", () => {
   });
 
   test.describe("Edit Contact Page", () => {
-    test("should redirect to login for unauthenticated users", async ({ page }) => {
-      await page.goto("/leads/test-id/contacts/contact-id/edit");
+    test.describe("Unauthenticated", () => {
+      test.use({ storageState: { cookies: [], origins: [] } });
 
-      await expect(page).toHaveURL(/login/);
+      test("should redirect to login for unauthenticated users", async ({ page }) => {
+        await page.goto("/leads/test-id/contacts/contact-id/edit");
+        await expect(page).toHaveURL(/login/);
+      });
     });
 
     test.describe("Authenticated", () => {
-      test.skip("should display edit contact form with pre-filled data", async ({ page }) => {
+      test("should display edit contact form with pre-filled data", async ({ page }) => {
         await page.goto("/leads/test-id/contacts/contact-id/edit");
 
         await expect(page.getByRole("heading", { name: /edit contact/i })).toBeVisible();
@@ -131,7 +140,7 @@ test.describe("Contacts Management", () => {
         await expect(page.getByLabel(/first name/i)).not.toHaveValue("");
       });
 
-      test.skip("should update contact successfully", async ({ page }) => {
+      test("should update contact successfully", async ({ page }) => {
         await page.goto("/leads/test-id/contacts/contact-id/edit");
 
         await page.getByLabel(/first name/i).fill("Updated Name");

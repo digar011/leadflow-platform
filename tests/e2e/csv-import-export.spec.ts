@@ -1,12 +1,6 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("CSV Import/Export", () => {
-  // These tests require authentication - skip if not set up
-  test.skip(
-    !process.env.TEST_USER_EMAIL,
-    "Requires TEST_USER_EMAIL env var"
-  );
-
   test.describe("Export", () => {
     test("export button is visible on leads page", async ({ page }) => {
       await page.goto("/leads");

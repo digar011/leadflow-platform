@@ -1,18 +1,24 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Mobile Responsive Layout", () => {
-  test.describe("Mobile Viewport (<768px)", () => {
-    test.use({ viewport: { width: 375, height: 812 } });
+  test.describe("Mobile Viewport - Login Page", () => {
+    test.use({
+      viewport: { width: 375, height: 812 },
+      storageState: { cookies: [], origins: [] },
+    });
 
-    test("should hide sidebar and show hamburger at mobile viewport", async ({ page }) => {
+    test("should render login page correctly at mobile size", async ({ page }) => {
       await page.goto("/login");
 
-      // Login page doesn't have sidebar, navigate to dashboard context
       // Check the login page renders correctly at mobile size
       await expect(page.getByRole("button", { name: /sign in/i })).toBeVisible();
     });
+  });
 
-    test.skip("should hide sidebar by default at mobile viewport", async ({ page }) => {
+  test.describe("Mobile Viewport - Authenticated (<768px)", () => {
+    test.use({ viewport: { width: 375, height: 812 } });
+
+    test("should hide sidebar by default at mobile viewport", async ({ page }) => {
       await page.goto("/dashboard");
 
       // The sidebar has the class max-md:-translate-x-full which hides it off-screen
@@ -35,7 +41,7 @@ test.describe("Mobile Responsive Layout", () => {
       await expect(headerHamburger).toBeVisible();
     });
 
-    test.skip("should open sidebar overlay with backdrop when hamburger is clicked", async ({ page }) => {
+    test("should open sidebar overlay with backdrop when hamburger is clicked", async ({ page }) => {
       await page.goto("/dashboard");
 
       // Click the hamburger button in the header
@@ -51,7 +57,7 @@ test.describe("Mobile Responsive Layout", () => {
       await expect(backdrop).toBeVisible();
     });
 
-    test.skip("should close sidebar when a nav link is clicked", async ({ page }) => {
+    test("should close sidebar when a nav link is clicked", async ({ page }) => {
       await page.goto("/dashboard");
 
       // Open the sidebar
@@ -79,7 +85,7 @@ test.describe("Mobile Responsive Layout", () => {
   test.describe("Desktop Viewport (>=768px)", () => {
     test.use({ viewport: { width: 1280, height: 720 } });
 
-    test.skip("should always show sidebar and hide hamburger at desktop viewport", async ({ page }) => {
+    test("should always show sidebar and hide hamburger at desktop viewport", async ({ page }) => {
       await page.goto("/dashboard");
 
       // The sidebar should be visible on desktop

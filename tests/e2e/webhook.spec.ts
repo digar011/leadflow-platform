@@ -38,7 +38,7 @@ test.describe("Webhook API", () => {
       expect(response.status()).toBe(401);
     });
 
-    test.skip("should reject requests with invalid signature", async ({ request }) => {
+    test("should reject requests with invalid signature", async ({ request }) => {
       // This test requires a valid webhook to be configured
       const response = await request.post("/api/webhooks/n8n", {
         headers: {
@@ -69,7 +69,7 @@ test.describe("Webhook API", () => {
   });
 
   test.describe("Webhook Security", () => {
-    test.skip("should rate limit excessive requests", async ({ request }) => {
+    test("should rate limit excessive requests", async ({ request }) => {
       // Send many requests quickly
       const promises = Array.from({ length: 150 }, () =>
         request.post("/api/webhooks/n8n", {
@@ -87,7 +87,7 @@ test.describe("Webhook API", () => {
       expect(rateLimited.length).toBeGreaterThan(0);
     });
 
-    test.skip("should verify HMAC signature", async ({ request }) => {
+    test("should verify HMAC signature", async ({ request }) => {
       // This test requires proper signature generation
       const payload = JSON.stringify({
         event: "lead.create",
@@ -111,7 +111,7 @@ test.describe("Webhook API", () => {
   });
 
   test.describe("Webhook Events", () => {
-    test.skip("should process lead.create event", async ({ request }) => {
+    test("should process lead.create event", async ({ request }) => {
       const response = await request.post("/api/webhooks/n8n", {
         headers: {
           "x-webhook-id": "valid-webhook-id",
@@ -130,7 +130,7 @@ test.describe("Webhook API", () => {
       // Requires valid webhook config
     });
 
-    test.skip("should process lead.update event", async ({ request }) => {
+    test("should process lead.update event", async ({ request }) => {
       const response = await request.post("/api/webhooks/n8n", {
         headers: {
           "x-webhook-id": "valid-webhook-id",
@@ -148,7 +148,7 @@ test.describe("Webhook API", () => {
       // Requires valid webhook config
     });
 
-    test.skip("should process activity.log event", async ({ request }) => {
+    test("should process activity.log event", async ({ request }) => {
       const response = await request.post("/api/webhooks/n8n", {
         headers: {
           "x-webhook-id": "valid-webhook-id",
@@ -167,7 +167,7 @@ test.describe("Webhook API", () => {
       // Requires valid webhook config
     });
 
-    test.skip("should reject unsubscribed events", async ({ request }) => {
+    test("should reject unsubscribed events", async ({ request }) => {
       // If webhook is only subscribed to lead.create
       const response = await request.post("/api/webhooks/n8n", {
         headers: {

@@ -8,7 +8,7 @@ import { UpgradeModal } from "./UpgradeModal";
 import type { FeatureKey } from "@/lib/utils/subscription";
 import { useSubscription } from "@/lib/hooks/useSubscription";
 
-const FEATURE_LABELS: Record<FeatureKey, string> = {
+const FEATURE_LABELS: Partial<Record<FeatureKey, string>> & Record<string, string> = {
   leads: "Leads",
   users: "Users",
   campaigns: "Campaigns",
@@ -22,11 +22,6 @@ const FEATURE_LABELS: Record<FeatureKey, string> = {
   adminPanel: "Admin Panel",
   auditLogs: "Audit Logs",
   teamRoles: "Team Roles",
-  customRoles: "Custom Roles",
-  whiteLabel: "White Label",
-  dedicatedCsm: "Dedicated CSM",
-  biIntegrations: "BI Integrations",
-  sla: "SLA",
 };
 
 interface UsageLimitBarProps {

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
@@ -117,11 +118,11 @@ export function Sidebar({ isAdmin: isAdminProp, isMobileOpen, onMobileClose }: S
       {/* Logo */}
       <div className="flex h-16 items-center justify-between border-b border-white/5 px-4">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gold">
-            <span className="text-lg font-bold text-background">LF</span>
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg overflow-hidden">
+            <Image src="/images/logo-dark.png" alt="Goldyon" width={36} height={36} className="object-contain" />
           </div>
           {!collapsed && (
-            <span className="text-xl font-bold text-text-primary">LeadFlow</span>
+            <span className="text-xl font-bold text-text-primary">Goldyon</span>
           )}
         </Link>
         <button

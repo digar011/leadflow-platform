@@ -173,7 +173,7 @@ export function useCustomerJourney(businessId: string) {
         })),
       ].sort(
         (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          new Date(b.created_at!).getTime() - new Date(a.created_at!).getTime()
       );
 
       return timelineEvents;

@@ -1,6 +1,6 @@
-# LeadFlow -- How-To Guide
+# Goldyon -- How-To Guide
 
-A practical, step-by-step guide for common tasks in the LeadFlow platform.
+A practical, step-by-step guide for common tasks in the Goldyon platform.
 
 ---
 

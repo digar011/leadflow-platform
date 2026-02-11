@@ -11,9 +11,9 @@ export default function NewLeadPage() {
   const router = useRouter();
   const createLead = useCreateLead();
 
-  const handleSubmit = async (data: Parameters<typeof createLead.mutateAsync>[0]) => {
+  const handleSubmit = async (data: Partial<Parameters<typeof createLead.mutateAsync>[0]>) => {
     try {
-      const lead = await createLead.mutateAsync(data);
+      const lead = await createLead.mutateAsync(data as Parameters<typeof createLead.mutateAsync>[0]);
       router.push(`/leads/${lead.id}`);
     } catch (error) {
       console.error("Failed to create lead:", error);

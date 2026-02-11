@@ -1,10 +1,10 @@
 # Webhooks Guide
 
-This guide explains how to set up and use webhooks in LeadFlow Platform.
+This guide explains how to set up and use webhooks in Goldyon Platform.
 
 ## Overview
 
-LeadFlow supports two types of webhooks:
+Goldyon supports two types of webhooks:
 - **Outbound**: Send data TO external services when events occur
 - **Inbound**: Receive data FROM external services (like n8n)
 

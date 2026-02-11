@@ -16,9 +16,9 @@ export default function NewContactPage() {
   const { data: lead } = useLead(businessId);
   const createContact = useCreateContact();
 
-  const handleSubmit = async (data: Parameters<typeof createContact.mutateAsync>[0]) => {
+  const handleSubmit = async (data: Record<string, unknown>) => {
     try {
-      await createContact.mutateAsync(data);
+      await createContact.mutateAsync(data as Parameters<typeof createContact.mutateAsync>[0]);
       router.push(`/leads/${businessId}`);
     } catch (error) {
       console.error("Failed to create contact:", error);

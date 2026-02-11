@@ -1,4 +1,4 @@
-# LeadFlow CRM - Changelog
+# Goldyon CRM - Changelog
 
 ## Sprint 5: CSV Import/Export + Email Auto-Capture
 
@@ -107,7 +107,7 @@ Prevents accidental status jumps and captures win/loss reasons.
 - Integrated below status badges in lead detail header
 
 ### Zapier & Make Integration
-No-code integration guide for connecting LeadFlow to 5,000+ apps.
+No-code integration guide for connecting Goldyon to 5,000+ apps.
 
 - **`ZapierMakeGuide` component**: Connection instructions, supported events grid, platform-specific setup guides (Zapier/Make), one-click webhook creation with pre-filled defaults
 - **Webhook settings integration**: "Create Webhook for Zapier/Make" button pre-fills the existing webhook modal with platform name and all 6 events selected

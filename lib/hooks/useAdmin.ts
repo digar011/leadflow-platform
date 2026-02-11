@@ -190,7 +190,7 @@ export function useAuditLogs(options: {
       const { data, error, count } = await query;
 
       if (error) throw error;
-      return { logs: data as AuditLog[], total: count || 0 };
+      return { logs: data as unknown as AuditLog[], total: count || 0 };
     },
   });
 }

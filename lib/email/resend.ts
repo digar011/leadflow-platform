@@ -10,4 +10,4 @@ export function getResend(): Resend {
 }
 
 export const EMAIL_FROM =
-  process.env.EMAIL_FROM || "LeadFlow <noreply@leadflow.com>";
+  process.env.EMAIL_FROM || "Goldyon <noreply@goldyon.com>";

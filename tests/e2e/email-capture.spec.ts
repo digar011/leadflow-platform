@@ -1,11 +1,6 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Email Capture Settings", () => {
-  test.skip(
-    !process.env.TEST_USER_EMAIL,
-    "Requires TEST_USER_EMAIL env var"
-  );
-
   test("email capture section is visible on webhooks settings page", async ({ page }) => {
     await page.goto("/settings/webhooks");
     await expect(page.getByText("Email Capture")).toBeVisible({ timeout: 10000 });
@@ -15,7 +10,7 @@ test.describe("Email Capture Settings", () => {
     await page.goto("/settings/webhooks");
     await expect(page.getByText("Email Capture")).toBeVisible({ timeout: 10000 });
 
-    // Forwarding address should contain "crm-" and "@inbound.leadflow.app"
+    // Forwarding address should contain "crm-" and "@inbound.goldyon.app"
     const addressContainer = page.locator(".font-mono");
     await expect(addressContainer).toBeVisible({ timeout: 5000 });
 

@@ -67,7 +67,16 @@ export default function EditCampaignPage() {
       {/* Form */}
       <CampaignForm
         mode="edit"
-        initialData={campaign}
+        initialData={{
+          name: campaign.name ?? "",
+          campaign_type: campaign.campaign_type ?? "email",
+          status: campaign.status ?? "draft",
+          description: campaign.description,
+          started_at: campaign.started_at,
+          ended_at: campaign.ended_at,
+          budget: campaign.budget,
+          target_count: campaign.target_count,
+        }}
         onSubmit={handleSubmit}
         isLoading={updateCampaign.isPending}
       />

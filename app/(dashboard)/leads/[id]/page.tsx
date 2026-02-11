@@ -39,7 +39,9 @@ import { useCustomerJourney, useCreateActivity } from "@/lib/hooks/useActivities
 import { useContacts, useSetPrimaryContact, useDeleteContact } from "@/lib/hooks/useContacts";
 import { formatCurrency, formatPhoneNumber, formatDate } from "@/lib/utils/formatters";
 import { cn } from "@/lib/utils";
-import type { ActivityType, Json, LeadStatus } from "@/lib/types/database";
+import type { ActivityType, Json, LeadStatus, LeadTemperature } from "@/lib/types/database";
+import type { TimelineEvent } from "@/components/leads/JourneyTimeline";
+import type { Contact } from "@/components/leads/ContactsList";
 
 export default function LeadDetailPage() {
   const params = useParams();
@@ -152,7 +154,7 @@ export default function LeadDetailPage() {
           {
             name: "Recent contact",
             impact: "positive" as const,
-            description: formatDate(lastActivity.created_at),
+            description: formatDate(lastActivity.created_at!),
           },
         ]
       : [
@@ -212,8 +214,8 @@ export default function LeadDetailPage() {
               <h1 className="text-2xl font-bold text-text-primary">
                 {lead.business_name}
               </h1>
-              <Badge variant={getStatusBadgeVariant(lead.status)}>
-                {lead.status.replace(/_/g, " ")}
+              <Badge variant={getStatusBadgeVariant(lead.status ?? "")}>
+                {(lead.status ?? "").replace(/_/g, " ")}
               </Badge>
               {lead.lead_temperature && (
                 <Badge variant={getTemperatureBadgeVariant(lead.lead_temperature)}>
@@ -233,7 +235,7 @@ export default function LeadDetailPage() {
             </div>
             <div className="mt-2">
               <StatusTransition
-                currentStatus={lead.status}
+                currentStatus={lead.status as LeadStatus}
                 onTransition={handleStatusTransition}
                 isLoading={updateLead.isPending}
               />
@@ -399,7 +401,7 @@ export default function LeadDetailPage() {
                     Customer Journey
                   </h3>
                   <JourneyTimeline
-                    events={journeyEvents || []}
+                    events={(journeyEvents || []) as TimelineEvent[]}
                     isLoading={journeyLoading}
                   />
                 </div>
@@ -412,15 +414,15 @@ export default function LeadDetailPage() {
                   </h3>
                   <ContactsList
                     contacts={
-                      contacts?.map((c) => ({
+                      (contacts?.map((c) => ({
                         id: c.id,
                         first_name: c.first_name || "",
                         last_name: c.last_name || "",
                         email: c.email || undefined,
                         phone: c.phone || undefined,
                         job_title: c.title || undefined,
-                        is_primary: c.is_primary,
-                      })) || []
+                        is_primary: !!c.is_primary,
+                      })) || []) as Contact[]
                     }
                     onAddContact={() => router.push(`/leads/${leadId}/contacts/new`)}
                     onEditContact={(contact) =>
@@ -494,11 +496,11 @@ export default function LeadDetailPage() {
 
           {/* Next Best Action */}
           <NextBestAction
-            status={lead.status}
-            temperature={lead.lead_temperature}
+            status={lead.status as LeadStatus}
+            temperature={lead.lead_temperature as LeadTemperature}
             daysSinceLastActivity={
               lastActivity
-                ? differenceInDays(new Date(), new Date(lastActivity.created_at))
+                ? differenceInDays(new Date(), new Date(lastActivity.created_at!))
                 : null
             }
             hasFollowUp={!!lead.next_follow_up}
@@ -551,21 +553,21 @@ export default function LeadDetailPage() {
               <div className="flex justify-between text-sm">
                 <span className="text-text-muted">Created</span>
                 <span className="text-text-secondary">
-                  {formatDate(lead.created_at)}
+                  {formatDate(lead.created_at!)}
                 </span>
               </div>
               {lastActivity && (
                 <div className="flex justify-between text-sm">
                   <span className="text-text-muted">Last Activity</span>
                   <span className="text-text-secondary">
-                    {formatDate(lastActivity.created_at)}
+                    {formatDate(lastActivity.created_at!)}
                   </span>
                 </div>
               )}
               <div className="flex justify-between text-sm">
                 <span className="text-text-muted">Last Updated</span>
                 <span className="text-text-secondary">
-                  {formatDate(lead.updated_at)}
+                  {formatDate(lead.updated_at!)}
                 </span>
               </div>
               {lead.next_follow_up && (

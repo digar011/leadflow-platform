@@ -2,6 +2,8 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Admin", () => {
   test.describe("Unauthenticated", () => {
+    test.use({ storageState: { cookies: [], origins: [] } });
+
     test("should redirect to login when not authenticated", async ({ page }) => {
       await page.goto("/admin");
       await expect(page).toHaveURL(/login/);
@@ -16,7 +18,7 @@ test.describe("Admin", () => {
   });
 
   test.describe("User Management", () => {
-    test.skip("should display user management page", async ({ page }) => {
+    test("should display user management page", async ({ page }) => {
       await page.goto("/admin/users");
 
       await expect(page.getByRole("heading", { name: /user management/i })).toBeVisible();
@@ -24,14 +26,14 @@ test.describe("Admin", () => {
       await expect(page.getByText(/active users/i)).toBeVisible();
     });
 
-    test.skip("should display user list", async ({ page }) => {
+    test("should display user list", async ({ page }) => {
       await page.goto("/admin/users");
 
       // Should have a table or list of users
       await expect(page.getByRole("table")).toBeVisible();
     });
 
-    test.skip("should filter users by search", async ({ page }) => {
+    test("should filter users by search", async ({ page }) => {
       await page.goto("/admin/users");
 
       const searchInput = page.getByPlaceholder(/search users/i);
@@ -41,7 +43,7 @@ test.describe("Admin", () => {
       // Results should filter
     });
 
-    test.skip("should change user role", async ({ page }) => {
+    test("should change user role", async ({ page }) => {
       await page.goto("/admin/users");
 
       // Find a role selector
@@ -49,7 +51,7 @@ test.describe("Admin", () => {
       await expect(roleSelect).toBeVisible();
     });
 
-    test.skip("should toggle user active status", async ({ page }) => {
+    test("should toggle user active status", async ({ page }) => {
       await page.goto("/admin/users");
 
       // Find toggle button
@@ -59,13 +61,13 @@ test.describe("Admin", () => {
   });
 
   test.describe("System Settings", () => {
-    test.skip("should display system settings page", async ({ page }) => {
+    test("should display system settings page", async ({ page }) => {
       await page.goto("/admin/settings");
 
       await expect(page.getByRole("heading", { name: /system settings/i })).toBeVisible();
     });
 
-    test.skip("should display settings categories", async ({ page }) => {
+    test("should display settings categories", async ({ page }) => {
       await page.goto("/admin/settings");
 
       await expect(page.getByText(/branding/i)).toBeVisible();
@@ -74,7 +76,7 @@ test.describe("Admin", () => {
       await expect(page.getByText(/security/i)).toBeVisible();
     });
 
-    test.skip("should save setting changes", async ({ page }) => {
+    test("should save setting changes", async ({ page }) => {
       await page.goto("/admin/settings");
 
       // Find an input and modify it
@@ -88,20 +90,20 @@ test.describe("Admin", () => {
   });
 
   test.describe("Audit Logs", () => {
-    test.skip("should display audit logs page", async ({ page }) => {
+    test("should display audit logs page", async ({ page }) => {
       await page.goto("/admin/audit");
 
       await expect(page.getByRole("heading", { name: /audit logs/i })).toBeVisible();
     });
 
-    test.skip("should display audit log stats", async ({ page }) => {
+    test("should display audit log stats", async ({ page }) => {
       await page.goto("/admin/audit");
 
       await expect(page.getByText(/total logs/i)).toBeVisible();
       await expect(page.getByText(/today/i)).toBeVisible();
     });
 
-    test.skip("should filter logs by action", async ({ page }) => {
+    test("should filter logs by action", async ({ page }) => {
       await page.goto("/admin/audit");
 
       const actionFilter = page.locator("select").first();
@@ -110,7 +112,7 @@ test.describe("Admin", () => {
       await actionFilter.selectOption("create");
     });
 
-    test.skip("should expand log details", async ({ page }) => {
+    test("should expand log details", async ({ page }) => {
       await page.goto("/admin/audit");
 
       // Click on a log entry to expand
@@ -120,7 +122,7 @@ test.describe("Admin", () => {
       // Details should be visible
     });
 
-    test.skip("should paginate through logs", async ({ page }) => {
+    test("should paginate through logs", async ({ page }) => {
       await page.goto("/admin/audit");
 
       // Look for pagination controls

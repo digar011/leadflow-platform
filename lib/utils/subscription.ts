@@ -14,6 +14,7 @@ export type FeatureKey =
   | "biIntegration"
   | "apiAccess"
   | "webhooks"
+  | "slackIntegration"
   | "scopedApiKeys"
   | "dedicatedApi"
   | "slaSupport"
@@ -57,6 +58,7 @@ export const PLAN_DEFINITIONS: Record<SubscriptionTier, PlanDefinition> = {
       biIntegration: false,
       apiAccess: false,
       webhooks: false,
+      slackIntegration: false,
       scopedApiKeys: false,
       dedicatedApi: false,
       slaSupport: false,
@@ -88,6 +90,7 @@ export const PLAN_DEFINITIONS: Record<SubscriptionTier, PlanDefinition> = {
       biIntegration: false,
       apiAccess: false,
       webhooks: false,
+      slackIntegration: false,
       scopedApiKeys: false,
       dedicatedApi: false,
       slaSupport: false,
@@ -119,6 +122,7 @@ export const PLAN_DEFINITIONS: Record<SubscriptionTier, PlanDefinition> = {
       biIntegration: false,
       apiAccess: true,
       webhooks: true,
+      slackIntegration: true,
       scopedApiKeys: false,
       dedicatedApi: false,
       slaSupport: false,
@@ -151,6 +155,7 @@ export const PLAN_DEFINITIONS: Record<SubscriptionTier, PlanDefinition> = {
       biIntegration: false,
       apiAccess: true,
       webhooks: true,
+      slackIntegration: true,
       scopedApiKeys: true,
       dedicatedApi: false,
       slaSupport: false,
@@ -182,6 +187,7 @@ export const PLAN_DEFINITIONS: Record<SubscriptionTier, PlanDefinition> = {
       biIntegration: true,
       apiAccess: true,
       webhooks: true,
+      slackIntegration: true,
       scopedApiKeys: true,
       dedicatedApi: true,
       slaSupport: true,
@@ -285,6 +291,7 @@ export const PLAN_FEATURE_ROWS: PlanFeatureRow[] = [
   { label: "Report Scheduling", feature: "reportScheduling", category: "reports" },
   { label: "API Access", feature: "apiAccess", category: "integrations" },
   { label: "Webhooks", feature: "webhooks", category: "integrations" },
+  { label: "Slack Integration", feature: "slackIntegration", category: "integrations" },
   { label: "Scoped API Keys", feature: "scopedApiKeys", category: "integrations" },
   { label: "Admin Panel", feature: "adminPanel", category: "admin" },
   { label: "Audit Logs", feature: "auditLogs", category: "admin" },

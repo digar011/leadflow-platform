@@ -169,8 +169,8 @@ export async function POST(request: NextRequest) {
 
     for (let i = 0; i < toInsert.length; i += 50) {
       const chunk = toInsert.slice(i, i + 50);
-      const { data: inserted, error: insertError } = await supabase
-        .from("businesses")
+      const { data: inserted, error: insertError } = await (supabase
+        .from("businesses") as any)
         .insert(chunk)
         .select("id, business_name, email, phone");
 
@@ -188,8 +188,8 @@ export async function POST(request: NextRequest) {
 
         // Auto-create primary contacts for leads with email or phone
         const contacts = inserted
-          .filter((lead) => lead.email || lead.phone)
-          .map((lead) => ({
+          .filter((lead: any) => lead.email || lead.phone)
+          .map((lead: any) => ({
             business_id: lead.id,
             first_name: lead.business_name,
             email: lead.email || null,
@@ -201,7 +201,7 @@ export async function POST(request: NextRequest) {
           await supabase.from("contacts").insert(contacts);
         }
 
-        createdIds.push(...inserted.map((l) => l.id));
+        createdIds.push(...inserted.map((l: any) => l.id));
       }
     }
 

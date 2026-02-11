@@ -48,7 +48,7 @@ export function FollowUpWidgets() {
 
       {/* KPI Cards Row */}
       {(hasDueToday || hasStale) && (
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {hasDueToday && (
             <Card variant="glass" padding="sm">
               <CardContent className="flex items-center gap-4 pt-2">

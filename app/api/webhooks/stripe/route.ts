@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe/server";
 import { tierFromPriceId } from "@/lib/stripe/config";
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type Stripe from "stripe";
+import type { Database } from "@/lib/types/database";
 
 // Lazy Supabase service client for webhook processing
 function getSupabase() {
-  return createClient(
+  return createClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 }
+
+type SupabaseAdmin = ReturnType<typeof getSupabase>;
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
@@ -80,20 +83,27 @@ export async function POST(request: NextRequest) {
 async function handleCheckoutComplete(
   session: Stripe.Checkout.Session,
   stripe: Stripe,
-  supabase: ReturnType<typeof createClient>
+  supabase: SupabaseAdmin
 ) {
   const userId = session.metadata?.supabase_user_id;
   if (!userId || session.mode !== "subscription") return;
 
   const subscriptionId = session.subscription as string;
   const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-  const priceId = subscription.items.data[0]?.price.id;
+  const firstItem = subscription.items.data[0];
+  const priceId = firstItem?.price.id;
+  if (!priceId) {
+    console.error("No price ID found on subscription items");
+    return;
+  }
 
   const tierInfo = tierFromPriceId(priceId);
   if (!tierInfo) {
     console.error(`Unknown price ID from checkout: ${priceId}`);
     return;
   }
+
+  const periodEnd = firstItem?.current_period_end;
 
   await supabase
     .from("profiles")
@@ -103,28 +113,30 @@ async function handleCheckoutComplete(
       subscription_tier: tierInfo.tier,
       subscription_billing_cycle: tierInfo.billingCycle,
       subscription_status: subscription.status,
-      current_period_end: new Date(
-        subscription.current_period_end * 1000
-      ).toISOString(),
+      current_period_end: periodEnd
+        ? new Date(periodEnd * 1000).toISOString()
+        : null,
     })
     .eq("id", userId);
 }
 
 async function handleSubscriptionUpdated(
   subscription: Stripe.Subscription,
-  supabase: ReturnType<typeof createClient>
+  supabase: SupabaseAdmin
 ) {
   const userId = subscription.metadata?.supabase_user_id;
   if (!userId) return;
 
-  const priceId = subscription.items.data[0]?.price.id;
-  const tierInfo = tierFromPriceId(priceId);
+  const firstItem = subscription.items.data[0];
+  const priceId = firstItem?.price.id;
+  const tierInfo = priceId ? tierFromPriceId(priceId) : null;
 
+  const periodEnd = firstItem?.current_period_end;
   const updates: Record<string, unknown> = {
     subscription_status: subscription.status,
-    current_period_end: new Date(
-      subscription.current_period_end * 1000
-    ).toISOString(),
+    current_period_end: periodEnd
+      ? new Date(periodEnd * 1000).toISOString()
+      : null,
   };
 
   if (tierInfo) {
@@ -132,12 +144,12 @@ async function handleSubscriptionUpdated(
     updates.subscription_billing_cycle = tierInfo.billingCycle;
   }
 
-  await supabase.from("profiles").update(updates).eq("id", userId);
+  await (supabase.from("profiles") as any).update(updates).eq("id", userId);
 }
 
 async function handleSubscriptionDeleted(
   subscription: Stripe.Subscription,
-  supabase: ReturnType<typeof createClient>
+  supabase: SupabaseAdmin
 ) {
   const userId = subscription.metadata?.supabase_user_id;
   if (!userId) return;
@@ -156,7 +168,7 @@ async function handleSubscriptionDeleted(
 
 async function handlePaymentFailed(
   invoice: Stripe.Invoice,
-  supabase: ReturnType<typeof createClient>
+  supabase: SupabaseAdmin
 ) {
   const customerId = invoice.customer as string;
   if (!customerId) return;

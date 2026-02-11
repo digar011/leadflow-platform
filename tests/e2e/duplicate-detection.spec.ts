@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Duplicate Lead Detection", () => {
   test.describe("Authenticated", () => {
-    test.skip("should show no duplicate warning for a unique business name", async ({ page }) => {
+    test("should show no duplicate warning for a unique business name", async ({ page }) => {
       await page.goto("/leads/new");
 
       // Type a unique business name that does not exist
@@ -17,7 +17,7 @@ test.describe("Duplicate Lead Detection", () => {
       await expect(duplicateWarning).not.toBeVisible();
     });
 
-    test.skip("should show DuplicateWarning when typing a name matching an existing lead", async ({ page }) => {
+    test("should show DuplicateWarning when typing a name matching an existing lead", async ({ page }) => {
       // First, we need to know an existing lead name. Navigate to leads list to find one.
       await page.goto("/leads");
       const firstLeadName = await page
@@ -47,7 +47,7 @@ test.describe("Duplicate Lead Detection", () => {
       await expect(page.getByText(/possible duplicate/i)).toBeVisible();
     });
 
-    test.skip("should include a link to the existing lead detail in the warning", async ({ page }) => {
+    test("should include a link to the existing lead detail in the warning", async ({ page }) => {
       // Navigate to leads list to get an existing lead name
       await page.goto("/leads");
       const firstLeadName = await page
@@ -80,7 +80,7 @@ test.describe("Duplicate Lead Detection", () => {
       expect(href).toMatch(/^\/leads\/[a-zA-Z0-9-]+$/);
     });
 
-    test.skip("should still allow form submission despite duplicate warning", async ({ page }) => {
+    test("should still allow form submission despite duplicate warning", async ({ page }) => {
       // Navigate to leads list to get an existing lead name
       await page.goto("/leads");
       const firstLeadName = await page

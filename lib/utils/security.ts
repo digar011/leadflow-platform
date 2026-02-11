@@ -84,11 +84,14 @@ export async function rateLimit(
 
   if (supabase) {
     try {
-      const { data, error } = await supabase.rpc("check_rate_limit", {
-        p_identifier: identifier,
-        p_limit: limit,
-        p_window_seconds: Math.ceil(windowMs / 1000),
-      });
+      const { data, error } = await (supabase.rpc as Function)(
+        "check_rate_limit",
+        {
+          p_identifier: identifier,
+          p_limit: limit,
+          p_window_seconds: Math.ceil(windowMs / 1000),
+        }
+      ) as { data: { allowed: boolean; remaining: number }[] | null; error: unknown };
 
       if (!error && data && data.length > 0) {
         return {

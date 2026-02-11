@@ -125,7 +125,7 @@ export function Header({ title, subtitle, onMenuClick }: HeaderProps) {
           id: lead.id,
           type: "lead",
           title: lead.business_name,
-          subtitle: lead.status,
+          subtitle: lead.status ?? undefined,
           href: `/leads/${lead.id}`,
         });
       });

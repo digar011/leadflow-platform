@@ -63,7 +63,7 @@ export function ViewModeProvider({ children }: { children: ReactNode }) {
 
       // Restore saved view mode for admins
       if (role === "admin") {
-        const saved = localStorage.getItem("leadflow-view-mode");
+        const saved = localStorage.getItem("goldyon-view-mode");
         setViewMode(saved === "user" ? "user" : "admin");
       } else {
         setViewMode("user");
@@ -82,7 +82,7 @@ export function ViewModeProvider({ children }: { children: ReactNode }) {
       if (event === "SIGNED_OUT") {
         setActualRole(null);
         setViewMode("user");
-        localStorage.removeItem("leadflow-view-mode");
+        localStorage.removeItem("goldyon-view-mode");
       } else if (event === "SIGNED_IN") {
         fetchRole();
       }
@@ -98,7 +98,7 @@ export function ViewModeProvider({ children }: { children: ReactNode }) {
     if (!isRealAdmin) return;
     const next = viewMode === "admin" ? "user" : "admin";
     setViewMode(next);
-    localStorage.setItem("leadflow-view-mode", next);
+    localStorage.setItem("goldyon-view-mode", next);
   };
 
   return (

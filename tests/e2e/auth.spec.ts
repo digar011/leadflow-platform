@@ -1,12 +1,14 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Authentication", () => {
+  test.use({ storageState: { cookies: [], origins: [] } });
+
   test.describe("Login Page", () => {
     test("should display login page correctly", async ({ page }) => {
       await page.goto("/login");
 
       // Check page title
-      await expect(page).toHaveTitle(/LeadFlow/);
+      await expect(page).toHaveTitle(/Goldyon/);
 
       // Check form elements are present
       await expect(page.getByLabel("Email")).toBeVisible();

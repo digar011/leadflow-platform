@@ -13,7 +13,7 @@ export default defineConfig({
     ["junit", { outputFile: "test-results/results.xml" }],
   ],
   use: {
-    baseURL: process.env.BASE_URL || "http://localhost:3000",
+    baseURL: process.env.BASE_URL || "http://localhost:3004",
     headless: true,
     screenshot: "only-on-failure",
     video: "retain-on-failure",
@@ -25,24 +25,38 @@ export default defineConfig({
       testMatch: /global-setup\.ts/,
     },
     {
-      name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      name: "auth",
+      testMatch: /auth\.setup\.ts/,
       dependencies: ["setup"],
+    },
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        storageState: "tests/e2e/.auth/user.json",
+      },
+      dependencies: ["auth"],
     },
     {
       name: "firefox",
-      use: { ...devices["Desktop Firefox"] },
-      dependencies: ["setup"],
+      use: {
+        ...devices["Desktop Firefox"],
+        storageState: "tests/e2e/.auth/user.json",
+      },
+      dependencies: ["auth"],
     },
     {
       name: "mobile-chrome",
-      use: { ...devices["Pixel 5"] },
-      dependencies: ["setup"],
+      use: {
+        ...devices["Pixel 5"],
+        storageState: "tests/e2e/.auth/user.json",
+      },
+      dependencies: ["auth"],
     },
   ],
   webServer: {
-    command: "npm run dev",
-    url: "http://localhost:3000",
+    command: "npm run dev -- -p 3004",
+    url: "http://localhost:3004",
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
   },

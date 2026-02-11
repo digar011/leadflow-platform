@@ -313,7 +313,8 @@ export function useLeadStats() {
           if (result.error) throw result.error;
           const counts: Record<string, number> = {};
           result.data?.forEach((row) => {
-            counts[row.status] = (counts[row.status] || 0) + 1;
+            const s = row.status ?? "unknown";
+            counts[s] = (counts[s] || 0) + 1;
           });
           return { data: counts, error: null };
         });
