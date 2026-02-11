@@ -31,7 +31,7 @@ export default function AdminLayout({
         .eq("id", user.id)
         .single();
 
-      if (profile?.role !== "admin") {
+      if (!["super_admin", "org_admin", "admin"].includes(profile?.role ?? "")) {
         router.push("/dashboard");
         return;
       }

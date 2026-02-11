@@ -91,6 +91,8 @@ function makePermissionMap(enabled: PermissionKey[]): Record<PermissionKey, bool
 }
 
 export const DEFAULT_PERMISSIONS: Record<UserRole, Record<PermissionKey, boolean>> = {
+  super_admin: makePermissionMap(ALL_PERMISSION_KEYS),
+  org_admin: makePermissionMap(ALL_PERMISSION_KEYS),
   admin: makePermissionMap(ALL_PERMISSION_KEYS),
   manager: makePermissionMap([
     "leads.view", "leads.create", "leads.edit",
@@ -131,7 +133,7 @@ export function hasPermission(
   overrides: UserPermissions = {},
   key: PermissionKey
 ): boolean {
-  if (role === "admin") return true;
+  if (role === "super_admin" || role === "org_admin" || role === "admin") return true;
   const effective = getEffectivePermissions(role, overrides);
   return effective[key] ?? false;
 }

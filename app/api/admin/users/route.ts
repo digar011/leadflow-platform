@@ -13,7 +13,7 @@ async function verifyAdmin() {
     .eq("id", user.id)
     .single();
 
-  if (profile?.role !== "admin") return null;
+  if (!["super_admin", "org_admin", "admin"].includes(profile?.role ?? "")) return null;
   return user.id;
 }
 
@@ -38,7 +38,7 @@ export async function PATCH(request: NextRequest) {
     switch (action) {
       case "updateRole": {
         const { role } = params;
-        if (!["admin", "manager", "user"].includes(role)) {
+        if (!["super_admin", "org_admin", "admin", "manager", "user"].includes(role)) {
           return NextResponse.json({ error: "Invalid role" }, { status: 400 });
         }
         const { data, error } = await serviceClient

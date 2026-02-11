@@ -35,10 +35,10 @@ test.describe("Dashboard", () => {
     test("should display KPI cards", async ({ page }) => {
       await page.goto("/dashboard");
 
-      await expect(page.getByText(/total leads/i)).toBeVisible();
-      await expect(page.getByText(/new this week/i)).toBeVisible();
-      await expect(page.getByText(/pipeline value/i)).toBeVisible();
-      await expect(page.getByText(/conversion rate/i)).toBeVisible();
+      await expect(page.getByText("Total Leads")).toBeVisible({ timeout: 10000 });
+      await expect(page.getByText("New This Week")).toBeVisible();
+      await expect(page.getByText("Pipeline Value")).toBeVisible();
+      await expect(page.getByText("Conversion Rate")).toBeVisible();
     });
 
     test("should display leads trend chart", async ({ page }) => {
@@ -82,16 +82,16 @@ test.describe("Dashboard", () => {
       await page.goto("/dashboard");
 
       await expect(page.getByText(/quick actions/i)).toBeVisible();
-      await expect(page.getByText(/add lead/i)).toBeVisible();
-      await expect(page.getByText(/log call/i)).toBeVisible();
-      await expect(page.getByText(/send email/i)).toBeVisible();
-      await expect(page.getByText(/meeting/i)).toBeVisible();
+      await expect(page.getByRole("main").getByText(/add lead/i)).toBeVisible();
+      await expect(page.getByRole("main").getByText(/log call/i)).toBeVisible();
+      await expect(page.getByRole("main").getByText(/send email/i)).toBeVisible();
+      await expect(page.getByRole("main").getByText(/meeting/i)).toBeVisible();
     });
 
     test("should navigate to add lead from quick actions", async ({ page }) => {
       await page.goto("/dashboard");
 
-      await page.getByRole("link", { name: /add lead/i }).click();
+      await page.getByRole("main").getByRole("link", { name: /add lead/i }).click();
 
       await expect(page).toHaveURL(/leads\/new/);
     });
@@ -116,16 +116,10 @@ test.describe("Dashboard", () => {
     test("should have working sidebar navigation", async ({ page }) => {
       await page.goto("/dashboard");
 
-      const sidebarLinks = [
-        { name: "Leads", url: "/leads" },
-        { name: "Contacts", url: "/contacts" },
-        { name: "Activities", url: "/activities" },
-      ];
-
-      for (const link of sidebarLinks) {
-        const navLink = page.getByRole("link", { name: link.name });
-        await expect(navLink).toBeVisible();
-      }
+      const sidebar = page.locator("aside");
+      await expect(sidebar.getByRole("link", { name: "Leads" })).toBeVisible();
+      await expect(sidebar.getByRole("link", { name: "Contacts" })).toBeVisible();
+      await expect(sidebar.getByRole("link", { name: "Activities", exact: true })).toBeVisible();
     });
 
     test("should toggle sidebar collapse", async ({ page }) => {
@@ -143,8 +137,8 @@ test.describe("Dashboard", () => {
     test("should show loading states initially", async ({ page }) => {
       await page.goto("/dashboard");
 
-      // Charts should show loading state
-      await expect(page.getByText(/loading chart/i)).toBeVisible();
+      // Charts should show loading state (multiple charts loading)
+      await expect(page.getByText(/loading chart/i).first()).toBeVisible();
     });
 
     test("should render charts after data loads", async ({ page }) => {

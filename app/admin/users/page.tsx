@@ -24,6 +24,8 @@ import { PermissionsPanel } from "@/components/admin/PermissionsPanel";
 import { cn } from "@/lib/utils";
 
 const roleOptions = [
+  { value: "super_admin", label: "Super Admin", icon: Crown, color: "text-purple-400" },
+  { value: "org_admin", label: "Org Admin", icon: Crown, color: "text-gold" },
   { value: "admin", label: "Admin", icon: Crown, color: "text-gold" },
   { value: "manager", label: "Manager", icon: Briefcase, color: "text-blue-400" },
   { value: "user", label: "User", icon: UserIcon, color: "text-text-muted" },

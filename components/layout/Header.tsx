@@ -93,7 +93,7 @@ export function Header({ title, subtitle, onMenuClick }: HeaderProps) {
   const [isSearching, setIsSearching] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const { isRealAdmin, isAdminView, toggleViewMode, loading } = useViewMode();
+  const { isAnyAdmin, isSuperAdmin, isSuperAdminView, isOrgAdminView, isAdminView, viewMode, toggleViewMode, loading } = useViewMode();
   const router = useRouter();
 
   const notifRef = useRef<HTMLDivElement>(null);
@@ -259,18 +259,25 @@ export function Header({ title, subtitle, onMenuClick }: HeaderProps) {
 
       {/* Right side - Actions */}
       <div className="flex items-center gap-3">
-        {/* Admin/User View Toggle - only shown for real admins */}
-        {isRealAdmin && !loading && (
+        {/* View Mode Toggle - only shown for admins */}
+        {isAnyAdmin && !loading && (
           <button
             onClick={toggleViewMode}
             className={cn(
               "flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium transition-all duration-200 border",
-              isAdminView
-                ? "border-gold/40 bg-gold/10 text-gold hover:bg-gold/20"
-                : "border-white/10 bg-white/5 text-text-secondary hover:bg-white/10 hover:text-text-primary"
+              isSuperAdminView
+                ? "border-purple-400/40 bg-purple-500/10 text-purple-400 hover:bg-purple-500/20"
+                : isAdminView
+                  ? "border-gold/40 bg-gold/10 text-gold hover:bg-gold/20"
+                  : "border-white/10 bg-white/5 text-text-secondary hover:bg-white/10 hover:text-text-primary"
             )}
           >
-            {isAdminView ? (
+            {isSuperAdminView ? (
+              <>
+                <Shield className="h-4 w-4" />
+                <span>Super</span>
+              </>
+            ) : isAdminView ? (
               <>
                 <Shield className="h-4 w-4" />
                 <span>Admin</span>
@@ -281,19 +288,33 @@ export function Header({ title, subtitle, onMenuClick }: HeaderProps) {
                 <span>User</span>
               </>
             )}
-            <div
-              className={cn(
-                "relative ml-1 h-5 w-9 rounded-full transition-colors duration-200",
-                isAdminView ? "bg-gold" : "bg-white/20"
-              )}
-            >
+            {isSuperAdmin ? (
+              <div className="flex ml-1 gap-0.5">
+                {["super_admin", "admin", "user"].map((mode) => (
+                  <div
+                    key={mode}
+                    className={cn(
+                      "h-2 w-2 rounded-full transition-colors duration-200",
+                      viewMode === mode ? (mode === "super_admin" ? "bg-purple-400" : mode === "admin" ? "bg-gold" : "bg-white/60") : "bg-white/20"
+                    )}
+                  />
+                ))}
+              </div>
+            ) : (
               <div
                 className={cn(
-                  "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200",
-                  isAdminView ? "translate-x-4" : "translate-x-0.5"
+                  "relative ml-1 h-5 w-9 rounded-full transition-colors duration-200",
+                  isAdminView ? "bg-gold" : "bg-white/20"
                 )}
-              />
-            </div>
+              >
+                <div
+                  className={cn(
+                    "absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200",
+                    isAdminView ? "translate-x-4" : "translate-x-0.5"
+                  )}
+                />
+              </div>
+            )}
           </button>
         )}
 
