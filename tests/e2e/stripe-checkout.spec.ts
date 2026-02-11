@@ -32,7 +32,7 @@ test.describe("Stripe Checkout & Billing", () => {
       await expect(page.getByRole("button", { name: /contact sales/i }).or(page.getByRole("link", { name: /contact sales/i }))).toBeVisible();
     });
 
-    test.skip("should toggle between monthly and annual pricing", async ({ page }) => {
+    test("should toggle between monthly and annual pricing", async ({ page }) => {
       await page.goto("/pricing");
 
       // Find billing cycle toggle
@@ -45,7 +45,7 @@ test.describe("Stripe Checkout & Billing", () => {
       await expect(page.getByText("$249")).toBeVisible();
     });
 
-    test.skip("should display feature comparison table", async ({ page }) => {
+    test("should display feature comparison table", async ({ page }) => {
       await page.goto("/pricing");
 
       // Feature comparison rows
@@ -57,20 +57,24 @@ test.describe("Stripe Checkout & Billing", () => {
     });
   });
 
-  test.describe("Billing Page (Authenticated)", () => {
+  test.describe("Billing Page - Unauthenticated", () => {
+    test.use({ storageState: { cookies: [], origins: [] } });
+
     test("should redirect to login when not authenticated", async ({ page }) => {
       await page.goto("/settings/billing");
       await expect(page).toHaveURL(/login/);
     });
+  });
 
-    test.skip("should display current subscription info", async ({ page }) => {
+  test.describe("Billing Page (Authenticated)", () => {
+    test("should display current subscription info", async ({ page }) => {
       await page.goto("/settings/billing");
 
       await expect(page.getByText(/current plan/i)).toBeVisible();
       await expect(page.getByText(/free|starter|growth|business|enterprise/i)).toBeVisible();
     });
 
-    test.skip("should display usage summary", async ({ page }) => {
+    test("should display usage summary", async ({ page }) => {
       await page.goto("/settings/billing");
 
       // Usage bars for key features
@@ -78,13 +82,13 @@ test.describe("Stripe Checkout & Billing", () => {
       await expect(page.getByText(/usage/i)).toBeVisible();
     });
 
-    test.skip("should show upgrade button for free tier users", async ({ page }) => {
+    test("should show upgrade button for free tier users", async ({ page }) => {
       await page.goto("/settings/billing");
 
       await expect(page.getByRole("button", { name: /upgrade|change plan/i })).toBeVisible();
     });
 
-    test.skip("should show manage subscription button for paid users", async ({ page }) => {
+    test("should show manage subscription button for paid users", async ({ page }) => {
       await page.goto("/settings/billing");
 
       // For paid users, show Stripe customer portal link
@@ -93,14 +97,14 @@ test.describe("Stripe Checkout & Billing", () => {
   });
 
   test.describe("Free Tier Limits", () => {
-    test.skip("should show 25 lead limit for free tier", async ({ page }) => {
+    test("should show 25 lead limit for free tier", async ({ page }) => {
       await page.goto("/leads");
 
       // Usage limit bar should show leads limit
       await expect(page.getByText(/25/)).toBeVisible();
     });
 
-    test.skip("should disable pipeline view toggle for free tier", async ({ page }) => {
+    test("should disable pipeline view toggle for free tier", async ({ page }) => {
       await page.goto("/leads");
 
       // Kanban/pipeline toggle should be disabled
@@ -108,14 +112,14 @@ test.describe("Stripe Checkout & Billing", () => {
       await expect(kanbanButton).toBeDisabled();
     });
 
-    test.skip("should redirect free tier from kanban page", async ({ page }) => {
+    test("should redirect free tier from kanban page", async ({ page }) => {
       await page.goto("/leads/kanban");
 
       // Free tier users should be redirected to leads list
       await expect(page).toHaveURL(/\/leads$/);
     });
 
-    test.skip("should hide campaigns for free tier", async ({ page }) => {
+    test("should hide campaigns for free tier", async ({ page }) => {
       await page.goto("/dashboard");
 
       // Campaigns nav item should not be visible for free tier
@@ -125,7 +129,7 @@ test.describe("Stripe Checkout & Billing", () => {
   });
 
   test.describe("Upgrade Prompts", () => {
-    test.skip("should show upgrade modal when hitting lead limit", async ({ page }) => {
+    test("should show upgrade modal when hitting lead limit", async ({ page }) => {
       // Navigate to new lead form
       await page.goto("/leads/new");
 
@@ -137,7 +141,7 @@ test.describe("Stripe Checkout & Billing", () => {
       // This will only trigger if the user is actually at their limit
     });
 
-    test.skip("should show upgrade tooltip on disabled pipeline button", async ({ page }) => {
+    test("should show upgrade tooltip on disabled pipeline button", async ({ page }) => {
       await page.goto("/leads");
 
       // Hover over disabled kanban button

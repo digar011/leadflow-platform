@@ -2,27 +2,30 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Activities", () => {
   test.describe("Activities Feed Page", () => {
-    test("should redirect to login for unauthenticated users", async ({ page }) => {
-      await page.goto("/activities");
+    test.describe("Unauthenticated", () => {
+      test.use({ storageState: { cookies: [], origins: [] } });
 
-      await expect(page).toHaveURL(/login/);
+      test("should redirect to login for unauthenticated users", async ({ page }) => {
+        await page.goto("/activities");
+        await expect(page).toHaveURL(/login/);
+      });
     });
 
     test.describe("Authenticated", () => {
-      test.skip("should display activities feed page correctly", async ({ page }) => {
+      test("should display activities feed page correctly", async ({ page }) => {
         await page.goto("/activities");
 
         await expect(page.getByRole("heading", { name: /activity feed/i })).toBeVisible();
         await expect(page.getByText(/recent activity/i)).toBeVisible();
       });
 
-      test.skip("should display activity type filter", async ({ page }) => {
+      test("should display activity type filter", async ({ page }) => {
         await page.goto("/activities");
 
         await expect(page.getByRole("combobox")).toBeVisible();
       });
 
-      test.skip("should filter activities by type", async ({ page }) => {
+      test("should filter activities by type", async ({ page }) => {
         await page.goto("/activities");
 
         await page.getByRole("combobox").selectOption("email_sent");
@@ -31,21 +34,21 @@ test.describe("Activities", () => {
         await expect(page.getByRole("combobox")).toHaveValue("email_sent");
       });
 
-      test.skip("should display activities grouped by date", async ({ page }) => {
+      test("should display activities grouped by date", async ({ page }) => {
         await page.goto("/activities");
 
         // Should have date headers
         // This test would need actual data to verify specific dates
       });
 
-      test.skip("should display activity cards with correct information", async ({ page }) => {
+      test("should display activity cards with correct information", async ({ page }) => {
         await page.goto("/activities");
 
         // Activity cards should show type badge, title, description, timestamp
         // This test would need actual data to verify
       });
 
-      test.skip("should navigate to lead when clicking business link", async ({ page }) => {
+      test("should navigate to lead when clicking business link", async ({ page }) => {
         await page.goto("/activities");
 
         // Click business link on an activity
@@ -55,7 +58,7 @@ test.describe("Activities", () => {
         await expect(page).toHaveURL(/leads\//);
       });
 
-      test.skip("should refresh activities when refresh button clicked", async ({ page }) => {
+      test("should refresh activities when refresh button clicked", async ({ page }) => {
         await page.goto("/activities");
 
         await page.getByRole("button", { name: /refresh/i }).click();
@@ -68,7 +71,7 @@ test.describe("Activities", () => {
 
   test.describe("Activity Logging from Lead Detail", () => {
     test.describe("Authenticated", () => {
-      test.skip("should open log call modal", async ({ page }) => {
+      test("should open log call modal", async ({ page }) => {
         await page.goto("/leads/test-id");
 
         await page.getByRole("button", { name: /log call/i }).click();
@@ -77,7 +80,7 @@ test.describe("Activities", () => {
         await expect(page.getByRole("heading", { name: /log call/i })).toBeVisible();
       });
 
-      test.skip("should display call outcome options", async ({ page }) => {
+      test("should display call outcome options", async ({ page }) => {
         await page.goto("/leads/test-id");
 
         await page.getByRole("button", { name: /log call/i }).click();
@@ -87,7 +90,7 @@ test.describe("Activities", () => {
         await expect(page.getByRole("button", { name: /no answer/i })).toBeVisible();
       });
 
-      test.skip("should open log email modal", async ({ page }) => {
+      test("should open log email modal", async ({ page }) => {
         await page.goto("/leads/test-id");
 
         await page.getByRole("button", { name: /log email/i }).click();
@@ -96,7 +99,7 @@ test.describe("Activities", () => {
         await expect(page.getByRole("heading", { name: /log email/i })).toBeVisible();
       });
 
-      test.skip("should open schedule meeting modal", async ({ page }) => {
+      test("should open schedule meeting modal", async ({ page }) => {
         await page.goto("/leads/test-id");
 
         await page.getByRole("button", { name: /schedule meeting/i }).click();
@@ -105,7 +108,7 @@ test.describe("Activities", () => {
         await expect(page.getByRole("heading", { name: /schedule meeting/i })).toBeVisible();
       });
 
-      test.skip("should open add note modal", async ({ page }) => {
+      test("should open add note modal", async ({ page }) => {
         await page.goto("/leads/test-id");
 
         await page.getByRole("button", { name: /add note/i }).click();
@@ -114,7 +117,7 @@ test.describe("Activities", () => {
         await expect(page.getByRole("heading", { name: /add note/i })).toBeVisible();
       });
 
-      test.skip("should submit activity and close modal", async ({ page }) => {
+      test("should submit activity and close modal", async ({ page }) => {
         await page.goto("/leads/test-id");
 
         await page.getByRole("button", { name: /log call/i }).click();
@@ -126,7 +129,7 @@ test.describe("Activities", () => {
         await expect(page.getByRole("dialog")).not.toBeVisible();
       });
 
-      test.skip("should cancel activity logging", async ({ page }) => {
+      test("should cancel activity logging", async ({ page }) => {
         await page.goto("/leads/test-id");
 
         await page.getByRole("button", { name: /log call/i }).click();
@@ -139,20 +142,20 @@ test.describe("Activities", () => {
 
   test.describe("Journey Timeline in Lead Detail", () => {
     test.describe("Authenticated", () => {
-      test.skip("should display customer journey timeline", async ({ page }) => {
+      test("should display customer journey timeline", async ({ page }) => {
         await page.goto("/leads/test-id");
 
         await expect(page.getByText(/customer journey/i)).toBeVisible();
       });
 
-      test.skip("should display timeline events with correct formatting", async ({ page }) => {
+      test("should display timeline events with correct formatting", async ({ page }) => {
         await page.goto("/leads/test-id");
 
         // Timeline events should show icon, title, timestamp
         // This test would need actual data to verify
       });
 
-      test.skip("should show empty state when no activities", async ({ page }) => {
+      test("should show empty state when no activities", async ({ page }) => {
         await page.goto("/leads/new-lead-id");
 
         await expect(page.getByText(/no activity recorded/i)).toBeVisible();

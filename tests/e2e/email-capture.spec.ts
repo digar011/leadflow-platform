@@ -1,11 +1,6 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Email Capture Settings", () => {
-  test.skip(
-    !process.env.TEST_USER_EMAIL,
-    "Requires TEST_USER_EMAIL env var"
-  );
-
   test("email capture section is visible on webhooks settings page", async ({ page }) => {
     await page.goto("/settings/webhooks");
     await expect(page.getByText("Email Capture")).toBeVisible({ timeout: 10000 });

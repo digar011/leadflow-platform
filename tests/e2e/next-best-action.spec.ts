@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Next Best Action Suggestions", () => {
   test.describe("Authenticated", () => {
-    test.skip("should show Suggested Next Steps card on a New lead detail page", async ({ page }) => {
+    test("should show Suggested Next Steps card on a New lead detail page", async ({ page }) => {
       await page.goto("/leads");
 
       // Find a lead with "new" status badge
@@ -32,7 +32,7 @@ test.describe("Next Best Action Suggestions", () => {
       expect(actionCount).toBeGreaterThan(0);
     });
 
-    test.skip("should suggest a call if phone exists, email if phone does not", async ({ page }) => {
+    test("should suggest a call if phone exists, email if phone does not", async ({ page }) => {
       await page.goto("/leads");
 
       // Find a lead with "new" status
@@ -76,7 +76,7 @@ test.describe("Next Best Action Suggestions", () => {
       }
     });
 
-    test.skip("should show Set a follow-up date suggestion when no follow-up is set", async ({ page }) => {
+    test("should show Set a follow-up date suggestion when no follow-up is set", async ({ page }) => {
       await page.goto("/leads");
 
       // Click the first lead to open detail

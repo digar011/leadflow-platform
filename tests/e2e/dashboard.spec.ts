@@ -2,6 +2,8 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Dashboard", () => {
   test.describe("Unauthenticated", () => {
+    test.use({ storageState: { cookies: [], origins: [] } });
+
     test("should redirect to login when not authenticated", async ({ page }) => {
       await page.goto("/dashboard");
       await expect(page).toHaveURL(/login/);
@@ -9,20 +11,19 @@ test.describe("Dashboard", () => {
   });
 
   test.describe("Authenticated", () => {
-    // Note: These tests require authentication setup
-    test.skip("should display dashboard page correctly", async ({ page }) => {
+    test("should display dashboard page correctly", async ({ page }) => {
       await page.goto("/dashboard");
 
       await expect(page.getByRole("heading", { name: /dashboard/i })).toBeVisible();
     });
 
-    test.skip("should display date range selector", async ({ page }) => {
+    test("should display date range selector", async ({ page }) => {
       await page.goto("/dashboard");
 
       await expect(page.getByRole("button", { name: /last 30 days/i })).toBeVisible();
     });
 
-    test.skip("should change date range", async ({ page }) => {
+    test("should change date range", async ({ page }) => {
       await page.goto("/dashboard");
 
       await page.getByRole("button", { name: /last 30 days/i }).click();
@@ -31,7 +32,7 @@ test.describe("Dashboard", () => {
       await expect(page.getByRole("button", { name: /this month/i })).toBeVisible();
     });
 
-    test.skip("should display KPI cards", async ({ page }) => {
+    test("should display KPI cards", async ({ page }) => {
       await page.goto("/dashboard");
 
       await expect(page.getByText(/total leads/i)).toBeVisible();
@@ -40,44 +41,44 @@ test.describe("Dashboard", () => {
       await expect(page.getByText(/conversion rate/i)).toBeVisible();
     });
 
-    test.skip("should display leads trend chart", async ({ page }) => {
+    test("should display leads trend chart", async ({ page }) => {
       await page.goto("/dashboard");
 
       await expect(page.getByText(/new leads \(30 days\)/i)).toBeVisible();
     });
 
-    test.skip("should display revenue trend chart", async ({ page }) => {
+    test("should display revenue trend chart", async ({ page }) => {
       await page.goto("/dashboard");
 
       await expect(page.getByText(/won revenue/i)).toBeVisible();
     });
 
-    test.skip("should display pipeline overview chart", async ({ page }) => {
+    test("should display pipeline overview chart", async ({ page }) => {
       await page.goto("/dashboard");
 
       await expect(page.getByText(/pipeline overview/i)).toBeVisible();
     });
 
-    test.skip("should display lead sources chart", async ({ page }) => {
+    test("should display lead sources chart", async ({ page }) => {
       await page.goto("/dashboard");
 
       await expect(page.getByText(/lead sources/i)).toBeVisible();
     });
 
-    test.skip("should display activity heatmap", async ({ page }) => {
+    test("should display activity heatmap", async ({ page }) => {
       await page.goto("/dashboard");
 
       await expect(page.getByText(/activity heatmap/i)).toBeVisible();
     });
 
-    test.skip("should display recent activity feed", async ({ page }) => {
+    test("should display recent activity feed", async ({ page }) => {
       await page.goto("/dashboard");
 
       await expect(page.getByText(/recent activity/i)).toBeVisible();
       await expect(page.getByRole("link", { name: /view all/i })).toBeVisible();
     });
 
-    test.skip("should display quick actions panel", async ({ page }) => {
+    test("should display quick actions panel", async ({ page }) => {
       await page.goto("/dashboard");
 
       await expect(page.getByText(/quick actions/i)).toBeVisible();
@@ -87,7 +88,7 @@ test.describe("Dashboard", () => {
       await expect(page.getByText(/meeting/i)).toBeVisible();
     });
 
-    test.skip("should navigate to add lead from quick actions", async ({ page }) => {
+    test("should navigate to add lead from quick actions", async ({ page }) => {
       await page.goto("/dashboard");
 
       await page.getByRole("link", { name: /add lead/i }).click();
@@ -95,7 +96,7 @@ test.describe("Dashboard", () => {
       await expect(page).toHaveURL(/leads\/new/);
     });
 
-    test.skip("should navigate to view all activities", async ({ page }) => {
+    test("should navigate to view all activities", async ({ page }) => {
       await page.goto("/dashboard");
 
       await page.getByRole("link", { name: /view all/i }).click();
@@ -103,7 +104,7 @@ test.describe("Dashboard", () => {
       await expect(page).toHaveURL(/activities/);
     });
 
-    test.skip("should display quick stats row", async ({ page }) => {
+    test("should display quick stats row", async ({ page }) => {
       await page.goto("/dashboard");
 
       await expect(page.getByText(/deals won/i)).toBeVisible();
@@ -112,7 +113,7 @@ test.describe("Dashboard", () => {
       await expect(page.getByText(/avg deal size/i)).toBeVisible();
     });
 
-    test.skip("should have working sidebar navigation", async ({ page }) => {
+    test("should have working sidebar navigation", async ({ page }) => {
       await page.goto("/dashboard");
 
       const sidebarLinks = [
@@ -127,7 +128,7 @@ test.describe("Dashboard", () => {
       }
     });
 
-    test.skip("should toggle sidebar collapse", async ({ page }) => {
+    test("should toggle sidebar collapse", async ({ page }) => {
       await page.goto("/dashboard");
 
       const collapseButton = page.locator("button").filter({ has: page.locator('svg[class*="chevron"]') }).first();
@@ -139,14 +140,14 @@ test.describe("Dashboard", () => {
   });
 
   test.describe("Charts Interaction", () => {
-    test.skip("should show loading states initially", async ({ page }) => {
+    test("should show loading states initially", async ({ page }) => {
       await page.goto("/dashboard");
 
       // Charts should show loading state
       await expect(page.getByText(/loading chart/i)).toBeVisible();
     });
 
-    test.skip("should render charts after data loads", async ({ page }) => {
+    test("should render charts after data loads", async ({ page }) => {
       await page.goto("/dashboard");
 
       // Wait for charts to render (Recharts containers)

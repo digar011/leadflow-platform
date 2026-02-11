@@ -280,7 +280,7 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
 
   const renderPreviewStep = () => {
     const previewRows = getMappedRows().slice(0, 5);
-    const mappedFieldKeys = [...new Set(Object.values(columnMapping))];
+    const mappedFieldKeys = Array.from(new Set(Object.values(columnMapping)));
 
     return (
       <div className="space-y-4">

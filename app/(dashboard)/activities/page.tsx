@@ -64,7 +64,7 @@ export default function ActivitiesPage() {
 
   // Group activities by date
   const groupedActivities = activities?.reduce((acc, activity) => {
-    const date = format(new Date(activity.created_at), "yyyy-MM-dd");
+    const date = format(new Date(activity.created_at!), "yyyy-MM-dd");
     if (!acc[date]) acc[date] = [];
     acc[date].push(activity);
     return acc;
@@ -194,7 +194,7 @@ export default function ActivitiesPage() {
                                 </Badge>
                                 <span className="text-text-muted text-xs flex items-center gap-1">
                                   <Clock className="h-3 w-3" />
-                                  {formatDistanceToNow(new Date(activity.created_at), {
+                                  {formatDistanceToNow(new Date(activity.created_at!), {
                                     addSuffix: true,
                                   })}
                                 </span>

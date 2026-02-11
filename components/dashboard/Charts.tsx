@@ -151,7 +151,7 @@ export function RevenueTrendChart({ data, title = "Revenue Trend", icon, isLoadi
                 borderRadius: "8px",
               }}
               labelStyle={{ color: "rgba(255,255,255,0.7)" }}
-              formatter={(value: number) => [formatCurrency(value), "Revenue"]}
+              formatter={((value: number) => [formatCurrency(value), "Revenue"]) as any}
             />
             <Line
               type="monotone"
@@ -210,10 +210,10 @@ export function PipelineFunnelChart({ data, title = "Pipeline Overview", icon, i
                 borderRadius: "8px",
               }}
               labelStyle={{ color: "rgba(255,255,255,0.7)" }}
-              formatter={(value: number, name: string) => {
+              formatter={((value: number, name: string) => {
                 if (name === "count") return [value, "Leads"];
                 return [formatCurrency(value), "Value"];
-              }}
+              }) as any}
             />
             <Bar dataKey="count" radius={[0, 4, 4, 0]}>
               {data.map((entry, index) => (

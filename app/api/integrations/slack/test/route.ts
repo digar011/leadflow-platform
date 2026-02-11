@@ -4,7 +4,7 @@ import { sendSlackMessage, formatTestMessage } from "@/lib/slack/send";
 
 export async function POST() {
   try {
-    const supabase = createServerSupabaseClient();
+    const supabase = await createServerSupabaseClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();

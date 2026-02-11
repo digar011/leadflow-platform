@@ -209,7 +209,7 @@ export default function AutomationPage() {
                             {getActionLabel(rule.action_type)}
                           </div>
                         </div>
-                        {rule.trigger_count > 0 && (
+                        {(rule.trigger_count ?? 0) > 0 && (
                           <p className="text-xs text-text-muted mt-2">
                             Triggered {rule.trigger_count} times
                             {rule.last_triggered_at && (
@@ -222,7 +222,7 @@ export default function AutomationPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleToggle(rule.id, rule.is_active)}
+                          onClick={() => handleToggle(rule.id, rule.is_active ?? false)}
                         >
                           {rule.is_active ? (
                             <Pause className="h-4 w-4" />
@@ -268,7 +268,7 @@ export default function AutomationPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {recentLogs.slice(0, 10).map((log) => (
+                  {recentLogs.slice(0, 10).map((log: any) => (
                     <div
                       key={log.id}
                       className="flex items-start gap-2 text-sm"
@@ -280,11 +280,11 @@ export default function AutomationPage() {
                       )}
                       <div className="flex-1 min-w-0">
                         <p className="text-text-secondary truncate">
-                          {log.automation_rules?.name}
+                          {log.automation_rules?.name ?? "Unknown Rule"}
                         </p>
                         <p className="text-xs text-text-muted">
                           {log.businesses?.business_name || "Unknown"} •{" "}
-                          {format(new Date(log.created_at), "MMM d, h:mm a")}
+                          {format(new Date(log.created_at!), "MMM d, h:mm a")}
                         </p>
                       </div>
                     </div>

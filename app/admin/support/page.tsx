@@ -161,17 +161,17 @@ export default function AdminSupportPage() {
                       </span>
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
-                        {new Date(ticket.updated_at).toLocaleDateString()}
+                        {new Date(ticket.updated_at!).toLocaleDateString()}
                       </span>
                       <span className="capitalize">{ticket.category}</span>
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-2">
-                    <span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", statusColors[ticket.status] || statusColors.open)}>
-                      {ticket.status.replace("_", " ")}
+                    <span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", statusColors[ticket.status ?? "open"] || statusColors.open)}>
+                      {(ticket.status ?? "open").replace("_", " ")}
                     </span>
-                    <span className={cn("text-xs font-medium", priorityColors[ticket.priority] || priorityColors.medium)}>
-                      {ticket.priority}
+                    <span className={cn("text-xs font-medium", priorityColors[ticket.priority ?? "medium"] || priorityColors.medium)}>
+                      {ticket.priority ?? "medium"}
                     </span>
                   </div>
                 </div>
@@ -222,11 +222,11 @@ function AdminTicketModal({
         {/* Ticket info + status control */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 text-sm">
-            <span className={cn("px-2 py-0.5 rounded-full font-medium", statusColors[ticket.status] || statusColors.open)}>
-              {ticket.status.replace("_", " ")}
+            <span className={cn("px-2 py-0.5 rounded-full font-medium", statusColors[ticket.status ?? "open"] || statusColors.open)}>
+              {(ticket.status ?? "open").replace("_", " ")}
             </span>
-            <span className={cn("font-medium", priorityColors[ticket.priority] || priorityColors.medium)}>
-              {ticket.priority}
+            <span className={cn("font-medium", priorityColors[ticket.priority ?? "medium"] || priorityColors.medium)}>
+              {ticket.priority ?? "medium"}
             </span>
             <span className="text-text-muted capitalize">{ticket.category}</span>
             <span className="text-text-muted">
@@ -234,7 +234,7 @@ function AdminTicketModal({
             </span>
           </div>
           <select
-            value={ticket.status}
+            value={ticket.status ?? "open"}
             onChange={(e) => onStatusChange(ticket.id, e.target.value)}
             className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-text-primary focus:border-gold focus:outline-none"
           >
@@ -255,7 +255,7 @@ function AdminTicketModal({
               <div className="bg-white/5 rounded-lg p-3">
                 <p className="text-sm text-text-primary">{ticket.description}</p>
                 <p className="text-xs text-text-muted mt-2">
-                  {new Date(ticket.created_at).toLocaleString()}
+                  {new Date(ticket.created_at!).toLocaleString()}
                 </p>
               </div>
             </div>
@@ -283,7 +283,7 @@ function AdminTicketModal({
                   </div>
                   <p className="text-sm text-text-primary whitespace-pre-wrap">{msg.message}</p>
                   <p className="text-xs text-text-muted mt-2">
-                    {new Date(msg.created_at).toLocaleString()}
+                    {new Date(msg.created_at!).toLocaleString()}
                   </p>
                 </div>
               ))}

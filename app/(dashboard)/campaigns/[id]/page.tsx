@@ -121,19 +121,19 @@ export default function CampaignDetailPage() {
           <div>
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gold/20 text-gold">
-                {typeIcons[campaign.campaign_type]}
+                {typeIcons[campaign.campaign_type ?? "email"]}
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-text-primary">
                   {campaign.name}
                 </h1>
                 <p className="text-sm text-text-secondary capitalize">
-                  {campaign.campaign_type.replace(/_/g, " ")} Campaign
+                  {(campaign.campaign_type ?? "email").replace(/_/g, " ")} Campaign
                 </p>
               </div>
               <Badge
                 variant="default"
-                className={statusColors[campaign.status]}
+                className={statusColors[campaign.status ?? "draft"]}
               >
                 {campaign.status}
               </Badge>
@@ -373,7 +373,7 @@ export default function CampaignDetailPage() {
               <CardContent>
                 <p className="text-text-primary">{campaign.profiles.full_name}</p>
                 <p className="text-sm text-text-muted">
-                  {format(new Date(campaign.created_at), "MMM d, yyyy")}
+                  {format(new Date(campaign.created_at!), "MMM d, yyyy")}
                 </p>
               </CardContent>
             </Card>

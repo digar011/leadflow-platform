@@ -2,6 +2,8 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Reports", () => {
   test.describe("Unauthenticated", () => {
+    test.use({ storageState: { cookies: [], origins: [] } });
+
     test("should redirect to login when not authenticated", async ({ page }) => {
       await page.goto("/reports");
       await expect(page).toHaveURL(/login/);
@@ -9,14 +11,14 @@ test.describe("Reports", () => {
   });
 
   test.describe("Authenticated", () => {
-    test.skip("should display reports page", async ({ page }) => {
+    test("should display reports page", async ({ page }) => {
       await page.goto("/reports");
 
       await expect(page.getByRole("heading", { name: /reports/i })).toBeVisible();
       await expect(page.getByRole("link", { name: /new report/i })).toBeVisible();
     });
 
-    test.skip("should display quick reports", async ({ page }) => {
+    test("should display quick reports", async ({ page }) => {
       await page.goto("/reports");
 
       await expect(page.getByText(/quick reports/i)).toBeVisible();
@@ -24,13 +26,13 @@ test.describe("Reports", () => {
       await expect(page.getByText(/activity report/i)).toBeVisible();
     });
 
-    test.skip("should display saved reports section", async ({ page }) => {
+    test("should display saved reports section", async ({ page }) => {
       await page.goto("/reports");
 
       await expect(page.getByText(/saved reports/i)).toBeVisible();
     });
 
-    test.skip("should navigate to new report page", async ({ page }) => {
+    test("should navigate to new report page", async ({ page }) => {
       await page.goto("/reports");
 
       await page.getByRole("link", { name: /new report/i }).click();
@@ -38,7 +40,7 @@ test.describe("Reports", () => {
       await expect(page).toHaveURL(/reports\/new/);
     });
 
-    test.skip("should show empty state when no saved reports", async ({ page }) => {
+    test("should show empty state when no saved reports", async ({ page }) => {
       await page.goto("/reports");
 
       await expect(page.getByText(/no saved reports/i)).toBeVisible();
@@ -46,7 +48,7 @@ test.describe("Reports", () => {
   });
 
   test.describe("Report Actions", () => {
-    test.skip("should run a quick report", async ({ page }) => {
+    test("should run a quick report", async ({ page }) => {
       await page.goto("/reports");
 
       // Click on a quick report card
@@ -55,7 +57,7 @@ test.describe("Reports", () => {
       // Report should generate
     });
 
-    test.skip("should download report as CSV", async ({ page }) => {
+    test("should download report as CSV", async ({ page }) => {
       await page.goto("/reports");
 
       // Find download button
@@ -68,7 +70,7 @@ test.describe("Reports", () => {
       // Verify download started
     });
 
-    test.skip("should delete saved report", async ({ page }) => {
+    test("should delete saved report", async ({ page }) => {
       await page.goto("/reports");
 
       // Find delete button

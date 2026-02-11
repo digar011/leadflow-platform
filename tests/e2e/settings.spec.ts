@@ -2,6 +2,8 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Settings", () => {
   test.describe("Unauthenticated", () => {
+    test.use({ storageState: { cookies: [], origins: [] } });
+
     test("should redirect to login when not authenticated", async ({ page }) => {
       await page.goto("/settings");
       await expect(page).toHaveURL(/login/);
@@ -9,21 +11,21 @@ test.describe("Settings", () => {
   });
 
   test.describe("Profile Settings", () => {
-    test.skip("should display profile settings page", async ({ page }) => {
+    test("should display profile settings page", async ({ page }) => {
       await page.goto("/settings/profile");
 
       await expect(page.getByRole("heading", { name: /profile settings/i })).toBeVisible();
       await expect(page.getByText(/personal information/i)).toBeVisible();
     });
 
-    test.skip("should display user avatar and info", async ({ page }) => {
+    test("should display user avatar and info", async ({ page }) => {
       await page.goto("/settings/profile");
 
       // Avatar section should be visible
       await expect(page.locator("[class*='rounded-full']").first()).toBeVisible();
     });
 
-    test.skip("should update profile information", async ({ page }) => {
+    test("should update profile information", async ({ page }) => {
       await page.goto("/settings/profile");
 
       const nameInput = page.getByPlaceholder(/full name/i);
@@ -33,7 +35,7 @@ test.describe("Settings", () => {
       await saveButton.click();
     });
 
-    test.skip("should show email as read-only", async ({ page }) => {
+    test("should show email as read-only", async ({ page }) => {
       await page.goto("/settings/profile");
 
       const emailInput = page.locator("input[disabled]").first();
@@ -42,20 +44,20 @@ test.describe("Settings", () => {
   });
 
   test.describe("Team Settings", () => {
-    test.skip("should display team settings page", async ({ page }) => {
+    test("should display team settings page", async ({ page }) => {
       await page.goto("/settings/team");
 
       await expect(page.getByRole("heading", { name: /team members/i })).toBeVisible();
     });
 
-    test.skip("should display team stats", async ({ page }) => {
+    test("should display team stats", async ({ page }) => {
       await page.goto("/settings/team");
 
       await expect(page.getByText(/total members/i)).toBeVisible();
       await expect(page.getByText(/admins/i)).toBeVisible();
     });
 
-    test.skip("should open invite modal", async ({ page }) => {
+    test("should open invite modal", async ({ page }) => {
       await page.goto("/settings/team");
 
       const inviteButton = page.getByRole("button", { name: /invite member/i });
@@ -65,7 +67,7 @@ test.describe("Settings", () => {
       await expect(page.getByPlaceholder(/email/i)).toBeVisible();
     });
 
-    test.skip("should display team member list", async ({ page }) => {
+    test("should display team member list", async ({ page }) => {
       await page.goto("/settings/team");
 
       // Should have member cards
@@ -74,13 +76,13 @@ test.describe("Settings", () => {
   });
 
   test.describe("Webhooks Settings", () => {
-    test.skip("should display webhooks settings page", async ({ page }) => {
+    test("should display webhooks settings page", async ({ page }) => {
       await page.goto("/settings/webhooks");
 
       await expect(page.getByRole("heading", { name: /webhooks/i })).toBeVisible();
     });
 
-    test.skip("should display webhook stats", async ({ page }) => {
+    test("should display webhook stats", async ({ page }) => {
       await page.goto("/settings/webhooks");
 
       await expect(page.getByText(/total webhooks/i)).toBeVisible();
@@ -88,7 +90,7 @@ test.describe("Settings", () => {
       await expect(page.getByText(/deliveries/i)).toBeVisible();
     });
 
-    test.skip("should open create webhook modal", async ({ page }) => {
+    test("should open create webhook modal", async ({ page }) => {
       await page.goto("/settings/webhooks");
 
       const createButton = page.getByRole("button", { name: /new webhook/i });
@@ -99,7 +101,7 @@ test.describe("Settings", () => {
       await expect(page.getByText(/inbound/i)).toBeVisible();
     });
 
-    test.skip("should select webhook events", async ({ page }) => {
+    test("should select webhook events", async ({ page }) => {
       await page.goto("/settings/webhooks");
 
       const createButton = page.getByRole("button", { name: /new webhook/i });
@@ -110,7 +112,7 @@ test.describe("Settings", () => {
       await expect(page.getByText(/lead updated/i)).toBeVisible();
     });
 
-    test.skip("should toggle webhook active state", async ({ page }) => {
+    test("should toggle webhook active state", async ({ page }) => {
       await page.goto("/settings/webhooks");
 
       // If there are webhooks, find the toggle button
@@ -119,19 +121,19 @@ test.describe("Settings", () => {
   });
 
   test.describe("API Keys Settings", () => {
-    test.skip("should display API keys settings page", async ({ page }) => {
+    test("should display API keys settings page", async ({ page }) => {
       await page.goto("/settings/api-keys");
 
       await expect(page.getByRole("heading", { name: /api keys/i })).toBeVisible();
     });
 
-    test.skip("should display security warning", async ({ page }) => {
+    test("should display security warning", async ({ page }) => {
       await page.goto("/settings/api-keys");
 
       await expect(page.getByText(/keep your api keys secure/i)).toBeVisible();
     });
 
-    test.skip("should open create API key modal", async ({ page }) => {
+    test("should open create API key modal", async ({ page }) => {
       await page.goto("/settings/api-keys");
 
       const createButton = page.getByRole("button", { name: /new api key/i });
@@ -141,7 +143,7 @@ test.describe("Settings", () => {
       await expect(page.getByPlaceholder(/my api key/i)).toBeVisible();
     });
 
-    test.skip("should select API key scopes", async ({ page }) => {
+    test("should select API key scopes", async ({ page }) => {
       await page.goto("/settings/api-keys");
 
       const createButton = page.getByRole("button", { name: /new api key/i });
@@ -152,7 +154,7 @@ test.describe("Settings", () => {
       await expect(page.getByText(/write leads/i)).toBeVisible();
     });
 
-    test.skip("should select expiration option", async ({ page }) => {
+    test("should select expiration option", async ({ page }) => {
       await page.goto("/settings/api-keys");
 
       const createButton = page.getByRole("button", { name: /new api key/i });
@@ -164,13 +166,13 @@ test.describe("Settings", () => {
   });
 
   test.describe("Notification Settings", () => {
-    test.skip("should display notification settings page", async ({ page }) => {
+    test("should display notification settings page", async ({ page }) => {
       await page.goto("/settings/notifications");
 
       await expect(page.getByRole("heading", { name: /notification preferences/i })).toBeVisible();
     });
 
-    test.skip("should display notification channels", async ({ page }) => {
+    test("should display notification channels", async ({ page }) => {
       await page.goto("/settings/notifications");
 
       await expect(page.getByText(/email/i)).toBeVisible();
@@ -178,7 +180,7 @@ test.describe("Settings", () => {
       await expect(page.getByText(/in-app/i)).toBeVisible();
     });
 
-    test.skip("should display notification types", async ({ page }) => {
+    test("should display notification types", async ({ page }) => {
       await page.goto("/settings/notifications");
 
       await expect(page.getByText(/new lead/i)).toBeVisible();
@@ -186,14 +188,14 @@ test.describe("Settings", () => {
       await expect(page.getByText(/activity reminders/i)).toBeVisible();
     });
 
-    test.skip("should toggle notification settings", async ({ page }) => {
+    test("should toggle notification settings", async ({ page }) => {
       await page.goto("/settings/notifications");
 
       // Find toggle buttons for different channels
       const toggleButtons = page.locator("button").filter({ hasText: "" });
     });
 
-    test.skip("should save notification preferences", async ({ page }) => {
+    test("should save notification preferences", async ({ page }) => {
       await page.goto("/settings/notifications");
 
       const saveButton = page.getByRole("button", { name: /save/i });

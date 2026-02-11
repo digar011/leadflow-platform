@@ -88,7 +88,11 @@ export function useSlackIntegration() {
         const keyPrefix = "slack___";
         const keyHash = await hashString(`slack_${Date.now()}_${Math.random()}`);
 
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error("Not authenticated");
+
         const { error } = await supabase.from("api_keys").insert({
+          user_id: user.id,
           name: `Slack - ${config.channelName || "Webhook"}`,
           key_hash: keyHash,
           key_prefix: keyPrefix,

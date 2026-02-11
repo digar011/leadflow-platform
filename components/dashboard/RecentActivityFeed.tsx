@@ -14,12 +14,12 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
 
-interface ActivityItem {
+export interface ActivityItem {
   id: string;
   activity_type: string;
   subject: string | null;
-  created_at: string;
-  profiles?: { full_name: string } | null;
+  created_at: string | null;
+  profiles?: { full_name: string | null } | null;
   businesses?: { business_name: string } | null;
 }
 
@@ -125,7 +125,7 @@ export function RecentActivityFeed({ activities, isLoading }: RecentActivityFeed
                     </p>
                   </div>
                   <span className="text-xs text-text-muted whitespace-nowrap">
-                    {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
+                    {activity.created_at && formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
                   </span>
                 </div>
               );

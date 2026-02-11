@@ -2,6 +2,8 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Automation Engine", () => {
   test.describe("Unauthenticated", () => {
+    test.use({ storageState: { cookies: [], origins: [] } });
+
     test("should redirect to login when not authenticated", async ({ page }) => {
       await page.goto("/automation");
       await expect(page).toHaveURL(/login/);
@@ -9,14 +11,14 @@ test.describe("Automation Engine", () => {
   });
 
   test.describe("Automation Page", () => {
-    test.skip("should display automation page with create rule button", async ({ page }) => {
+    test("should display automation page with create rule button", async ({ page }) => {
       await page.goto("/automation");
 
       await expect(page.getByRole("heading", { name: /automation/i })).toBeVisible();
       await expect(page.getByRole("link", { name: /new rule/i })).toBeVisible();
     });
 
-    test.skip("should display automation stats cards", async ({ page }) => {
+    test("should display automation stats cards", async ({ page }) => {
       await page.goto("/automation");
 
       await expect(page.getByText(/total rules/i)).toBeVisible();
@@ -25,13 +27,13 @@ test.describe("Automation Engine", () => {
       await expect(page.getByText(/success rate/i)).toBeVisible();
     });
 
-    test.skip("should display recent automation activity section", async ({ page }) => {
+    test("should display recent automation activity section", async ({ page }) => {
       await page.goto("/automation");
 
       await expect(page.getByText(/recent activity/i)).toBeVisible();
     });
 
-    test.skip("should show usage limit bar for automation rules", async ({ page }) => {
+    test("should show usage limit bar for automation rules", async ({ page }) => {
       await page.goto("/automation");
 
       // Usage limit bar should show current usage vs plan limit
@@ -40,14 +42,14 @@ test.describe("Automation Engine", () => {
   });
 
   test.describe("Rule Creation", () => {
-    test.skip("should navigate to new rule page", async ({ page }) => {
+    test("should navigate to new rule page", async ({ page }) => {
       await page.goto("/automation");
 
       await page.getByRole("link", { name: /new rule/i }).click();
       await expect(page).toHaveURL(/automation\/new/);
     });
 
-    test.skip("should display rule creation form with trigger types", async ({ page }) => {
+    test("should display rule creation form with trigger types", async ({ page }) => {
       await page.goto("/automation/new");
 
       await expect(page.getByRole("heading", { name: /new.*rule/i })).toBeVisible();
@@ -57,7 +59,7 @@ test.describe("Automation Engine", () => {
       await expect(page.getByText(/action/i)).toBeVisible();
     });
 
-    test.skip("should show trigger type options", async ({ page }) => {
+    test("should show trigger type options", async ({ page }) => {
       await page.goto("/automation/new");
 
       // Check for trigger type options
@@ -69,7 +71,7 @@ test.describe("Automation Engine", () => {
       await expect(page.getByText(/lead updated/i)).toBeVisible();
     });
 
-    test.skip("should show action type options including new actions", async ({ page }) => {
+    test("should show action type options including new actions", async ({ page }) => {
       await page.goto("/automation/new");
 
       // Action types should include all 5 actions
@@ -80,7 +82,7 @@ test.describe("Automation Engine", () => {
       await expect(page.getByText(/send webhook/i)).toBeVisible();
     });
 
-    test.skip("should validate required fields before saving", async ({ page }) => {
+    test("should validate required fields before saving", async ({ page }) => {
       await page.goto("/automation/new");
 
       // Try to save without filling required fields
@@ -93,7 +95,7 @@ test.describe("Automation Engine", () => {
   });
 
   test.describe("Rule Management", () => {
-    test.skip("should toggle rule active/inactive state", async ({ page }) => {
+    test("should toggle rule active/inactive state", async ({ page }) => {
       await page.goto("/automation");
 
       // Find toggle button for a rule
@@ -101,7 +103,7 @@ test.describe("Automation Engine", () => {
       await toggleButton.click();
     });
 
-    test.skip("should show execution history for a rule", async ({ page }) => {
+    test("should show execution history for a rule", async ({ page }) => {
       await page.goto("/automation");
 
       // Click on a rule to see details
@@ -109,7 +111,7 @@ test.describe("Automation Engine", () => {
       await expect(page.getByText(/action/i)).toBeVisible();
     });
 
-    test.skip("should delete rule with confirmation", async ({ page }) => {
+    test("should delete rule with confirmation", async ({ page }) => {
       await page.goto("/automation");
 
       const deleteButton = page.getByRole("button").filter({ has: page.locator('svg[class*="trash"]') }).first();
@@ -120,7 +122,7 @@ test.describe("Automation Engine", () => {
   });
 
   test.describe("Automation Triggers", () => {
-    test.skip("should trigger automation when lead is created", async ({ page }) => {
+    test("should trigger automation when lead is created", async ({ page }) => {
       // Navigate to new lead form
       await page.goto("/leads/new");
 
@@ -139,7 +141,7 @@ test.describe("Automation Engine", () => {
       await expect(page.getByText(/recent activity/i)).toBeVisible();
     });
 
-    test.skip("should trigger automation when lead status changes", async ({ page }) => {
+    test("should trigger automation when lead status changes", async ({ page }) => {
       // Navigate to a lead detail page
       await page.goto("/leads");
 

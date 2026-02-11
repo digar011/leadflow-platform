@@ -6,14 +6,15 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { CampaignForm } from "@/components/campaigns/CampaignForm";
 import { useCreateCampaign } from "@/lib/hooks/useCampaigns";
+import type { InsertTables } from "@/lib/types/database";
 
 export default function NewCampaignPage() {
   const router = useRouter();
   const createCampaign = useCreateCampaign();
 
-  const handleSubmit = async (data: Parameters<typeof createCampaign.mutateAsync>[0]) => {
+  const handleSubmit = async (data: Partial<InsertTables<"campaigns">>) => {
     try {
-      const campaign = await createCampaign.mutateAsync(data);
+      const campaign = await createCampaign.mutateAsync(data as InsertTables<"campaigns">);
       router.push(`/campaigns/${campaign.id}`);
     } catch (error) {
       console.error("Failed to create campaign:", error);

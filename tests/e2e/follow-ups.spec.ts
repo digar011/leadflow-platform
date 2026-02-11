@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test.describe("Follow-Up Tracking", () => {
   test.describe("Lead Form Follow-Up Date", () => {
-    test.skip("should save and display the next_follow_up date on the lead form", async ({ page }) => {
+    test("should save and display the next_follow_up date on the lead form", async ({ page }) => {
       await page.goto("/leads/new");
 
       // Fill required field
@@ -30,7 +30,7 @@ test.describe("Follow-Up Tracking", () => {
   });
 
   test.describe("Overdue Follow-Up Styling on Lead Detail", () => {
-    test.skip("should render overdue follow-up with error styling on lead detail page", async ({ page }) => {
+    test("should render overdue follow-up with error styling on lead detail page", async ({ page }) => {
       // Navigate to a lead that has an overdue follow-up
       // (assumes seeded test data with an overdue next_follow_up date)
       await page.goto("/leads");
@@ -58,7 +58,7 @@ test.describe("Follow-Up Tracking", () => {
   });
 
   test.describe("Dashboard Overdue Alert Banner", () => {
-    test.skip("should show overdue alert banner when overdue follow-ups exist", async ({ page }) => {
+    test("should show overdue alert banner when overdue follow-ups exist", async ({ page }) => {
       await page.goto("/dashboard");
 
       // The FollowUpWidgets component shows an overdue alert banner
@@ -81,7 +81,7 @@ test.describe("Follow-Up Tracking", () => {
   });
 
   test.describe("Dashboard KPI Cards", () => {
-    test.skip("should render Due Today and Stale Leads KPI cards with counts", async ({ page }) => {
+    test("should render Due Today and Stale Leads KPI cards with counts", async ({ page }) => {
       await page.goto("/dashboard");
 
       // Wait for dashboard to load

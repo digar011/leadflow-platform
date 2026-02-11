@@ -42,11 +42,12 @@ export default function ProfileSettingsPage() {
           .single();
 
         if (data) {
-          setProfile({ ...data, email: user.email || "" });
+          const profileData = data as Record<string, unknown>;
+          setProfile({ ...data, email: user.email || "" } as unknown as Profile);
           setFormData({
-            full_name: data.full_name || "",
-            phone: data.phone || "",
-            company: data.company || "",
+            full_name: (profileData.full_name as string) || "",
+            phone: (profileData.phone as string) || "",
+            company: (profileData.company as string) || "",
           });
         }
       }

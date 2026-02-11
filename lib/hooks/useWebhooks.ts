@@ -113,6 +113,9 @@ export function useCreateWebhook() {
 
   return useMutation({
     mutationFn: async (input: CreateWebhookInput) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("Not authenticated");
+
       // Generate a secret for the webhook
       const secret = generateWebhookSecret();
 
@@ -120,6 +123,7 @@ export function useCreateWebhook() {
         .from("webhook_configs")
         .insert({
           ...input,
+          user_id: user.id,
           secret,
           headers: input.headers || {},
         })

@@ -167,11 +167,12 @@ export function useGenerateReport(reportId: string, enabled: boolean = true) {
 
           // Aggregate by status
           const pipeline = data.reduce((acc, lead) => {
-            if (!acc[lead.status]) {
-              acc[lead.status] = { count: 0, value: 0 };
+            const s = lead.status ?? "unknown";
+            if (!acc[s]) {
+              acc[s] = { count: 0, value: 0 };
             }
-            acc[lead.status].count++;
-            acc[lead.status].value += lead.deal_value || 0;
+            acc[s].count++;
+            acc[s].value += lead.deal_value || 0;
             return acc;
           }, {} as Record<string, { count: number; value: number }>);
 

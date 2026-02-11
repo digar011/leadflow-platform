@@ -100,11 +100,15 @@ export interface ConfirmModalProps {
   onClose: () => void;
   onConfirm: () => void;
   title: string;
-  message: string;
+  message?: string;
+  /** Alias for message */
+  description?: string;
   confirmText?: string;
   cancelText?: string;
   variant?: "danger" | "warning" | "info";
   loading?: boolean;
+  /** Alias for loading */
+  isLoading?: boolean;
 }
 
 export function ConfirmModal({
@@ -113,11 +117,16 @@ export function ConfirmModal({
   onConfirm,
   title,
   message,
+  description,
   confirmText = "Confirm",
   cancelText = "Cancel",
   variant = "danger",
   loading = false,
+  isLoading,
 }: ConfirmModalProps) {
+  const messageText = message ?? description ?? "";
+  const isLoadingFinal = isLoading ?? loading;
+
   const buttonVariants = {
     danger: "bg-status-error hover:bg-red-600 text-white",
     warning: "bg-status-warning hover:bg-amber-600 text-white",
@@ -126,24 +135,24 @@ export function ConfirmModal({
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} size="sm">
-      <p className="text-text-secondary">{message}</p>
+      <p className="text-text-secondary">{messageText}</p>
       <div className="mt-6 flex justify-end gap-3">
         <button
           onClick={onClose}
-          disabled={loading}
+          disabled={isLoadingFinal}
           className="rounded-lg bg-background-tertiary px-4 py-2 text-sm font-medium text-text-primary border border-white/10 hover:bg-sidebar-hover transition-colors disabled:opacity-50"
         >
           {cancelText}
         </button>
         <button
           onClick={onConfirm}
-          disabled={loading}
+          disabled={isLoadingFinal}
           className={cn(
             "rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50",
             buttonVariants[variant]
           )}
         >
-          {loading ? "Loading..." : confirmText}
+          {isLoadingFinal ? "Loading..." : confirmText}
         </button>
       </div>
     </Modal>

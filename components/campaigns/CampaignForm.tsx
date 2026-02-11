@@ -162,7 +162,7 @@ export function CampaignForm({
               value={formData.status}
               onChange={(e) => updateField("status", e.target.value)}
               error={errors.status}
-              options={CAMPAIGN_STATUSES}
+              options={[...CAMPAIGN_STATUSES]}
             />
           </div>
 

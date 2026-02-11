@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Authentication - Goldyon",
@@ -21,8 +22,8 @@ export default function AuthLayout({
       {/* Header */}
       <header className="flex items-center justify-center py-8">
         <a href="/" className="flex items-center gap-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gold">
-            <span className="text-xl font-bold text-background">LF</span>
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden">
+            <Image src="/images/logo-dark.png" alt="Goldyon" width={40} height={40} className="object-contain" />
           </div>
           <span className="text-2xl font-bold text-text-primary">Goldyon</span>
         </a>

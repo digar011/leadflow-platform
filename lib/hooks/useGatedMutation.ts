@@ -51,9 +51,9 @@ export async function checkResourceLimit(
 
   if (limit === Infinity) return;
 
-  const { count } = await supabase
-    .from(table)
-    .select("*", { count: "exact", head: true });
+  const { count } = await (supabase
+    .from(table as "profiles")
+    .select("*", { count: "exact", head: true }) as unknown as Promise<{ count: number | null }>);
 
   const currentUsage = count ?? 0;
 

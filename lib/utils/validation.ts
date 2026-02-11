@@ -127,7 +127,7 @@ export const activitySchema = z.object({
   outcome: z.enum(["positive", "negative", "neutral", "pending"]).optional().nullable(),
   scheduled_at: z.string().datetime().optional().nullable(),
   completed_at: z.string().datetime().optional().nullable(),
-  metadata: z.record(z.unknown()).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
 });
 
 // Campaign schema
@@ -136,7 +136,7 @@ export const campaignSchema = z.object({
   description: z.string().max(2000).optional().nullable(),
   campaign_type: z.enum(["email", "cold_call", "mailer", "social", "multi_channel"]).optional().nullable(),
   status: z.enum(["draft", "active", "paused", "completed"]).default("draft"),
-  target_criteria: z.record(z.unknown()).optional().nullable(),
+  target_criteria: z.record(z.string(), z.unknown()).optional().nullable(),
   budget: z.number().positive().max(999999999).optional().nullable(),
   started_at: z.string().datetime().optional().nullable(),
   ended_at: z.string().datetime().optional().nullable(),
@@ -155,7 +155,7 @@ export const automationRuleSchema = z.object({
     "date_based",
     "form_submission",
   ]),
-  trigger_config: z.record(z.unknown()),
+  trigger_config: z.record(z.string(), z.unknown()),
   action_type: z.enum([
     "send_email",
     "create_task",
@@ -166,7 +166,7 @@ export const automationRuleSchema = z.object({
     "send_webhook",
     "add_tag",
   ]),
-  action_config: z.record(z.unknown()),
+  action_config: z.record(z.string(), z.unknown()),
   is_active: z.boolean().default(true),
   priority: z.number().int().min(1).max(100).default(50),
 });
@@ -182,7 +182,7 @@ export const webhookPayloadSchema = z.object({
     "activity.logged",
     "status.changed",
   ]),
-  data: z.record(z.unknown()),
+  data: z.record(z.string(), z.unknown()),
   timestamp: z.string().datetime(),
 });
 
@@ -191,9 +191,9 @@ export const reportSchema = z.object({
   name: z.string().min(1, "Report name is required").max(255).trim(),
   description: z.string().max(1000).optional().nullable(),
   report_type: z.enum(["leads", "activities", "campaigns", "pipeline", "team", "custom"]),
-  filters: z.record(z.unknown()),
+  filters: z.record(z.string(), z.unknown()),
   columns: z.array(z.string()),
-  grouping: z.record(z.unknown()).optional().nullable(),
+  grouping: z.record(z.string(), z.unknown()).optional().nullable(),
   schedule: z.enum(["daily", "weekly", "monthly", "none"]).optional().nullable(),
   recipients: z.array(z.string().email()).optional().nullable(),
 });

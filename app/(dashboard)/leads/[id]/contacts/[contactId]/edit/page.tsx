@@ -18,9 +18,9 @@ export default function EditContactPage() {
   const { data: contact, isLoading, error } = useContact(contactId);
   const updateContact = useUpdateContact();
 
-  const handleSubmit = async (data: Parameters<typeof updateContact.mutateAsync>[0]["updates"]) => {
+  const handleSubmit = async (data: Record<string, unknown>) => {
     try {
-      await updateContact.mutateAsync({ id: contactId, updates: data });
+      await updateContact.mutateAsync({ id: contactId, updates: data as Parameters<typeof updateContact.mutateAsync>[0]["updates"] });
       router.push(`/leads/${businessId}`);
     } catch (error) {
       console.error("Failed to update contact:", error);
@@ -74,7 +74,16 @@ export default function EditContactPage() {
       <ContactForm
         businessId={businessId}
         mode="edit"
-        initialData={contact}
+        initialData={{
+          first_name: contact.first_name ?? "",
+          last_name: contact.last_name ?? "",
+          email: contact.email,
+          phone: contact.phone,
+          job_title: contact.title,
+          department: contact.department,
+          is_primary: contact.is_primary ?? false,
+          notes: contact.notes,
+        }}
         onSubmit={handleSubmit}
         isLoading={updateContact.isPending}
       />

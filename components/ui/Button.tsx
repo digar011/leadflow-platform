@@ -8,6 +8,8 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "outline" | "ghost" | "danger" | "success";
   size?: "sm" | "md" | "lg" | "icon";
   loading?: boolean;
+  /** Alias for loading */
+  isLoading?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
 }
@@ -19,6 +21,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       variant = "primary",
       size = "md",
       loading = false,
+      isLoading,
       disabled,
       leftIcon,
       rightIcon,
@@ -27,6 +30,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
+    const isLoadingFinal = isLoading ?? loading;
     const baseStyles =
       "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gold/50 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed";
 
@@ -56,10 +60,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={cn(baseStyles, variants[variant], sizes[size], className)}
-        disabled={disabled || loading}
+        disabled={disabled || isLoadingFinal}
         {...props}
       >
-        {loading ? (
+        {isLoadingFinal ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" />
             {size !== "icon" && <span>Loading...</span>}

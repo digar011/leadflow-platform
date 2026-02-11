@@ -71,7 +71,7 @@ export function useAllSupportTickets(statusFilter?: string) {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as SupportTicket[];
+      return data as unknown as SupportTicket[];
     },
   });
 }
@@ -90,7 +90,7 @@ export function useTicketMessages(ticketId: string) {
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      return data as SupportMessage[];
+      return data as unknown as SupportMessage[];
     },
     enabled: !!ticketId,
   });
