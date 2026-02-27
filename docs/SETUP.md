@@ -61,17 +61,29 @@ npm run test:e2e
 
 ## First Admin User
 
-After registering, make yourself admin and optionally set a subscription tier:
+After registering, make yourself an admin and optionally set a subscription tier. Note: the `protect_profile_columns()` trigger prevents users from changing their own role -- you must use the service_role key or run these SQL statements directly in the Supabase SQL Editor.
+
+Available roles (in order of access level):
+- `super_admin` -- Full platform access with 3-way view toggle (for Goldyon/Codexium team)
+- `org_admin` -- Organization-scoped admin with 2-way view toggle (for business/enterprise customers)
+- `admin` -- Legacy role, treated as org_admin
+- `manager` -- Mid-level access
+- `user` -- Standard access (default)
 
 ```sql
--- Grant admin role
+-- Grant super admin role (for platform owners)
 UPDATE public.profiles
-SET role = 'admin'
+SET role = 'super_admin'
+WHERE email = 'your-email@example.com';
+
+-- Or grant org admin role (for business customers)
+UPDATE public.profiles
+SET role = 'org_admin'
 WHERE email = 'your-email@example.com';
 
 -- Optional: set subscription tier (free, starter, growth, business, enterprise)
 UPDATE public.profiles
-SET subscription_tier = 'business',
+SET subscription_tier = 'enterprise',
     subscription_billing_cycle = 'monthly'
 WHERE email = 'your-email@example.com';
 ```
