@@ -367,6 +367,23 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). The app redirects to `/login` if not authenticated, or to `/dashboard` if authenticated.
 
+### Test Credentials
+
+Login with pre-configured test accounts:
+
+| User         | Email               | Password            | Role       | Tier       |
+| ------------ | ------------------- | ------------------- | ---------- | ---------- |
+| Regular User | test@example.com    | TestPassword123!    | user       | starter    |
+| Admin User   | admin@example.com   | AdminPassword123!   | org_admin  | enterprise |
+
+To create these test users, run:
+
+```bash
+node scripts/create-test-users.mjs
+```
+
+> **Note:** This script requires the `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` and a running Supabase project. The admin user has full access to the admin panel, user management, and all enterprise features.
+
 ### Building for Production
 
 ```bash
