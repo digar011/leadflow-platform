@@ -64,55 +64,65 @@ export function ViewModeProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function fetchRole() {
-      const supabase = getSupabaseClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      try {
+        const supabase = getSupabaseClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
-      setUserEmail(user.email || null);
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .single();
-
-      let role = (profile?.role as UserRole) || "user";
-
-      // SAFETY FALLBACK: If email is in super admin list, force super_admin
-      // This ensures you can never be locked out
-      if (user.email && SUPER_ADMIN_EMAILS.includes(user.email.toLowerCase())) {
-        role = "super_admin";
-      }
-
-      // Backward compatibility: treat legacy "admin" as "org_admin"
-      if (role === "admin") {
-        role = "org_admin";
-      }
-
-      setActualRole(role);
-
-      // Restore saved view mode for admins
-      if (role === "super_admin" || role === "org_admin") {
-        const saved = localStorage.getItem("goldyon-view-mode");
-        if (saved === "user") {
-          setViewMode("user");
-        } else if (role === "super_admin") {
-          setViewMode("super_admin");
-        } else {
-          setViewMode("admin");
+        if (cancelled || !user) {
+          if (!cancelled) setLoading(false);
+          return;
         }
-      } else {
-        setViewMode("user");
-      }
 
-      setLoading(false);
+        setUserEmail(user.email || null);
+
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+
+        if (cancelled) return;
+
+        let role = (profile?.role as UserRole) || "user";
+
+        // SAFETY FALLBACK: If email is in super admin list, force super_admin
+        // This ensures you can never be locked out
+        if (user.email && SUPER_ADMIN_EMAILS.includes(user.email.toLowerCase())) {
+          role = "super_admin";
+        }
+
+        // Backward compatibility: treat legacy "admin" as "org_admin"
+        if (role === "admin") {
+          role = "org_admin";
+        }
+
+        setActualRole(role);
+
+        // Restore saved view mode for admins
+        if (role === "super_admin" || role === "org_admin") {
+          const saved = localStorage.getItem("goldyon-view-mode");
+          if (saved === "user") {
+            setViewMode("user");
+          } else if (role === "super_admin") {
+            setViewMode("super_admin");
+          } else {
+            setViewMode("admin");
+          }
+        } else {
+          setViewMode("user");
+        }
+
+        setLoading(false);
+      } catch (err) {
+        // Ignore AbortError from React Strict Mode double-mount cleanup
+        if (err instanceof DOMException && err.name === "AbortError") return;
+        if (!cancelled) setLoading(false);
+      }
     }
 
     fetchRole();
@@ -131,7 +141,10 @@ export function ViewModeProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const isSuperAdmin = actualRole === "super_admin";
