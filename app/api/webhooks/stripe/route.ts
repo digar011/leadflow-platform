@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe/server";
 import { tierFromPriceId } from "@/lib/stripe/config";
 import { createClient } from "@supabase/supabase-js";
+import { createLogger } from "@/lib/utils/logger";
 import type Stripe from "stripe";
 import type { Database } from "@/lib/types/database";
+
+const log = createLogger({ route: "/api/webhooks/stripe" });
 
 // Lazy Supabase service client for webhook processing
 function getSupabase() {
@@ -33,7 +36,7 @@ export async function POST(request: NextRequest) {
       process.env.STRIPE_WEBHOOK_SECRET!
     );
   } catch (err) {
-    console.error("Webhook signature verification failed:", err);
+    log.error("Webhook signature verification failed", { error: err instanceof Error ? err.message : String(err) });
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
@@ -67,10 +70,10 @@ export async function POST(request: NextRequest) {
         );
         break;
       default:
-        console.warn(`Unhandled Stripe event: ${event.type}`);
+        log.info("Unhandled Stripe event", { eventType: event.type });
     }
   } catch (error) {
-    console.error(`Error processing ${event.type}:`, error);
+    log.error("Webhook processing failed", { eventType: event.type, error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json(
       { error: "Webhook processing failed" },
       { status: 500 }
@@ -93,13 +96,13 @@ async function handleCheckoutComplete(
   const firstItem = subscription.items.data[0];
   const priceId = firstItem?.price.id;
   if (!priceId) {
-    console.error("No price ID found on subscription items");
+    log.error("No price ID found on subscription items");
     return;
   }
 
   const tierInfo = tierFromPriceId(priceId);
   if (!tierInfo) {
-    console.error(`Unknown price ID from checkout: ${priceId}`);
+    log.error("Unknown price ID from checkout", { priceId });
     return;
   }
 

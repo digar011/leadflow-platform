@@ -3,7 +3,10 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { businessSchema } from "@/lib/utils/validation";
 import { getNumericLimit } from "@/lib/utils/subscription";
 import { rateLimit } from "@/lib/utils/security";
+import { createLogger } from "@/lib/utils/logger";
 import type { SubscriptionTier } from "@/lib/types/database";
+
+const log = createLogger({ route: "/api/leads/import" });
 
 interface ImportRow {
   [key: string]: string | number | null | undefined;
@@ -230,7 +233,7 @@ export async function POST(request: NextRequest) {
       total: rows.length,
     });
   } catch (error) {
-    console.error("Import error:", error);
+    log.error("Import failed", { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
