@@ -199,7 +199,7 @@ export function generateCSPHeader(): string {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: https:",
     "font-src 'self' data:",
-    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com",
+    "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://*.ingest.sentry.io",
     "frame-src https://js.stripe.com",
     "frame-ancestors 'none'",
     "base-uri 'self'",

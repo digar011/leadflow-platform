@@ -4,10 +4,10 @@ import {
   executeAutomationRules,
   type TriggerData,
 } from "@/lib/automation/engine";
+import { ApiErrors, handleApiError } from "@/lib/utils/api-errors";
 
 export async function POST(request: NextRequest) {
   try {
-    // Authenticate
     const supabase = await createServerSupabaseClient();
     const {
       data: { user },
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return ApiErrors.unauthorized();
     }
 
     const { triggerType, triggerData } = (await request.json()) as {
@@ -24,10 +24,7 @@ export async function POST(request: NextRequest) {
     };
 
     if (!triggerType || !triggerData?.businessId) {
-      return NextResponse.json(
-        { error: "Missing triggerType or triggerData.businessId" },
-        { status: 400 }
-      );
+      return ApiErrors.badRequest("Missing triggerType or triggerData.businessId");
     }
 
     const results = await executeAutomationRules(
@@ -36,12 +33,8 @@ export async function POST(request: NextRequest) {
       user.id
     );
 
-    return NextResponse.json({ success: true, results });
+    return NextResponse.json({ success: true, data: { results } });
   } catch (error) {
-    console.error("Automation execution error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return handleApiError(error, { route: "/api/automation/execute" });
   }
 }

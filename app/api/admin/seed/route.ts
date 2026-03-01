@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { createClient } from "@supabase/supabase-js";
+import { ApiErrors, handleApiError } from "@/lib/utils/api-errors";
 
 // Use direct createClient with service role (no cookies needed for writes)
 function getServiceClient() {
@@ -16,7 +17,7 @@ export async function POST(_request: NextRequest) {
     const supabase = await createServerSupabaseClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return ApiErrors.unauthorized();
     }
 
     const userId = user.id;
@@ -36,8 +37,7 @@ export async function POST(_request: NextRequest) {
       .eq("id", userId);
 
     if (profileError) {
-      console.error("Profile update error:", profileError);
-      return NextResponse.json({ error: "Failed to update profile: " + profileError.message }, { status: 500 });
+      return handleApiError(profileError, { route: "/api/admin/seed", action: "update_profile" });
     }
 
     // Step 2: Check if seed data already exists
@@ -74,7 +74,7 @@ export async function POST(_request: NextRequest) {
       .select("id");
 
     if (bizError) {
-      return NextResponse.json({ error: "Failed to insert businesses: " + bizError.message }, { status: 500 });
+      return handleApiError(bizError, { route: "/api/admin/seed", action: "insert_businesses" });
     }
 
     const bizIds = bizData.map((b) => b.id);
@@ -99,7 +99,7 @@ export async function POST(_request: NextRequest) {
       .select("id");
 
     if (contactError) {
-      return NextResponse.json({ error: "Failed to insert contacts: " + contactError.message }, { status: 500 });
+      return handleApiError(contactError, { route: "/api/admin/seed", action: "insert_contacts" });
     }
 
     const contactIds = contactData.map((c) => c.id);
@@ -182,11 +182,7 @@ export async function POST(_request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Seed error:", error);
-    return NextResponse.json(
-      { error: "Failed to seed data: " + (error instanceof Error ? error.message : "Unknown error") },
-      { status: 500 }
-    );
+    return handleApiError(error, { route: "/api/admin/seed" });
   }
 }
 

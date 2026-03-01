@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getStripe } from "@/lib/stripe/server";
+import { ApiErrors, handleApiError } from "@/lib/utils/api-errors";
 
 export async function POST() {
   try {
@@ -11,7 +12,7 @@ export async function POST() {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return ApiErrors.unauthorized();
     }
 
     const { data: profile } = await supabase
@@ -21,10 +22,7 @@ export async function POST() {
       .single();
 
     if (!profile?.stripe_customer_id) {
-      return NextResponse.json(
-        { error: "No active subscription found" },
-        { status: 400 }
-      );
+      return ApiErrors.badRequest("No active subscription found");
     }
 
     const appUrl =
@@ -35,12 +33,8 @@ export async function POST() {
       return_url: `${appUrl}/settings/billing`,
     });
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({ success: true, data: { url: session.url } });
   } catch (error) {
-    console.error("Portal session error:", error);
-    return NextResponse.json(
-      { error: "Failed to create portal session" },
-      { status: 500 }
-    );
+    return handleApiError(error, { route: "/api/stripe/portal" });
   }
 }

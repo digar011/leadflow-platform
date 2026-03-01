@@ -2,26 +2,20 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getResend, EMAIL_FROM } from "@/lib/email/resend";
 import { getNewUserWelcomeSubject, getNewUserWelcomeHtml } from "@/lib/email/templates";
+import { ApiErrors, handleApiError } from "@/lib/utils/api-errors";
 
 export async function POST(request: NextRequest) {
   try {
-    // Require authentication to prevent unauthenticated email sending
     const supabase = await createServerSupabaseClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return ApiErrors.unauthorized();
     }
 
     const { email, fullName } = await request.json();
 
     if (!email || !fullName) {
-      return NextResponse.json(
-        { error: "Missing required fields: email, fullName" },
-        { status: 400 }
-      );
+      return ApiErrors.badRequest("Missing required fields: email, fullName");
     }
 
     const origin = request.headers.get("origin") || process.env.NEXT_PUBLIC_APP_URL || "";
@@ -35,19 +29,11 @@ export async function POST(request: NextRequest) {
     });
 
     if (error) {
-      console.error("Welcome email error:", error);
-      return NextResponse.json(
-        { error: "Failed to send welcome email" },
-        { status: 500 }
-      );
+      return handleApiError(error, { route: "/api/email/welcome", userId: user.id });
     }
 
-    return NextResponse.json({ success: true, messageId: data?.id });
+    return NextResponse.json({ success: true, data: { messageId: data?.id } });
   } catch (error) {
-    console.error("Welcome email error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return handleApiError(error, { route: "/api/email/welcome" });
   }
 }

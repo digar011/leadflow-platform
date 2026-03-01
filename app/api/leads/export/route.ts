@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { CSV_EXPORT_FIELDS } from "@/lib/utils/csvFields";
 import { rateLimit } from "@/lib/utils/security";
 import { createLogger } from "@/lib/utils/logger";
+import { ApiErrors, handleApiError } from "@/lib/utils/api-errors";
 import Papa from "papaparse";
 
 const log = createLogger({ route: "/api/leads/export" });
@@ -14,12 +15,12 @@ export async function GET(request: NextRequest) {
 
     if (authError || !user) {
       log.warn("Unauthorized export attempt");
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return ApiErrors.unauthorized();
     }
 
     if (!(await rateLimit(`export:${user.id}`, 5, 60000)).success) {
       log.warn("Rate limit exceeded", { userId: user.id });
-      return NextResponse.json({ error: "Rate limit exceeded. Max 5 exports per minute." }, { status: 429 });
+      return ApiErrors.rateLimited("Max 5 exports per minute");
     }
 
     // Parse filter params
@@ -58,11 +59,11 @@ export async function GET(request: NextRequest) {
     const { data: leads, error } = await query;
 
     if (error) {
-      return NextResponse.json({ error: "Failed to fetch leads" }, { status: 500 });
+      return handleApiError(error, { route: "/api/leads/export", userId: user.id });
     }
 
     if (!leads || leads.length === 0) {
-      return NextResponse.json({ error: "No leads to export" }, { status: 404 });
+      return ApiErrors.notFound("Leads");
     }
 
     // Map leads to export fields
@@ -92,7 +93,6 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    log.error("Export failed", { error: error instanceof Error ? error.message : String(error) });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return handleApiError(error, { route: "/api/leads/export" });
   }
 }

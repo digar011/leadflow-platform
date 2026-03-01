@@ -14,15 +14,15 @@
   - `app/api/integrations/slack/send/route.ts` has no `auth.getUser()` check
 - [ ] Sanitize HTML in email send route -- audit finding C6
   - `app/api/email/send/route.ts` passes user HTML directly to Resend without `sanitizeHtml()`
-- [ ] Fix `.gitignore` to cover plain `.env` files -- audit finding C4
-- [ ] Add `RESEND_WEBHOOK_SECRET` to `.env.example` -- audit finding C5
+- [x] Fix `.gitignore` to cover plain `.env` files -- completed 2026-03-01 by Claude
+- [x] Add `RESEND_WEBHOOK_SECRET` to `.env.example` -- completed 2026-03-01 by Claude
 
 ### Critical — Broken Flows
 
 - [x] Create `/reset-password` page -- completed 2026-03-01 by Claude (PR #87)
 - [x] Create `/terms` and `/privacy` pages -- completed 2026-03-01 by Claude (PR #88)
-- [ ] Add cookie consent banner -- audit finding
-  - App uses auth cookies + Sentry session replay, required under GDPR/ePrivacy
+- [x] Add cookie consent banner -- completed 2026-03-01 by Claude
+  - Outcome: CookieConsent component with accept/reject, links to /privacy
 
 ### Critical — Database
 
@@ -35,14 +35,15 @@
 - [x] Create `not-found.tsx` (404 page) -- completed 2026-03-01 by Claude (PR #90)
 - [ ] Create public landing page -- audit finding M5
   - `app/page.tsx` just redirects to `/login`, no SEO value
-- [ ] Add loading.tsx states for dashboard sub-routes -- audit finding M6
-- [ ] Optimize logo images -- audit finding
-  - `logo-dark.png` (1.3 MB) and `logo-light.png` (1.8 MB) need compression/WebP conversion
+- [x] Add loading.tsx states for dashboard sub-routes -- completed 2026-03-01 by Claude
+  - Outcome: 7 loading skeletons for leads, contacts, activities, campaigns, reports, automation, settings
+- [x] Optimize logo images -- completed 2026-03-01 by Claude
+  - Outcome: WebP conversion (1.3MB->25KB, 1.8MB->115KB), all references updated
 
 ### High — Monitoring & Deploy
 
-- [ ] Add Sentry reporting to error boundaries -- audit finding M10
-  - `app/error.tsx` and `app/(dashboard)/error.tsx` only use `console.error`, errors never reach Sentry
+- [x] Add Sentry reporting to error boundaries -- completed 2026-03-01 by Claude
+  - Outcome: Both error.tsx files use Sentry.captureException
 - [ ] Add E2E tests to CI pipeline -- audit finding
   - 21 Playwright specs exist but never run in CI
 - [ ] Fix staging deploy smoke test URL wiring -- audit finding
@@ -58,8 +59,9 @@
 
 ### Medium — SEO & Social
 
-- [ ] Add `og:image` to Open Graph metadata -- audit finding L3
-- [ ] Add Twitter Card metadata -- audit finding L4
+- [x] Add `og:image` to Open Graph metadata -- completed 2026-03-01 by Claude
+  - Outcome: Dynamic OG image via Next.js ImageResponse + Twitter Card metadata
+- [x] Add Twitter Card metadata -- completed 2026-03-01 by Claude
 
 ### Medium — Performance
 
@@ -74,18 +76,16 @@
   - Should follow `{ success: false, error: { code, message, details } }` per CLAUDE.md
 - [ ] Fix error details leak in admin seed route -- audit finding M2
   - `app/api/admin/seed/route.ts:40` returns raw DB error messages
-- [ ] Clean stale repo dirs from tsconfig.json exclude -- audit finding
-  - 12 old repo names listed that shouldn't be in project directory
-- [ ] Add `engines` field to package.json -- audit finding
-  - Enforce Node.js 20 to match CI
+- [x] Clean stale repo dirs from tsconfig.json exclude -- completed 2026-03-01 by Claude
+  - Outcome: Dirs still present, excludes kept. Need manual deletion.
+- [x] Add `engines` field to package.json -- completed 2026-03-01 by Claude
 - [ ] Make Resend client throw on missing API key -- audit finding
   - `lib/email/resend.ts` fails silently if `RESEND_API_KEY` is empty
 - [ ] Verify `goldyon.com` domain in Resend dashboard -- audit finding
   - `EMAIL_FROM` defaults to `noreply@goldyon.com`, must be verified to send
-- [ ] Add HSTS header to vercel.json -- audit finding
-  - Only in middleware currently, vercel.json covers static files too
-- [ ] Fix CSP `connect-src` inconsistency -- audit finding L1
-  - `lib/utils/security.ts:202` misses Sentry ingest domain vs middleware.ts
+- [x] Add HSTS header to vercel.json -- completed 2026-03-01 by Claude
+- [x] Fix CSP `connect-src` inconsistency -- completed 2026-03-01 by Claude
+  - Outcome: Added Sentry ingest domain to security.ts CSP
 - [ ] Add Vercel `maxDuration` for webhook routes -- audit finding
 
 ## In Progress

@@ -4,6 +4,27 @@ All notable changes to the Goldyon CRM platform are documented here, organized c
 
 ---
 
+## [2026-03-01] - Security, UX & Performance Batch
+
+### Added
+- **Cookie consent banner**: GDPR/ePrivacy-compliant CookieConsent component with accept/reject, localStorage persistence, privacy policy link.
+- **Dashboard loading skeletons**: 7 loading.tsx states for leads, contacts, activities, campaigns, reports, automation, settings.
+- **Dynamic OG image**: Next.js ImageResponse at opengraph-image.tsx with Goldyon branding.
+- **Twitter Card metadata**: summary_large_image card in root layout.
+- **RESEND_WEBHOOK_SECRET** added to .env.example.
+- **Node.js engines field** in package.json (>=20.0.0).
+
+### Fixed
+- **Sentry in error boundaries**: error.tsx and dashboard error.tsx now use Sentry.captureException.
+- **CSP connect-src**: Added Sentry ingest domain to security.ts to match middleware.ts.
+- **HSTS in vercel.json**: Covers static files.
+- **.gitignore**: Now covers plain .env files.
+
+### Changed
+- **Logo images optimized**: WebP conversion (1.3MB->25KB, 1.8MB->115KB). All references updated.
+
+---
+
 ## [2026-03-01] - Custom 404 Page (PR #90)
 
 ### Added

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { ApiErrors, handleApiError } from "@/lib/utils/api-errors";
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,16 +11,13 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return ApiErrors.unauthorized();
     }
 
     const { business_name, email, phone } = await request.json();
 
     if (!business_name) {
-      return NextResponse.json(
-        { error: "business_name is required" },
-        { status: 400 }
-      );
+      return ApiErrors.badRequest("business_name is required");
     }
 
     // Build OR conditions for similarity
@@ -45,19 +43,11 @@ export async function POST(request: NextRequest) {
     const { data, error } = await query;
 
     if (error) {
-      console.error("Duplicate check error:", error);
-      return NextResponse.json(
-        { error: "Failed to check for duplicates" },
-        { status: 500 }
-      );
+      return handleApiError(error, { route: "/api/leads/check-duplicates" });
     }
 
-    return NextResponse.json({ duplicates: data || [] });
+    return NextResponse.json({ success: true, data: { duplicates: data || [] } });
   } catch (error) {
-    console.error("Duplicate check error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return handleApiError(error, { route: "/api/leads/check-duplicates" });
   }
 }

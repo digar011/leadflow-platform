@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { sendSlackMessage, formatTestMessage } from "@/lib/slack/send";
+import { ApiErrors, handleApiError } from "@/lib/utils/api-errors";
 
 export async function POST() {
   try {
@@ -10,10 +11,9 @@ export async function POST() {
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return ApiErrors.unauthorized();
     }
 
-    // Look up Slack config from api_keys
     const { data: slackKey, error } = await supabase
       .from("api_keys")
       .select("external_key, is_active")
@@ -23,14 +23,11 @@ export async function POST() {
       .maybeSingle();
 
     if (error) {
-      return NextResponse.json({ error: "Failed to read config" }, { status: 500 });
+      return handleApiError(error, { route: "/api/integrations/slack/test" });
     }
 
     if (!slackKey?.external_key) {
-      return NextResponse.json(
-        { error: "Slack not configured. Add a webhook URL first." },
-        { status: 400 }
-      );
+      return ApiErrors.badRequest("Slack not configured. Add a webhook URL first.");
     }
 
     const { text, blocks } = formatTestMessage();
@@ -41,17 +38,11 @@ export async function POST() {
     });
 
     if (!result.ok) {
-      return NextResponse.json(
-        { ok: false, error: result.error },
-        { status: 400 }
-      );
+      return ApiErrors.badRequest(result.error || "Slack message delivery failed");
     }
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ success: true });
   } catch (err) {
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Internal error" },
-      { status: 500 }
-    );
+    return handleApiError(err, { route: "/api/integrations/slack/test" });
   }
 }

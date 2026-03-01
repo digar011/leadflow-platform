@@ -3,6 +3,7 @@ import { getStripe } from "@/lib/stripe/server";
 import { tierFromPriceId } from "@/lib/stripe/config";
 import { createClient } from "@supabase/supabase-js";
 import { createLogger } from "@/lib/utils/logger";
+import { ApiErrors } from "@/lib/utils/api-errors";
 import type Stripe from "stripe";
 import type { Database } from "@/lib/types/database";
 
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
   const signature = request.headers.get("stripe-signature");
 
   if (!signature) {
-    return NextResponse.json({ error: "Missing signature" }, { status: 400 });
+    return ApiErrors.badRequest("Missing signature");
   }
 
   const stripe = getStripe();
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
     );
   } catch (err) {
     log.error("Webhook signature verification failed", { error: err instanceof Error ? err.message : String(err) });
-    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+    return ApiErrors.badRequest("Invalid signature");
   }
 
   const supabase = getSupabase();
@@ -74,10 +75,7 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     log.error("Webhook processing failed", { eventType: event.type, error: error instanceof Error ? error.message : String(error) });
-    return NextResponse.json(
-      { error: "Webhook processing failed" },
-      { status: 500 }
-    );
+    return ApiErrors.internalError("Webhook processing failed");
   }
 
   return NextResponse.json({ received: true });

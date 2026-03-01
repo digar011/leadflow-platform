@@ -7,6 +7,7 @@ import {
   formatDealWonMessage,
   formatCustomMessage,
 } from "@/lib/slack/send";
+import { ApiErrors, handleApiError } from "@/lib/utils/api-errors";
 
 /**
  * Internal API for sending Slack messages.
@@ -30,10 +31,7 @@ export async function POST(request: NextRequest) {
     };
 
     if (!userId || !event) {
-      return NextResponse.json(
-        { error: "Missing userId or event" },
-        { status: 400 }
-      );
+      return ApiErrors.badRequest("Missing userId or event");
     }
 
     const supabase = getServiceClient();
@@ -49,7 +47,7 @@ export async function POST(request: NextRequest) {
       .maybeSingle();
 
     if (!slackKey?.external_key) {
-      return NextResponse.json({ ok: false, error: "Slack not configured" });
+      return ApiErrors.badRequest("Slack not configured");
     }
 
     // Check if event is enabled
@@ -62,7 +60,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!enabledEvents.includes(event)) {
-      return NextResponse.json({ ok: false, skipped: true, reason: "Event not enabled" });
+      return NextResponse.json({ success: true, data: { skipped: true, reason: "Event not enabled" } });
     }
 
     // Build message based on event type
@@ -121,11 +119,8 @@ export async function POST(request: NextRequest) {
       blocks: blocks as Parameters<typeof sendSlackMessage>[0]["blocks"],
     });
 
-    return NextResponse.json(result);
+    return NextResponse.json({ success: true, data: result });
   } catch (err) {
-    return NextResponse.json(
-      { ok: false, error: err instanceof Error ? err.message : "Internal error" },
-      { status: 500 }
-    );
+    return handleApiError(err, { route: "/api/integrations/slack/send" });
   }
 }
