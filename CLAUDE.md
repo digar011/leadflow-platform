@@ -28,8 +28,10 @@ Goldyon is a full-stack lead intelligence and customer relationship management p
 | Validation    | Zod 4 (forms), DOMPurify (HTML sanitization)                     |
 | Charts        | Recharts 3                                                       |
 | Animations    | Framer Motion 12                                                 |
+| Unit Testing  | Jest 30 + ts-jest + @testing-library/jest-dom                    |
 | E2E Testing   | Playwright                                                       |
-| CI/CD         | None configured yet (GitHub Actions needed)                      |
+| CI/CD         | GitHub Actions (lint, typecheck, unit tests, build, Lighthouse)  |
+| Monitoring    | Sentry (@sentry/nextjs v10)                                      |
 
 ---
 
@@ -153,44 +155,39 @@ npm run dev
 
 > See `TODO.md` for the full task queue. Quick summary:
 
-**Currently working on:**
-- Merge role hierarchy feature branch to main
-
-**Up next:**
-- Add unit tests (Jest) -- currently NO unit test coverage
-- Set up CI/CD with GitHub Actions
-- Stricter ESLint configuration
+**All tasks completed as of 2026-03-01.** No items currently in queue.
 
 ---
 
 ## Running Tests
 
 ```bash
-# Install Playwright browsers (first time only)
-npx playwright install
+# Unit tests
+npm test                    # Run all unit tests
+npm run test:unit           # Run with coverage report
+npm run test:watch          # Watch mode
 
-# E2E tests (headless)
-npm run test:e2e
+# E2E tests (install Playwright browsers first: npx playwright install)
+npm run test:e2e            # Headless
+npm run test:e2e:ui         # Interactive UI
 
-# E2E tests with interactive UI
-npm run test:e2e:ui
+# Linting and type checking
+npm run lint                # ESLint
+npx tsc --noEmit            # TypeScript strict mode
 
-# Lint check
-npm run lint
-
-# Type check
-npx tsc --noEmit
-
-# NOTE: No unit tests yet -- Jest setup needed
+# Quality tools
+npm run validate-env        # Validate .env.example
+npm run audit-deps          # Dependency security audit
+npm run lighthouse          # Lighthouse audit (requires local server)
 ```
 
 ---
 
 ## Deployment
 
-**Production:** Deployed to Vercel. Push to `main` triggers auto-deploy.
-**Staging:** No dedicated staging environment yet.
-**Rollback:** Revert to previous Vercel deployment via the Vercel dashboard.
+**Production:** Deployed to Vercel. Push to `master` triggers auto-deploy.
+**Staging:** Push to `staging` branch triggers staging deployment workflow (see `.github/workflows/staging-deploy.yml`). Requires GitHub Secrets for Vercel and staging Supabase.
+**Rollback:** Revert to previous Vercel deployment via the Vercel dashboard, or reset the staging branch.
 
 ---
 
@@ -203,7 +200,7 @@ npx tsc --noEmit
 - **`analytics_snapshots` has `UNIQUE(snapshot_date)`** -- tests must delete before re-inserting for same date.
 - **Supabase join type inference** requires `Relationships` in the Database type definition -- without it, results are `never[]`.
 - **Windows/Bash**: `!` in passwords causes JSON parsing issues in bash. Use Node.js `.mjs` script files for testing instead of inline CLI commands.
-- **`ignoreDuringBuilds: true`** is set for ESLint in `next.config.mjs`. TypeScript `ignoreBuildErrors` was removed (PR #53).
+- **ESLint strict mode** is enforced via `@typescript-eslint/eslint-plugin`. TypeScript `ignoreBuildErrors` was removed (PR #53).
 - **Dark theme with gold accents** is the design language. All UI components follow this pattern.
 - **Subscription tiers gate features** -- always check `useSubscription` hook and `FeatureGate` component when adding new features.
 
@@ -215,8 +212,8 @@ npx tsc --noEmit
 |-----------------------|-----------------------------------------------------|
 | GitHub Repo           | https://github.com/digar011/goldyon-platform.git    |
 | Supabase Dashboard    | https://kitimzmjjuvznfiyjiuw.supabase.co            |
-| Production URL        | (Vercel -- deployed from main)                      |
-| Staging URL           | N/A -- not configured yet                           |
+| Production URL        | (Vercel -- deployed from master)                    |
+| Staging URL           | (Vercel preview -- deployed from staging branch)    |
 
 ---
 
