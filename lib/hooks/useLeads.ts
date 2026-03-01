@@ -298,6 +298,17 @@ export function useBulkUpdateLeads() {
   });
 }
 
+const BUSINESS_STATUSES = [
+  "new",
+  "contacted",
+  "qualified",
+  "proposal",
+  "negotiation",
+  "won",
+  "lost",
+  "do_not_contact",
+] as const;
+
 export function useLeadStats() {
   const supabase = getSupabaseClient();
   const { isAdminView } = useViewMode();
@@ -305,52 +316,70 @@ export function useLeadStats() {
   return useQuery({
     queryKey: ["leadStats", isAdminView],
     queryFn: async () => {
-      // Get counts by status
-      const { data: statusCounts, error: statusError } = await supabase
-        .from("businesses")
-        .select("status")
-        .then((result) => {
-          if (result.error) throw result.error;
-          const counts: Record<string, number> = {};
-          result.data?.forEach((row) => {
-            const s = row.status ?? "unknown";
-            counts[s] = (counts[s] || 0) + 1;
-          });
-          return { data: counts, error: null };
-        });
-
-      if (statusError) throw statusError;
-
-      // Get total pipeline value
-      const { data: pipelineData, error: pipelineError } = await supabase
-        .from("businesses")
-        .select("deal_value")
-        .not("deal_value", "is", null)
-        .not("status", "in", '("won","lost")');
-
-      if (pipelineError) throw pipelineError;
-
-      const pipelineValue = pipelineData?.reduce(
-        (sum, row) => sum + (row.deal_value || 0),
-        0
-      );
-
-      // Get new leads this week
+      // Build all count queries in parallel using head-only requests
+      // instead of fetching all rows and counting client-side
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
 
-      const { count: newThisWeek, error: newError } = await supabase
-        .from("businesses")
-        .select("*", { count: "exact", head: true })
-        .gte("created_at", weekAgo.toISOString());
+      const [statusResults, pipelineResult, newThisWeekResult, totalResult] =
+        await Promise.all([
+          // Count per status — one lightweight head-only query each
+          Promise.all(
+            BUSINESS_STATUSES.map((status) =>
+              supabase
+                .from("businesses")
+                .select("*", { count: "exact", head: true })
+                .eq("status", status)
+                .then(({ count, error }) => {
+                  if (error) throw error;
+                  return { status, count: count || 0 };
+                })
+            )
+          ),
+          // Pipeline value — only select deal_value for active pipeline leads
+          supabase
+            .from("businesses")
+            .select("deal_value")
+            .not("deal_value", "is", null)
+            .not("status", "in", '("won","lost")'),
+          // New leads this week — head-only count
+          supabase
+            .from("businesses")
+            .select("*", { count: "exact", head: true })
+            .gte("created_at", weekAgo.toISOString()),
+          // Total count — head-only
+          supabase
+            .from("businesses")
+            .select("*", { count: "exact", head: true }),
+        ]);
 
-      if (newError) throw newError;
+      // Build status counts map from parallel results
+      const statusCounts: Record<string, number> = {};
+      for (const { status, count } of statusResults) {
+        if (count > 0) {
+          statusCounts[status] = count;
+        }
+      }
+
+      // Pipeline value
+      if (pipelineResult.error) throw pipelineResult.error;
+      const pipelineValue =
+        pipelineResult.data?.reduce(
+          (sum, row) => sum + (row.deal_value || 0),
+          0
+        ) || 0;
+
+      // New this week
+      if (newThisWeekResult.error) throw newThisWeekResult.error;
+
+      // Total
+      if (totalResult.error) throw totalResult.error;
 
       return {
-        statusCounts: statusCounts || {},
-        pipelineValue: pipelineValue || 0,
-        newThisWeek: newThisWeek || 0,
-        total: Object.values(statusCounts || {}).reduce((a, b) => a + b, 0),
+        statusCounts,
+        pipelineValue,
+        newThisWeek: newThisWeekResult.count || 0,
+        total: totalResult.count || 0,
       };
     },
   });
