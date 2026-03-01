@@ -4,6 +4,7 @@ import crypto from "crypto";
 
 import type { Database } from "@/lib/types/database";
 import { rateLimit } from "@/lib/utils/security";
+import { ApiErrors, handleApiError } from "@/lib/utils/api-errors";
 
 // Lazy-initialized Supabase service client (avoids module-level env var access)
 let _supabase: ReturnType<typeof createClient<Database>> | null = null;
@@ -46,10 +47,7 @@ export async function POST(request: NextRequest) {
 
     // Rate limiting check
     if (!(await rateLimit(`n8n:${ip}`, 100, 60000)).success) {
-      return NextResponse.json(
-        { error: "Rate limit exceeded" },
-        { status: 429 }
-      );
+      return ApiErrors.rateLimited();
     }
 
     // Get webhook secret from header (identifies the webhook config)
@@ -57,10 +55,7 @@ export async function POST(request: NextRequest) {
     const signature = request.headers.get("x-webhook-signature");
 
     if (!webhookId) {
-      return NextResponse.json(
-        { error: "Missing webhook ID" },
-        { status: 400 }
-      );
+      return ApiErrors.badRequest("Missing webhook ID");
     }
 
     // Get webhook config
@@ -73,19 +68,13 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (webhookError || !webhook) {
-      return NextResponse.json(
-        { error: "Invalid or inactive webhook" },
-        { status: 401 }
-      );
+      return ApiErrors.unauthorized("Invalid or inactive webhook");
     }
 
     // IP allowlist check
     if (webhook.ip_allowlist && webhook.ip_allowlist.length > 0) {
       if (!webhook.ip_allowlist.includes(ip)) {
-        return NextResponse.json(
-          { error: "IP not allowed" },
-          { status: 403 }
-        );
+        return ApiErrors.forbidden("IP not allowed");
       }
     }
 
@@ -95,10 +84,7 @@ export async function POST(request: NextRequest) {
     // Verify signature
     if (webhook.secret) {
       if (!verifySignature(rawBody, signature, webhook.secret)) {
-        return NextResponse.json(
-          { error: "Invalid signature" },
-          { status: 401 }
-        );
+        return ApiErrors.unauthorized("Invalid signature");
       }
     }
 
@@ -107,27 +93,17 @@ export async function POST(request: NextRequest) {
     try {
       payload = JSON.parse(rawBody);
     } catch {
-      return NextResponse.json(
-        { error: "Invalid JSON payload" },
-        { status: 400 }
-      );
+      return ApiErrors.badRequest("Invalid JSON payload");
     }
 
     // Validate event type
     const eventType = payload.event || payload.type;
     if (!eventType) {
-      return NextResponse.json(
-        { error: "Missing event type" },
-        { status: 400 }
-      );
+      return ApiErrors.badRequest("Missing event type");
     }
 
-    // Check if webhook is subscribed to this event
     if (webhook.events && webhook.events.length > 0 && !webhook.events.includes(eventType)) {
-      return NextResponse.json(
-        { error: "Webhook not subscribed to this event" },
-        { status: 400 }
-      );
+      return ApiErrors.badRequest("Webhook not subscribed to this event");
     }
 
     // Process the event
@@ -155,12 +131,7 @@ export async function POST(request: NextRequest) {
       result,
     });
   } catch (error) {
-    console.error("Webhook processing error:", error);
-
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return handleApiError(error, { route: "/api/webhooks/n8n" });
   }
 }
 

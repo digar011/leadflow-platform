@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient, createServiceSupabaseClient } from "@/lib/supabase/server";
+import { ApiErrors, handleApiError } from "@/lib/utils/api-errors";
 
 // Verify the requesting user is an admin
 async function verifyAdmin() {
@@ -22,14 +23,14 @@ export async function PATCH(request: NextRequest) {
   try {
     const adminId = await verifyAdmin();
     if (!adminId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+      return ApiErrors.forbidden();
     }
 
     const body = await request.json();
     const { userId, action, ...params } = body;
 
     if (!userId || !action) {
-      return NextResponse.json({ error: "Missing userId or action" }, { status: 400 });
+      return ApiErrors.badRequest("Missing userId or action");
     }
 
     // Use service role to bypass protect_profile_columns trigger
@@ -39,7 +40,7 @@ export async function PATCH(request: NextRequest) {
       case "updateRole": {
         const { role } = params;
         if (!["super_admin", "org_admin", "admin", "manager", "user"].includes(role)) {
-          return NextResponse.json({ error: "Invalid role" }, { status: 400 });
+          return ApiErrors.badRequest("Invalid role");
         }
         const { data, error } = await serviceClient
           .from("profiles")
@@ -54,7 +55,7 @@ export async function PATCH(request: NextRequest) {
       case "updateTier": {
         const { tier, billingCycle } = params;
         if (!["free", "starter", "growth", "business", "enterprise"].includes(tier)) {
-          return NextResponse.json({ error: "Invalid tier" }, { status: 400 });
+          return ApiErrors.badRequest("Invalid tier");
         }
         const updates: Record<string, string> = { subscription_tier: tier };
         if (billingCycle) updates.subscription_billing_cycle = billingCycle;
@@ -94,10 +95,9 @@ export async function PATCH(request: NextRequest) {
       }
 
       default:
-        return NextResponse.json({ error: "Unknown action" }, { status: 400 });
+        return ApiErrors.badRequest("Unknown action");
     }
   } catch (error) {
-    console.error("Admin users API error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return handleApiError(error, { route: "/api/admin/users" });
   }
 }

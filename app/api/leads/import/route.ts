@@ -3,10 +3,8 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { businessSchema } from "@/lib/utils/validation";
 import { getNumericLimit } from "@/lib/utils/subscription";
 import { rateLimit } from "@/lib/utils/security";
-import { createLogger } from "@/lib/utils/logger";
+import { ApiErrors, handleApiError } from "@/lib/utils/api-errors";
 import type { SubscriptionTier } from "@/lib/types/database";
-
-const log = createLogger({ route: "/api/leads/import" });
 
 interface ImportRow {
   [key: string]: string | number | null | undefined;
@@ -24,11 +22,11 @@ export async function POST(request: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return ApiErrors.unauthorized();
     }
 
     if (!(await rateLimit(`import:${user.id}`, 10, 60000)).success) {
-      return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+      return ApiErrors.rateLimited();
     }
 
     const body = await request.json();
@@ -38,11 +36,11 @@ export async function POST(request: NextRequest) {
     };
 
     if (!Array.isArray(rows) || rows.length === 0) {
-      return NextResponse.json({ error: "No rows to import" }, { status: 400 });
+      return ApiErrors.badRequest("No rows to import");
     }
 
     if (rows.length > 5000) {
-      return NextResponse.json({ error: "Maximum 5000 rows per import" }, { status: 400 });
+      return ApiErrors.badRequest("Maximum 5000 rows per import");
     }
 
     // Check lead limit
@@ -227,13 +225,15 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({
-      imported,
-      skipped,
-      errors: errors.slice(0, 100), // Limit error output
-      total: rows.length,
+      success: true,
+      data: {
+        imported,
+        skipped,
+        errors: errors.slice(0, 100),
+        total: rows.length,
+      },
     });
   } catch (error) {
-    log.error("Import failed", { error: error instanceof Error ? error.message : String(error) });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return handleApiError(error, { route: "/api/leads/import" });
   }
 }

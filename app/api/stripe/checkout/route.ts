@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient, createServiceSupabaseClient } from "@/lib/supabase/server";
 import { getStripe } from "@/lib/stripe/server";
 import { STRIPE_PRICE_IDS } from "@/lib/stripe/config";
+import { ApiErrors, handleApiError } from "@/lib/utils/api-errors";
 import type { SubscriptionTier, BillingCycle } from "@/lib/types/database";
 
 export async function POST(request: NextRequest) {
@@ -14,7 +15,7 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return ApiErrors.unauthorized();
     }
 
     // 2. Parse and validate
@@ -24,18 +25,12 @@ export async function POST(request: NextRequest) {
     };
 
     if (tier === "free" || tier === "enterprise") {
-      return NextResponse.json(
-        { error: "Cannot checkout for free or enterprise tier" },
-        { status: 400 }
-      );
+      return ApiErrors.badRequest("Cannot checkout for free or enterprise tier");
     }
 
     const priceId = STRIPE_PRICE_IDS[tier]?.[billingCycle];
     if (!priceId) {
-      return NextResponse.json(
-        { error: "Invalid plan selection" },
-        { status: 400 }
-      );
+      return ApiErrors.badRequest("Invalid plan selection");
     }
 
     // 3. Get or create Stripe Customer
@@ -87,12 +82,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ url: session.url });
+    return NextResponse.json({ success: true, data: { url: session.url } });
   } catch (error) {
-    console.error("Checkout session error:", error);
-    return NextResponse.json(
-      { error: "Failed to create checkout session" },
-      { status: 500 }
-    );
+    return handleApiError(error, { route: "/api/stripe/checkout" });
   }
 }

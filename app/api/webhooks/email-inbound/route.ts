@@ -10,6 +10,7 @@ import {
 } from "@/lib/utils/emailCapture";
 
 import { rateLimit } from "@/lib/utils/security";
+import { ApiErrors, handleApiError } from "@/lib/utils/api-errors";
 
 function getSupabase() {
   return createClient(
@@ -43,7 +44,7 @@ export async function POST(request: NextRequest) {
     const ip = request.headers.get("x-forwarded-for") || "unknown";
 
     if (!(await rateLimit(`email-inbound:${ip}`, 100, 60000)).success) {
-      return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+      return ApiErrors.rateLimited();
     }
 
     const rawBody = await request.text();
@@ -51,21 +52,18 @@ export async function POST(request: NextRequest) {
     // Verify webhook signature — reject if secret is not configured
     const webhookSecret = process.env.RESEND_WEBHOOK_SECRET;
     if (!webhookSecret) {
-      return NextResponse.json(
-        { error: "Webhook not configured: RESEND_WEBHOOK_SECRET is required" },
-        { status: 503 }
-      );
+      return ApiErrors.serviceUnavailable("Webhook not configured");
     }
     const signature = request.headers.get("resend-signature") || request.headers.get("x-webhook-signature");
     if (!verifyResendSignature(rawBody, signature, webhookSecret)) {
-      return NextResponse.json({ error: "Invalid signature" }, { status: 401 });
+      return ApiErrors.unauthorized("Invalid signature");
     }
 
     let payload;
     try {
       payload = JSON.parse(rawBody);
     } catch {
-      return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+      return ApiErrors.badRequest("Invalid JSON");
     }
 
     // Resend inbound webhook payload fields
@@ -87,7 +85,7 @@ export async function POST(request: NextRequest) {
     };
 
     if (!from || !to) {
-      return NextResponse.json({ error: "Missing from/to fields" }, { status: 400 });
+      return ApiErrors.badRequest("Missing from/to fields");
     }
 
     const supabase = getSupabase();
@@ -108,7 +106,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!forwardingAddress) {
-      return NextResponse.json({ error: "No forwarding address found" }, { status: 400 });
+      return ApiErrors.badRequest("No forwarding address found");
     }
 
     // Look up user by forwarding address
@@ -119,7 +117,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (!profile) {
-      return NextResponse.json({ error: "Unknown forwarding address" }, { status: 404 });
+      return ApiErrors.notFound("Forwarding address");
     }
 
     const userId = profile.id;
@@ -194,8 +192,7 @@ export async function POST(request: NextRequest) {
       activityId,
     });
   } catch (error) {
-    console.error("Email inbound webhook error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return handleApiError(error, { route: "/api/webhooks/email-inbound" });
   }
 }
 
