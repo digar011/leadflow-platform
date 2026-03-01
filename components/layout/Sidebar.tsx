@@ -118,8 +118,8 @@ export function Sidebar({ isAdmin: isAdminProp, isMobileOpen, onMobileClose }: S
       {/* Logo */}
       <div className="flex h-16 items-center justify-between border-b border-white/5 px-4">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg overflow-hidden">
-            <Image src="/images/logo-dark.png" alt="Goldyon" width={36} height={36} className="object-contain" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center">
+            <Image src="/images/logo-dark.png" alt="Goldyon" width={40} height={40} className="object-contain brightness-125 saturate-150 drop-shadow-[0_0_4px_rgba(212,175,55,0.5)]" />
           </div>
           {!collapsed && (
             <span className="text-xl font-bold text-text-primary">Goldyon</span>

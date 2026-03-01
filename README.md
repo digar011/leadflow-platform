@@ -401,20 +401,28 @@ The application uses the following tables, all with Row Level Security (RLS) ena
 
 ## Authentication and Authorization
 
-Goldyon uses Supabase Auth with email/password authentication. Three user roles are supported:
+Goldyon uses Supabase Auth with email/password authentication. Five user roles are supported in a hierarchy:
 
-| Role      | Access                                                                                          |
-| --------- | ----------------------------------------------------------------------------------------------- |
-| `admin`   | Full access including admin panel, user management, system settings, audit logs, delete leads    |
-| `manager` | Standard access to all CRM features                                                             |
-| `user`    | Standard access to all CRM features                                                             |
+| Role          | Access                                                                                          |
+| ------------- | ----------------------------------------------------------------------------------------------- |
+| `super_admin` | Full platform access (Goldyon/Codexium team). 3-way view toggle: super admin -> org admin -> user. Purple dot indicator. |
+| `org_admin`   | Organization-scoped admin (business/enterprise customers). 2-way toggle: admin <-> user. Gold switch indicator. |
+| `admin`       | Legacy role, treated as `org_admin` via backward compatibility in ViewModeContext.               |
+| `manager`     | Mid-level access to all CRM features                                                            |
+| `user`        | Standard access to all CRM features                                                             |
+
+**Key role system details:**
+- `ViewModeContext` (`lib/contexts/ViewModeContext.tsx`) manages role detection, view mode state, and toggle logic
+- Safety fallback: `SUPER_ADMIN_EMAILS` array ensures the primary admin always gets `super_admin` even if the DB role is wrong
+- Protected columns trigger prevents users from self-assigning admin roles or modifying subscription tiers
+- Admin RLS policies check the `profiles.role` column (not client-controlled JWT metadata)
 
 How authentication is enforced:
 
 - **Server-side**: The `(dashboard)/layout.tsx` checks for an authenticated user via `supabase.auth.getUser()` and redirects to `/login` if none is found.
-- **Admin panel**: The `admin/layout.tsx` performs a client-side role check, querying the `profiles` table, and redirects non-admins to `/dashboard`.
-- **Middleware**: `lib/supabase/middleware.ts` refreshes sessions on every request.
-- **Database**: Row Level Security policies on every table restrict data access based on the authenticated user's identity and role.
+- **Admin panel**: The `admin/layout.tsx` performs a client-side role check, querying the `profiles` table, and redirects non-admins to `/dashboard`. Accepts `super_admin`, `org_admin`, and `admin` roles.
+- **Middleware**: `middleware.ts` refreshes sessions on every request, enforces CSRF protection, applies security headers (HSTS, CSP), and guards admin routes.
+- **Database**: Row Level Security policies on every table restrict data access based on the authenticated user's identity and role. Super admin policies allow full access; org admin policies are scoped by organization_id.
 
 ---
 
@@ -481,9 +489,13 @@ npm run test:e2e:ui
 
 ## Documentation
 
-- [Changelog](docs/CHANGELOG.md) -- Sprint-by-sprint feature history and references
-- [Security Audit](docs/SECURITY-AUDIT.md) -- Security vulnerability assessment
+- [Changelog](docs/CHANGELOG.md) -- Full chronological history of all changes
+- [Changes Summary](docs/CHANGES-SUMMARY.md) -- Categorized list of what each change fixes, improves, or introduces
+- [Production Readiness Audit](docs/PRODUCTION-READINESS.md) -- Comprehensive audit for production deployment
+- [Security Audit](docs/SECURITY-AUDIT.md) -- Security vulnerability assessment (17 findings, critical ones fixed)
+- [Security Policy](docs/SECURITY.md) -- Security policy and reporting procedures
 - [Setup Guide](docs/SETUP.md) -- Detailed setup instructions
+- [HOW-TO Guides](docs/HOW-TO/) -- User-facing guides (admin, billing, leads, webhooks)
 
 ---
 

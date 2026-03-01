@@ -12,6 +12,11 @@ export function Providers({ children }: { children: ReactNode }) {
           queries: {
             staleTime: 60 * 1000, // 1 minute
             refetchOnWindowFocus: false,
+            retry: (failureCount, error) => {
+              // Don't retry aborted requests (caused by React Strict Mode double-mount)
+              if (error instanceof DOMException && error.name === "AbortError") return false;
+              return failureCount < 3;
+            },
           },
         },
       })

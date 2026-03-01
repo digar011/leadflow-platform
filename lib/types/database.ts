@@ -1877,7 +1877,7 @@ export const Constants = {
 // Custom type aliases used throughout the codebase
 // ============================================================
 
-export type UserRole = "admin" | "manager" | "user";
+export type UserRole = "super_admin" | "org_admin" | "admin" | "manager" | "user";
 export type LeadStatus =
   | "new"
   | "contacted"

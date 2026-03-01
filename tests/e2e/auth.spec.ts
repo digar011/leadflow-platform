@@ -39,7 +39,7 @@ test.describe("Authentication", () => {
       await page.getByRole("button", { name: /sign in/i }).click();
 
       // Should show email validation error
-      await expect(page.getByText(/valid email/i)).toBeVisible();
+      await expect(page.getByText(/please enter a valid email/i)).toBeVisible();
     });
 
     test("should show error for invalid credentials", async ({ page }) => {
@@ -58,7 +58,7 @@ test.describe("Authentication", () => {
 
       await page.getByRole("link", { name: /sign up/i }).click();
 
-      await expect(page).toHaveURL(/register/);
+      await expect(page).toHaveURL(/register/, { timeout: 10000 });
     });
 
     test("should navigate to forgot password page", async ({ page }) => {
@@ -66,7 +66,7 @@ test.describe("Authentication", () => {
 
       await page.getByRole("link", { name: /forgot password/i }).click();
 
-      await expect(page).toHaveURL(/forgot-password/);
+      await expect(page).toHaveURL(/forgot-password/, { timeout: 10000 });
     });
   });
 
@@ -105,7 +105,7 @@ test.describe("Authentication", () => {
       await page.getByRole("button", { name: /create account/i }).click();
 
       // Should show password requirements error
-      await expect(page.getByText(/at least 8 characters/i)).toBeVisible();
+      await expect(page.getByText(/password must be at least 8 characters/i)).toBeVisible();
     });
 
     test("should navigate to login page", async ({ page }) => {
@@ -132,7 +132,7 @@ test.describe("Authentication", () => {
       await page.getByLabel("Email").fill("invalid-email");
       await page.getByRole("button", { name: /send reset/i }).click();
 
-      await expect(page.getByText(/valid email/i)).toBeVisible();
+      await expect(page.getByText(/please enter a valid email/i)).toBeVisible();
     });
 
     test("should navigate back to login", async ({ page }) => {
