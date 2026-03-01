@@ -47,3 +47,17 @@ tests/e2e/.auth/
 nul
 tests/test-admin-rls.mjs
 tests/update-tier.mjs
+
+# Stale repo clones (audit workspace artifacts — not part of this project)
+/Bonsai-hut/
+/cmg-painting/
+/codexium-dashboard/
+/codexium-guardian-template/
+/codexium-installer/
+/Codexium-website/
+/desktop-tutorial/
+/Landing-page-/
+/n8n-business-finder-workflow/
+/social-media-autopilot/
+/Tracking-dash-board/
+/zenith-construction/
