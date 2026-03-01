@@ -4,6 +4,13 @@ All notable changes to the Goldyon CRM platform are documented here, organized c
 
 ---
 
+## [2026-03-01] - Custom 404 Page (PR #90)
+
+### Added
+- **Custom not-found.tsx page** (PR #90): Server component at `app/not-found.tsx` with dark theme, gold "404" heading, descriptive message, and navigation links (Go home, Sign in). `noindex`/`nofollow` robots meta. **Why:** Default Next.js 404 breaks the dark theme and branding. **Outcome:** Branded 404 page matching the app's design language.
+
+---
+
 ## [2026-03-01] - RLS, DB Constraints & Webhook Fixes (PR #89)
 
 ### Fixed

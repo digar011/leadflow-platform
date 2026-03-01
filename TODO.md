@@ -32,8 +32,7 @@
 
 ### High — Missing Pages & UX
 
-- [ ] Create `not-found.tsx` (404 page) -- audit finding M4
-  - Default Next.js 404 breaks dark theme/branding
+- [x] Create `not-found.tsx` (404 page) -- completed 2026-03-01 by Claude (PR #90)
 - [ ] Create public landing page -- audit finding M5
   - `app/page.tsx` just redirects to `/login`, no SEO value
 - [ ] Add loading.tsx states for dashboard sub-routes -- audit finding M6
