@@ -4,7 +4,95 @@
 
 ## Queue (Not Started)
 
-(none)
+### Critical — Security
+
+- [ ] Rotate Supabase service_role key and gitignore all test files with hardcoded keys -- audit finding C2
+  - Files: `tests/e2e-full-test.mjs`, `tests/verify-admin-test-user.mjs`, `tests/setup-admin-test.mjs`, `tests/cleanup-e2e-data.mjs`, `tests/e2e/auth.setup.ts`
+- [ ] Fix CSRF bypass on API routes -- audit finding C7
+  - `middleware.ts:30-32` skips Origin validation for all `/api/` routes
+- [ ] Add auth check to Slack send API route -- audit finding M3
+  - `app/api/integrations/slack/send/route.ts` has no `auth.getUser()` check
+- [ ] Sanitize HTML in email send route -- audit finding C6
+  - `app/api/email/send/route.ts` passes user HTML directly to Resend without `sanitizeHtml()`
+- [ ] Fix `.gitignore` to cover plain `.env` files -- audit finding C4
+- [ ] Add `RESEND_WEBHOOK_SECRET` to `.env.example` -- audit finding C5
+
+### Critical — Broken Flows
+
+- [ ] Create `/reset-password` page -- audit finding
+  - Forgot-password flow sends users to `/reset-password` which doesn't exist
+- [ ] Create `/terms` and `/privacy` pages -- audit finding
+  - Register page links to dead routes, legally required for SaaS (GDPR/CCPA)
+- [ ] Add cookie consent banner -- audit finding
+  - App uses auth cookies + Sentry session replay, required under GDPR/ePrivacy
+
+### Critical — Database
+
+- [ ] Fix RLS policies to include `org_admin` role -- audit finding C9
+  - Migration `20260211000000` only checks `role IN ('admin', 'manager')`, misses `org_admin` and `super_admin`
+- [ ] Fix `manager` role DB constraint mismatch -- audit finding C10
+  - TypeScript types include `manager` but DB constraint rejects it: `CHECK (role IN ('super_admin', 'org_admin', 'admin', 'user'))`
+- [ ] Fix n8n webhook module-level Supabase init -- audit finding C8
+  - `app/api/webhooks/n8n/route.ts:6-9` creates client at import time, crashes if env vars missing
+
+### High — Missing Pages & UX
+
+- [ ] Create `not-found.tsx` (404 page) -- audit finding M4
+  - Default Next.js 404 breaks dark theme/branding
+- [ ] Create public landing page -- audit finding M5
+  - `app/page.tsx` just redirects to `/login`, no SEO value
+- [ ] Add loading.tsx states for dashboard sub-routes -- audit finding M6
+- [ ] Optimize logo images -- audit finding
+  - `logo-dark.png` (1.3 MB) and `logo-light.png` (1.8 MB) need compression/WebP conversion
+
+### High — Monitoring & Deploy
+
+- [ ] Add Sentry reporting to error boundaries -- audit finding M10
+  - `app/error.tsx` and `app/(dashboard)/error.tsx` only use `console.error`, errors never reach Sentry
+- [ ] Add E2E tests to CI pipeline -- audit finding
+  - 21 Playwright specs exist but never run in CI
+- [ ] Fix staging deploy smoke test URL wiring -- audit finding
+  - `deploy-staging` job doesn't expose output URL properly
+- [ ] Ensure Vercel deploys depend on CI checks passing -- audit finding
+  - Vercel auto-deploy may run before CI finishes
+
+### High — Testing
+
+- [ ] Expand unit test coverage beyond `lib/utils/` -- audit finding
+  - API routes, hooks, components, security utils, Stripe/email logic all untested
+  - Current coverage only measures `lib/utils/**/*.ts`, far below 80% target
+
+### Medium — SEO & Social
+
+- [ ] Add `og:image` to Open Graph metadata -- audit finding L3
+- [ ] Add Twitter Card metadata -- audit finding L4
+
+### Medium — Performance
+
+- [ ] Optimize `useLeadStats` hook — 3 sequential full-table queries -- audit finding M7
+  - `lib/hooks/useLeads.ts:301-357` fetches ALL businesses to count client-side
+- [ ] Add database indexes for search columns -- audit finding L2
+  - `business_name`, `email`, `city` columns need indexes for `ilike` queries
+
+### Medium — Code Quality
+
+- [ ] Standardize API error response format -- audit finding M1
+  - Should follow `{ success: false, error: { code, message, details } }` per CLAUDE.md
+- [ ] Fix error details leak in admin seed route -- audit finding M2
+  - `app/api/admin/seed/route.ts:40` returns raw DB error messages
+- [ ] Clean stale repo dirs from tsconfig.json exclude -- audit finding
+  - 12 old repo names listed that shouldn't be in project directory
+- [ ] Add `engines` field to package.json -- audit finding
+  - Enforce Node.js 20 to match CI
+- [ ] Make Resend client throw on missing API key -- audit finding
+  - `lib/email/resend.ts` fails silently if `RESEND_API_KEY` is empty
+- [ ] Verify `goldyon.com` domain in Resend dashboard -- audit finding
+  - `EMAIL_FROM` defaults to `noreply@goldyon.com`, must be verified to send
+- [ ] Add HSTS header to vercel.json -- audit finding
+  - Only in middleware currently, vercel.json covers static files too
+- [ ] Fix CSP `connect-src` inconsistency -- audit finding L1
+  - `lib/utils/security.ts:202` misses Sentry ingest domain vs middleware.ts
+- [ ] Add Vercel `maxDuration` for webhook routes -- audit finding
 
 ## In Progress
 
