@@ -8,6 +8,8 @@
 
 # testing
 /coverage
+/lighthouse-results
+/.lighthouseci
 
 # next.js
 /.next/
