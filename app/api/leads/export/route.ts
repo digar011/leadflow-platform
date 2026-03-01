@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { CSV_EXPORT_FIELDS } from "@/lib/utils/csvFields";
 import { rateLimit } from "@/lib/utils/security";
+import { createLogger } from "@/lib/utils/logger";
 import Papa from "papaparse";
+
+const log = createLogger({ route: "/api/leads/export" });
 
 export async function GET(request: NextRequest) {
   try {
@@ -10,10 +13,12 @@ export async function GET(request: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
     if (authError || !user) {
+      log.warn("Unauthorized export attempt");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     if (!(await rateLimit(`export:${user.id}`, 5, 60000)).success) {
+      log.warn("Rate limit exceeded", { userId: user.id });
       return NextResponse.json({ error: "Rate limit exceeded. Max 5 exports per minute." }, { status: 429 });
     }
 
@@ -87,7 +92,7 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Export error:", error);
+    log.error("Export failed", { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
