@@ -9,10 +9,12 @@
 
 ## In Progress
 
-- [ ] Merge role hierarchy feature branch to main -- started 2026-02-10 by Diego
-  - Notes: Branch `feature/role-hierarchy-and-test-fixes` is 3 commits ahead of master. Not yet pushed/PR'd. Includes super_admin/org_admin roles, security hardening (gitignored secrets), and E2E test stability improvements.
+(none)
 
 ## Completed
+
+- [x] Merge role hierarchy feature branch to main -- completed 2026-03-01 by Claude
+  - Outcome: Verified all role hierarchy changes (super_admin/org_admin roles, RLS policies, DB migration, permissions, middleware, UI) are already on master. Branch `feature/role-hierarchy-and-test-fixes` has zero commits ahead of master. Marked as complete.
 
 - [x] Monthly dependency audit schedule -- completed 2026-03-01 by Claude (PR #81)
   - Outcome: GitHub Actions workflow runs on the 1st of each month, auto-creates issues for vulnerabilities. Local `npm run audit-deps` script for on-demand checks.

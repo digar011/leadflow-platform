@@ -18,6 +18,7 @@
 - [Key Files Reference](#key-files-reference)
 - [Role Hierarchy System](#role-hierarchy-system)
 - [Subscription Tier System](#subscription-tier-system)
+- [Staging Environment](#staging-environment)
 - [Common Gotchas](#common-gotchas)
 - [Who to Contact](#who-to-contact)
 
@@ -190,14 +191,19 @@ Open http://localhost:3000. The app redirects to `/login` if not authenticated, 
 
 ### Available Scripts
 
-| Script          | Command                | Description                     |
-|-----------------|------------------------|---------------------------------|
-| `npm run dev`   | `next dev`             | Start development server        |
-| `npm run build` | `next build`           | Create production build         |
-| `npm start`     | `next start`           | Start production server         |
-| `npm run lint`  | `next lint`            | Run ESLint                      |
-| `npm run test:e2e`     | `playwright test`      | Run Playwright E2E tests |
-| `npm run test:e2e:ui`  | `playwright test --ui` | Run Playwright with UI   |
+| Script                 | Command                | Description                          |
+|------------------------|------------------------|--------------------------------------|
+| `npm run dev`          | `next dev`             | Start development server             |
+| `npm run build`        | `next build`           | Create production build              |
+| `npm start`            | `next start`           | Start production server              |
+| `npm run lint`         | `next lint`            | Run ESLint                           |
+| `npm test`             | `jest`                 | Run unit tests                       |
+| `npm run test:unit`    | `jest --coverage`      | Run unit tests with coverage report  |
+| `npm run test:watch`   | `jest --watch`         | Run unit tests in watch mode         |
+| `npm run test:e2e`     | `playwright test`      | Run Playwright E2E tests             |
+| `npm run test:e2e:ui`  | `playwright test --ui` | Run Playwright with UI               |
+| `npm run validate-env` | `node scripts/validate-env.mjs` | Validate .env.example vars |
+| `npm run audit-deps`   | `node scripts/audit-deps.mjs`   | Run dependency audit        |
 
 ---
 
@@ -226,9 +232,20 @@ There are also standalone test utilities in the `tests/` directory:
 
 > **Note:** `tests/test-admin-rls.mjs` and `tests/update-tier.mjs` are gitignored because they contain hardcoded `service_role` keys. NEVER commit these files.
 
-### Unit Tests
+### Unit Tests (Jest)
 
-There are currently NO unit tests. Adding Jest and unit test coverage is a priority task. See `TODO.md`.
+```bash
+# Run all unit tests
+npm test
+
+# Run with coverage report
+npm run test:unit
+
+# Run in watch mode (re-runs on file changes)
+npm run test:watch
+```
+
+Unit tests are located in `tests/unit/`. The suite covers formatters, validation, subscription logic, stage transitions, permissions, CSV fields, and next-best-action. 7 test suites, 166 tests, 76.68% coverage.
 
 ### Linting and Type Checking
 
@@ -374,6 +391,81 @@ Feature gating is enforced through:
 3. `FeatureGate` component -- wraps UI and shows locked state if feature unavailable
 4. `UsageLimitBar` component -- visual progress bar (amber at 80%, red at 100%)
 5. Sidebar gating -- nav items with `requiredFeature` are hidden for insufficient tiers
+
+---
+
+## Staging Environment
+
+The platform uses Vercel for hosting with a dedicated staging workflow.
+
+### How It Works
+
+- **Production:** Pushes to `master` auto-deploy to production via Vercel.
+- **Staging:** Pushes to the `staging` branch trigger the staging deployment workflow (`.github/workflows/staging-deploy.yml`).
+- **Preview:** Vercel automatically creates preview deployments for every PR.
+
+### Setting Up Staging (First Time)
+
+1. **Create a Vercel project** (if not already done):
+   - Go to [vercel.com](https://vercel.com) and import the GitHub repo.
+   - Select the `goldyon-platform` repository.
+   - Framework preset: Next.js.
+
+2. **Get Vercel IDs:**
+   - Go to Vercel project **Settings > General** to find the **Project ID**.
+   - Go to Vercel **account Settings** to find the **Org ID** (or Team ID).
+   - Create a **Vercel Token** at [vercel.com/account/tokens](https://vercel.com/account/tokens).
+
+3. **Add GitHub Secrets** (repo Settings > Secrets and variables > Actions):
+
+   | Secret                           | Description                          |
+   |----------------------------------|--------------------------------------|
+   | `VERCEL_TOKEN`                   | Vercel personal access token         |
+   | `VERCEL_ORG_ID`                  | Vercel team/org ID                   |
+   | `VERCEL_PROJECT_ID`              | Vercel project ID                    |
+   | `STAGING_SUPABASE_URL`           | Staging Supabase project URL         |
+   | `STAGING_SUPABASE_ANON_KEY`      | Staging Supabase anon key            |
+   | `STAGING_SUPABASE_SERVICE_ROLE_KEY` | Staging Supabase service role key |
+   | `STAGING_APP_URL`                | Staging deployment URL               |
+
+4. **Create a staging Supabase project** (recommended):
+   - Create a new Supabase project for staging (separate from production).
+   - Run all migrations against it using `combined_migrations.sql`.
+   - Use the staging project's keys in the GitHub Secrets above.
+
+5. **Create the staging branch:**
+   ```bash
+   git checkout master
+   git checkout -b staging
+   git push -u origin staging
+   ```
+
+### Deploying to Staging
+
+```bash
+# Merge changes into the staging branch
+git checkout staging
+git merge master
+git push
+# The staging-deploy workflow runs automatically
+```
+
+Or trigger manually from the GitHub Actions tab (workflow_dispatch).
+
+### Staging URL
+
+Once deployed, staging is available at the preview URL output by the workflow. An alias is set to `staging-goldyon.vercel.app` (configurable in the workflow).
+
+### Rollback
+
+To rollback staging, redeploy a previous commit:
+```bash
+git checkout staging
+git reset --hard <previous-commit-sha>
+git push --force
+```
+
+Or use the Vercel dashboard to promote a previous deployment.
 
 ---
 
