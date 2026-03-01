@@ -28,7 +28,7 @@ export default function AuthLayout({
       <header className="flex items-center justify-center py-8">
         <a href="/" className="flex items-center gap-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg overflow-hidden">
-            <Image src="/images/logo-dark.png" alt="Goldyon" width={40} height={40} className="object-contain" />
+            <Image src="/images/logo-dark.webp" alt="Goldyon" width={40} height={40} className="object-contain" />
           </div>
           <span className="text-2xl font-bold text-text-primary">Goldyon</span>
         </a>
