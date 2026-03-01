@@ -4,7 +4,7 @@ All notable changes to the Goldyon CRM platform are documented here, organized c
 
 ---
 
-## [2026-03-01] - Infrastructure & DevOps Sprint (PRs #72-#81)
+## [2026-03-01] - Infrastructure, DevOps & Quality Sprint (PRs #72-#85)
 
 ### Added
 - **Stricter ESLint config** (PR #72): Added `@typescript-eslint/eslint-plugin` with strict rules (`no-explicit-any`, `no-unused-vars`, `consistent-type-imports`, `no-console` warn). Fixed lint errors across ~48 files. **Why:** Enforce code quality at the linter level. **Outcome:** Stricter type safety and cleaner codebase.
@@ -16,37 +16,27 @@ All notable changes to the Goldyon CRM platform are documented here, organized c
 - **Sentry error tracking** (PR #80): `@sentry/nextjs` v10 with client/server/edge runtime init, session replay (10% baseline, 100% on error), browser tracing (20% sample), `global-error.tsx` root boundary. CSP updated for Sentry ingest domain. Disabled in development. **Why:** Production error visibility. **Outcome:** Real-time error monitoring with replay.
 - **Monthly dependency audit** (PR #81): GitHub Actions workflow runs on the 1st of each month, auto-creates GitHub Issues with vulnerability counts and remediation steps. Local `npm run audit-deps` script with colored terminal output. **Why:** CLAUDE.md mandates regular dependency audits. **Outcome:** Automated security monitoring.
 - **CI/CD pipeline** (PR #78): GitHub Actions workflow with 4 jobs (lint, typecheck, unit-tests, build). Build depends on lint + typecheck. Coverage artifacts uploaded. Runs on PRs and pushes to master. **Why:** No CI/CD existed. **Outcome:** Automated quality gates on every PR.
+- **Vercel staging environment** (PR #84): `vercel.json` with security headers (X-Frame-Options, X-Content-Type-Options, Referrer-Policy). GitHub Actions `staging-deploy.yml` triggered on pushes to `staging` branch with lint/test gate, Vercel deploy, and smoke test. Comprehensive staging docs in ONBOARDING.md. **Why:** No staging environment for pre-production testing. **Outcome:** Automated staging deployment pipeline with rollback documentation.
+- **Lighthouse CI audit** (PR #85): GitHub Actions `lighthouse.yml` runs on PRs targeting master. Audits 5 public pages (/, /pricing, /login, /register, /forgot-password) with 3 runs each. `lighthouserc.json` desktop preset with score thresholds (Performance >= 80, Accessibility >= 90, Best Practices >= 90, SEO >= 90). `scripts/lighthouse-summary.mjs` outputs colored terminal table or CI markdown summary. **Why:** CLAUDE.md mandates Lighthouse audits on client-facing pages. **Outcome:** Automated performance and accessibility monitoring via `npm run lighthouse`.
 
 ### Changed
 - **Pinned dependency versions** (PR #73): Removed all `^` and `~` prefixes from 31 dependencies in `package.json`, pinned to exact versions from `package-lock.json`. **Why:** CLAUDE.md mandates exact version pinning for production. **Outcome:** Reproducible builds with no surprise updates.
 
 ---
 
-## [Unreleased] - feature/role-hierarchy-and-test-fixes
+## [2026-02-10] - Role Hierarchy & TypeScript Cleanup (PRs #52-#53)
 
 ### Added
 - Role hierarchy system with `super_admin` and `org_admin` roles alongside existing `admin`, `manager`, `user`. Super admins get full platform access with 3-way view toggle; org admins are scoped to their organization with 2-way toggle. Legacy `admin` role treated as `org_admin` via backward compatibility. **Why:** Enable multi-tenant admin management with proper access scoping. **Outcome:** Complete role system with DB migration, RLS policies, permissions, middleware guards, and UI components.
 - Safety fallback: `SUPER_ADMIN_EMAILS` array hardcodes primary admin email so super_admin access is always preserved even if DB role is incorrect. **Why:** Prevent lockout scenarios. **Outcome:** Primary admin always has full access.
-- Purple dot indicator for super admin view mode, gold switch for org admin view mode in Header component. **Why:** Visual clarity for which view mode is active. **Outcome:** Admins can easily see their current view context.
 - DB migration `20260210204145_role_hierarchy.sql` with RLS policies for new roles. **Why:** Database-level enforcement of role hierarchy. **Outcome:** RLS properly scopes data access by role.
 
 ### Changed
-- Updated `ViewModeContext.tsx` with role detection logic, view mode state, and toggle functionality for the new role hierarchy. **Why:** Support 3-way and 2-way view toggles. **Outcome:** Exports `isSuperAdmin`, `isOrgAdmin`, `isAnyAdmin`, `isSuperAdminView`, `isOrgAdminView`, `isAdminView`, `viewMode`, `toggleViewMode`.
-- Updated `database.ts` `UserRole` type to include `super_admin | org_admin | admin | manager | user`. **Why:** Type safety for new roles. **Outcome:** TypeScript enforces valid role values.
-- Updated `permissions.ts` with `DEFAULT_PERMISSIONS` for all five roles. **Why:** Granular permission control per role. **Outcome:** `hasPermission()` correctly evaluates access for any role.
-- Updated `middleware.ts` admin route guard to accept `super_admin`, `org_admin`, and `admin`. **Why:** All admin-level roles need admin panel access. **Outcome:** Admin routes correctly enforce role-based access.
-- Updated `app/admin/layout.tsx` and `app/api/admin/users/route.ts` for new role system. **Why:** Consistent role enforcement across client and API. **Outcome:** Admin panel and API both respect the role hierarchy.
-
-### Fixed
-- Removed test utility files containing hardcoded `service_role` keys from git tracking and added to `.gitignore`. **Why:** Security -- service role keys should never be in version control. **Outcome:** Secrets are no longer tracked by git.
-- Refined E2E test selectors for more reliable element targeting and increased timeouts for network-dependent operations. **Why:** Reduce test flakiness. **Outcome:** 132/132 E2E tests passing consistently.
-
----
-
-## [2026-02-10] - TypeScript Cleanup (PR #53)
+- Updated `ViewModeContext.tsx`, `permissions.ts`, `middleware.ts`, `admin/layout.tsx`, and `app/api/admin/users/route.ts` for the new role hierarchy. **Why:** All layers must enforce the role system consistently. **Outcome:** Role hierarchy enforced across DB, middleware, API, and UI.
 
 ### Fixed
 - Resolved all TypeScript compilation errors across the codebase. **Why:** Clean builds are essential for code quality and catching bugs early. **Outcome:** `npx tsc --noEmit` passes with zero errors.
+- Removed test utility files containing hardcoded `service_role` keys from git tracking and added to `.gitignore`. **Why:** Security -- service role keys should never be in version control. **Outcome:** Secrets are no longer tracked by git.
 
 ### Removed
 - Removed `ignoreBuildErrors: true` from `next.config.mjs`. **Why:** TypeScript errors should block builds, not be silently ignored. **Outcome:** Production builds now fail on type errors, enforcing type safety.
