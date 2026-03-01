@@ -4,8 +4,7 @@
 
 ## Queue (Not Started)
 
-- [ ] Create staging environment on Vercel -- assigned by Diego on 2026-02-28
-- [ ] Lighthouse audit on all client-facing pages -- assigned by Diego on 2026-02-28
+(none)
 
 ## In Progress
 
@@ -13,9 +12,12 @@
 
 ## Completed
 
+- [x] Lighthouse audit on all client-facing pages -- completed 2026-03-01 by Claude (PR #85)
+  - Outcome: Lighthouse CI workflow on PRs, lighthouserc.json config targeting 5 public pages (/, /pricing, /login, /register, /forgot-password). Summary script with color output and CI markdown table. Thresholds: Performance >= 80, Accessibility >= 90, Best Practices >= 90, SEO >= 90.
+- [x] Create staging environment on Vercel -- completed 2026-03-01 by Claude (PR #84)
+  - Outcome: vercel.json with security headers, staging-deploy.yml workflow (lint, test, deploy, smoke test) triggered on staging branch pushes. ONBOARDING.md updated with staging setup guide, GitHub Secrets required.
 - [x] Merge role hierarchy feature branch to main -- completed 2026-03-01 by Claude
   - Outcome: Verified all role hierarchy changes (super_admin/org_admin roles, RLS policies, DB migration, permissions, middleware, UI) are already on master. Branch `feature/role-hierarchy-and-test-fixes` has zero commits ahead of master. Marked as complete.
-
 - [x] Monthly dependency audit schedule -- completed 2026-03-01 by Claude (PR #81)
   - Outcome: GitHub Actions workflow runs on the 1st of each month, auto-creates issues for vulnerabilities. Local `npm run audit-deps` script for on-demand checks.
 - [x] Set up Sentry error tracking for production -- completed 2026-03-01 by Claude (PR #80)
