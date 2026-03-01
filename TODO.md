@@ -19,21 +19,16 @@
 
 ### Critical — Broken Flows
 
-- [ ] Create `/reset-password` page -- audit finding
-  - Forgot-password flow sends users to `/reset-password` which doesn't exist
-- [ ] Create `/terms` and `/privacy` pages -- audit finding
-  - Register page links to dead routes, legally required for SaaS (GDPR/CCPA)
+- [x] Create `/reset-password` page -- completed 2026-03-01 by Claude (PR #87)
+- [x] Create `/terms` and `/privacy` pages -- completed 2026-03-01 by Claude (PR #88)
 - [ ] Add cookie consent banner -- audit finding
   - App uses auth cookies + Sentry session replay, required under GDPR/ePrivacy
 
 ### Critical — Database
 
-- [ ] Fix RLS policies to include `org_admin` role -- audit finding C9
-  - Migration `20260211000000` only checks `role IN ('admin', 'manager')`, misses `org_admin` and `super_admin`
-- [ ] Fix `manager` role DB constraint mismatch -- audit finding C10
-  - TypeScript types include `manager` but DB constraint rejects it: `CHECK (role IN ('super_admin', 'org_admin', 'admin', 'user'))`
-- [ ] Fix n8n webhook module-level Supabase init -- audit finding C8
-  - `app/api/webhooks/n8n/route.ts:6-9` creates client at import time, crashes if env vars missing
+- [x] Fix RLS policies to include `org_admin` role -- completed 2026-03-01 by Claude (PR #89)
+- [x] Fix `manager` role DB constraint mismatch -- completed 2026-03-01 by Claude (PR #89)
+- [x] Fix n8n webhook module-level Supabase init -- completed 2026-03-01 by Claude (PR #89)
 
 ### High — Missing Pages & UX
 
