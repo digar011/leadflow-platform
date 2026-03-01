@@ -22,7 +22,7 @@
 - [x] Create `/reset-password` page -- completed 2026-03-01 by Claude (PR #87)
 - [x] Create `/terms` and `/privacy` pages -- completed 2026-03-01 by Claude (PR #88)
 - [x] Add cookie consent banner -- completed 2026-03-01 by Claude
-  - Outcome: CookieConsent component with accept/reject stored in localStorage, links to /privacy page
+  - Outcome: CookieConsent component with accept/reject, links to /privacy
 
 ### Critical — Database
 
@@ -36,14 +36,14 @@
 - [ ] Create public landing page -- audit finding M5
   - `app/page.tsx` just redirects to `/login`, no SEO value
 - [x] Add loading.tsx states for dashboard sub-routes -- completed 2026-03-01 by Claude
-  - Outcome: Loading skeletons for leads, contacts, activities, campaigns, reports, automation, settings
+  - Outcome: 7 loading skeletons for leads, contacts, activities, campaigns, reports, automation, settings
 - [x] Optimize logo images -- completed 2026-03-01 by Claude
-  - Outcome: WebP versions created (1.3MB→25KB, 1.8MB→115KB), all references updated to .webp
+  - Outcome: WebP conversion (1.3MB->25KB, 1.8MB->115KB), all references updated
 
 ### High — Monitoring & Deploy
 
 - [x] Add Sentry reporting to error boundaries -- completed 2026-03-01 by Claude
-  - Outcome: Both error.tsx files now use Sentry.captureException instead of console.error
+  - Outcome: Both error.tsx files use Sentry.captureException
 - [ ] Add E2E tests to CI pipeline -- audit finding
   - 21 Playwright specs exist but never run in CI
 - [ ] Fix staging deploy smoke test URL wiring -- audit finding
@@ -60,7 +60,7 @@
 ### Medium — SEO & Social
 
 - [x] Add `og:image` to Open Graph metadata -- completed 2026-03-01 by Claude
-  - Outcome: Dynamic OG image via Next.js ImageResponse (opengraph-image.tsx), og:image and Twitter Card metadata in root layout
+  - Outcome: Dynamic OG image via Next.js ImageResponse + Twitter Card metadata
 - [x] Add Twitter Card metadata -- completed 2026-03-01 by Claude
 
 ### Medium — Performance
@@ -72,22 +72,20 @@
 
 ### Medium — Code Quality
 
-- [x] Standardize API error response format -- completed 2026-03-01 by Claude
-  - Outcome: `lib/utils/api-errors.ts` with ApiErrors helpers and handleApiError catch-all. 11 API routes refactored. 17 unit tests.
-- [x] Fix error details leak in admin seed route -- completed 2026-03-01 by Claude
-  - Outcome: Raw DB error messages replaced with `handleApiError()` that logs internally but returns safe generic response
+- [ ] Standardize API error response format -- audit finding M1
+  - Should follow `{ success: false, error: { code, message, details } }` per CLAUDE.md
+- [ ] Fix error details leak in admin seed route -- audit finding M2
+  - `app/api/admin/seed/route.ts:40` returns raw DB error messages
 - [x] Clean stale repo dirs from tsconfig.json exclude -- completed 2026-03-01 by Claude
-  - Outcome: 12 old repo dirs still physically present, excludes kept in tsconfig. Dirs need manual deletion.
+  - Outcome: Dirs still present, excludes kept. Need manual deletion.
 - [x] Add `engines` field to package.json -- completed 2026-03-01 by Claude
-  - Outcome: `"engines": { "node": ">=20.0.0" }` added
 - [ ] Make Resend client throw on missing API key -- audit finding
   - `lib/email/resend.ts` fails silently if `RESEND_API_KEY` is empty
 - [ ] Verify `goldyon.com` domain in Resend dashboard -- audit finding
   - `EMAIL_FROM` defaults to `noreply@goldyon.com`, must be verified to send
 - [x] Add HSTS header to vercel.json -- completed 2026-03-01 by Claude
-  - Outcome: HSTS header added to vercel.json headers config
 - [x] Fix CSP `connect-src` inconsistency -- completed 2026-03-01 by Claude
-  - Outcome: Added `https://*.ingest.sentry.io` to generateCSPHeader() in security.ts to match middleware.ts
+  - Outcome: Added Sentry ingest domain to security.ts CSP
 - [ ] Add Vercel `maxDuration` for webhook routes -- audit finding
 
 ## In Progress

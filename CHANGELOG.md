@@ -7,25 +7,21 @@ All notable changes to the Goldyon CRM platform are documented here, organized c
 ## [2026-03-01] - Security, UX & Performance Batch
 
 ### Added
-- **Cookie consent banner** (`components/ui/CookieConsent.tsx`): GDPR/ePrivacy-compliant banner with accept/reject, stored in localStorage. Links to /privacy page. Added to root layout. **Why:** App uses auth cookies + Sentry session replay, requiring consent under GDPR. **Outcome:** Users see consent banner on first visit.
-- **Dashboard loading skeletons** (7 files): Loading.tsx states for leads, contacts, activities, campaigns, reports, automation, and settings sub-routes with appropriate skeleton layouts. **Why:** Dashboard routes had no loading states (audit M6), causing layout shift. **Outcome:** Smooth loading experience with content skeletons.
-- **OG image generation** (`app/opengraph-image.tsx`): Dynamic Open Graph image using Next.js `ImageResponse` with Goldyon branding (dark bg, gold accents). **Why:** No og:image was set (audit L3). **Outcome:** Rich social media previews when sharing links.
-- **Twitter Card metadata**: `summary_large_image` card type with title, description, and image in root layout metadata. **Why:** Missing Twitter Card metadata (audit L4). **Outcome:** Proper previews on Twitter/X.
-- **RESEND_WEBHOOK_SECRET** added to `.env.example` with placeholder. **Why:** Audit finding C5 — missing from env template. **Outcome:** Developers know to configure the Resend webhook secret.
-- **Node.js engines field** in `package.json`: `"engines": { "node": ">=20.0.0" }`. **Why:** Enforces Node 20 to match CI (audit finding). **Outcome:** npm warns on incompatible Node versions.
-- **Standardized API error helpers** (`lib/utils/api-errors.ts`): `ApiErrors.badRequest()`, `.unauthorized()`, `.forbidden()`, `.notFound()`, `.validationError()`, `.rateLimited()`, `.internalError()`, `.serviceUnavailable()` with consistent `{ success, error: { code, message, details? } }` format. `handleApiError()` catch-all logs internally but returns safe generic response. 17 unit tests. **Why:** API routes used inconsistent ad-hoc error formats (audit M1). **Outcome:** All 11 API routes return standardized error responses.
-
-### Security
-- **Admin seed route no longer leaks DB error details** (audit M2): Replaced `"Failed to update profile: " + profileError.message` with `handleApiError()` which logs the real error server-side but only returns `"Internal server error"` to the client. **Why:** Raw DB error messages could expose schema/credential info. **Outcome:** Safe generic error responses in all API routes.
+- **Cookie consent banner**: GDPR/ePrivacy-compliant CookieConsent component with accept/reject, localStorage persistence, privacy policy link.
+- **Dashboard loading skeletons**: 7 loading.tsx states for leads, contacts, activities, campaigns, reports, automation, settings.
+- **Dynamic OG image**: Next.js ImageResponse at opengraph-image.tsx with Goldyon branding.
+- **Twitter Card metadata**: summary_large_image card in root layout.
+- **RESEND_WEBHOOK_SECRET** added to .env.example.
+- **Node.js engines field** in package.json (>=20.0.0).
 
 ### Fixed
-- **Sentry reporting in error boundaries**: `app/error.tsx` and `app/(dashboard)/error.tsx` now use `Sentry.captureException(error)` instead of `console.error`. **Why:** Errors never reached Sentry (audit M10). **Outcome:** All caught errors are reported to Sentry dashboard.
-- **CSP `connect-src` inconsistency**: Added `https://*.ingest.sentry.io` to `generateCSPHeader()` in `lib/utils/security.ts`. **Why:** Middleware had Sentry domain but `security.ts` helper didn't (audit L1). **Outcome:** Consistent CSP across all usage points.
-- **HSTS header in vercel.json**: Added `Strict-Transport-Security: max-age=31536000; includeSubDomains`. **Why:** Only set in middleware, not covering static assets (audit finding). **Outcome:** HSTS applied to all responses including static files.
-- **`.gitignore` expanded for `.env` files**: Added `.env`, `.env.local`, `.env.development`, `.env.production`, `.env.staging`. **Why:** Only `.env*.local` was ignored (audit C4). **Outcome:** All env file patterns are now properly gitignored.
+- **Sentry in error boundaries**: error.tsx and dashboard error.tsx now use Sentry.captureException.
+- **CSP connect-src**: Added Sentry ingest domain to security.ts to match middleware.ts.
+- **HSTS in vercel.json**: Covers static files.
+- **.gitignore**: Now covers plain .env files.
 
 ### Changed
-- **Logo images optimized to WebP**: Converted `logo-dark.png` (1.3MB → 25KB) and `logo-light.png` (1.8MB → 115KB) to WebP format. Updated all 5 references across Sidebar, auth layout, pricing layout, terms page, privacy page. **Why:** Oversized PNGs hurt page load (audit finding). **Outcome:** ~97% size reduction, faster load times.
+- **Logo images optimized**: WebP conversion (1.3MB->25KB, 1.8MB->115KB). All references updated.
 
 ---
 
