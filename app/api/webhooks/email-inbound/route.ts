@@ -9,6 +9,8 @@ import {
   getBodySnippet,
 } from "@/lib/utils/emailCapture";
 
+export const maxDuration = 30;
+
 import { rateLimit } from "@/lib/utils/security";
 
 function getSupabase() {
