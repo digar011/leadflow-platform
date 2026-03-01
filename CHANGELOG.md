@@ -1,0 +1,283 @@
+# CHANGELOG -- Goldyon / LeadFlow Platform
+
+All notable changes to the Goldyon CRM platform are documented here, organized chronologically from most recent to earliest. This follows the [Keep a Changelog](https://keepachangelog.com/) convention.
+
+---
+
+## [Unreleased] - feature/role-hierarchy-and-test-fixes
+
+### Added
+- Role hierarchy system with `super_admin` and `org_admin` roles alongside existing `admin`, `manager`, `user`. Super admins get full platform access with 3-way view toggle; org admins are scoped to their organization with 2-way toggle. Legacy `admin` role treated as `org_admin` via backward compatibility. **Why:** Enable multi-tenant admin management with proper access scoping. **Outcome:** Complete role system with DB migration, RLS policies, permissions, middleware guards, and UI components.
+- Safety fallback: `SUPER_ADMIN_EMAILS` array hardcodes primary admin email so super_admin access is always preserved even if DB role is incorrect. **Why:** Prevent lockout scenarios. **Outcome:** Primary admin always has full access.
+- Purple dot indicator for super admin view mode, gold switch for org admin view mode in Header component. **Why:** Visual clarity for which view mode is active. **Outcome:** Admins can easily see their current view context.
+- DB migration `20260210204145_role_hierarchy.sql` with RLS policies for new roles. **Why:** Database-level enforcement of role hierarchy. **Outcome:** RLS properly scopes data access by role.
+
+### Changed
+- Updated `ViewModeContext.tsx` with role detection logic, view mode state, and toggle functionality for the new role hierarchy. **Why:** Support 3-way and 2-way view toggles. **Outcome:** Exports `isSuperAdmin`, `isOrgAdmin`, `isAnyAdmin`, `isSuperAdminView`, `isOrgAdminView`, `isAdminView`, `viewMode`, `toggleViewMode`.
+- Updated `database.ts` `UserRole` type to include `super_admin | org_admin | admin | manager | user`. **Why:** Type safety for new roles. **Outcome:** TypeScript enforces valid role values.
+- Updated `permissions.ts` with `DEFAULT_PERMISSIONS` for all five roles. **Why:** Granular permission control per role. **Outcome:** `hasPermission()` correctly evaluates access for any role.
+- Updated `middleware.ts` admin route guard to accept `super_admin`, `org_admin`, and `admin`. **Why:** All admin-level roles need admin panel access. **Outcome:** Admin routes correctly enforce role-based access.
+- Updated `app/admin/layout.tsx` and `app/api/admin/users/route.ts` for new role system. **Why:** Consistent role enforcement across client and API. **Outcome:** Admin panel and API both respect the role hierarchy.
+
+### Fixed
+- Removed test utility files containing hardcoded `service_role` keys from git tracking and added to `.gitignore`. **Why:** Security -- service role keys should never be in version control. **Outcome:** Secrets are no longer tracked by git.
+- Refined E2E test selectors for more reliable element targeting and increased timeouts for network-dependent operations. **Why:** Reduce test flakiness. **Outcome:** 132/132 E2E tests passing consistently.
+
+---
+
+## [2026-02-10] - TypeScript Cleanup (PR #53)
+
+### Fixed
+- Resolved all TypeScript compilation errors across the codebase. **Why:** Clean builds are essential for code quality and catching bugs early. **Outcome:** `npx tsc --noEmit` passes with zero errors.
+
+### Removed
+- Removed `ignoreBuildErrors: true` from `next.config.mjs`. **Why:** TypeScript errors should block builds, not be silently ignored. **Outcome:** Production builds now fail on type errors, enforcing type safety.
+
+---
+
+## [2026-02-10] - Slack Integration
+
+### Added
+- Slack integration for CRM notifications via configurable webhook. **Why:** Enable real-time team notifications for lead events. **Outcome:** API routes at `/api/integrations/slack/send` and `/api/integrations/slack/test`.
+
+---
+
+## [2026-02-10] - Rebranding & FAQ (PR #52)
+
+### Changed
+- Rebranded all references from "LeadFlow" to "Goldyon" across all files including logos, titles, meta tags, and documentation. **Why:** Official brand name change. **Outcome:** Consistent Goldyon branding throughout the platform.
+
+### Added
+- FAQ page at `/settings/faq` with common questions about platform features, billing, and integrations. **Why:** Reduce support burden by providing self-service answers. **Outcome:** Users can find answers without contacting support.
+
+---
+
+## [2026-02-09] - Field Name Fixes (PR #51)
+
+### Fixed
+- Corrected field name mismatches between frontend and database in campaigns and contacts. **Why:** Mismatched field names caused silent data loss. **Outcome:** All form data correctly maps to database columns.
+- Added null safety checks to prevent runtime crashes on optional fields. **Why:** Optional fields could cause undefined errors. **Outcome:** No more runtime crashes from missing optional data.
+
+---
+
+## [2026-02-09] - Admin Mode & Campaign UI Fixes (PR #50)
+
+### Fixed
+- Admin mode data refresh -- switching view modes now properly reloads data. **Why:** Stale data was shown after toggling view mode. **Outcome:** Data refreshes automatically on view mode change.
+- Campaign title truncation in card layouts. **Why:** Long titles broke the card layout. **Outcome:** Titles truncate gracefully with ellipsis.
+- Added proper plan gating for campaign features. **Why:** Campaign actions were accessible regardless of subscription tier. **Outcome:** Feature access respects subscription limits.
+
+---
+
+## [2026-02-09] - CSP & UI Fixes (PR #43)
+
+### Fixed
+- Allowed `unsafe-eval` in CSP for development mode only (required by Next.js hot reload). **Why:** CSP was blocking Next.js Fast Refresh in development. **Outcome:** Hot reload works in dev, `unsafe-eval` excluded in production.
+- Fixed UI element clipping issues in dropdowns and modals. **Why:** Overflow hidden was cutting off dropdown menus. **Outcome:** All interactive elements render fully.
+
+---
+
+## [2026-02-09] - Persistent Rate Limiting & Hardened CSP (PR #42)
+
+### Added
+- Persistent rate limiting via Supabase `check_rate_limit()` RPC function with in-memory LRU cache as first layer. **Why:** In-memory rate limiting resets on server restart; persistent layer survives deploys. **Outcome:** Reliable rate limiting across server restarts and deployments.
+
+### Changed
+- Hardened Content Security Policy with proper directives for Stripe, Supabase, and data URIs. **Why:** Overly permissive CSP weakens XSS protection. **Outcome:** CSP is strict in production, slightly relaxed for development.
+
+---
+
+## [2026-02-09] - CSP Consolidation (PR #41)
+
+### Removed
+- Removed `unsafe-eval` from production CSP. **Why:** `unsafe-eval` defeats the purpose of CSP. **Outcome:** Stricter XSS protection in production.
+
+### Changed
+- Consolidated rate limiting logic into a single utility. **Why:** Rate limiting code was duplicated across endpoints. **Outcome:** Single source of truth for rate limit configuration.
+
+---
+
+## [2026-02-09] - UI Bugs & Enhancements (PR #40)
+
+### Fixed
+- Resolved multiple UI bugs referenced in issues #28-#38. **Why:** Various visual and interaction issues reported by users. **Outcome:** Smoother user experience across the platform.
+
+---
+
+## [2026-02-09] - Dashboard Chart Fixes (PR #39)
+
+### Fixed
+- Recharts console warnings for deprecated props. **Why:** Deprecated Recharts API usage generated console noise. **Outcome:** Clean console output.
+- Fractional Y-axis tick values now display as integers only. **Why:** Fractional values like "2.5 leads" are nonsensical. **Outcome:** Clean integer tick marks.
+- Missing KPI comparison percentages. **Why:** Calculation returned NaN when previous period had zero values. **Outcome:** Proper percentage display with zero-division handling.
+- Date filter toggle not persisting selection. **Why:** State was reset on re-render. **Outcome:** Selected date range persists correctly.
+
+---
+
+## [2026-02-09] - Sidebar Navigation Fix (PR #27)
+
+### Fixed
+- Made Campaigns and Reports visible in sidebar for all subscription tiers. **Why:** Incorrect feature gating hid navigation items for valid tiers. **Outcome:** All users can see (and access based on tier) Campaigns and Reports.
+
+---
+
+## [2026-02-09] - Security & Webhook Fixes (PR #22)
+
+### Fixed
+- Added 10-second fetch timeout to outbound webhook delivery. **Why:** Hanging webhooks blocked the event loop. **Outcome:** Webhooks fail fast with timeout error.
+- Reject email webhook requests when signature secret is not configured. **Why:** Unsigned webhooks are a security risk. **Outcome:** Webhook must have proper signature verification.
+- Required authentication on welcome email endpoint (was public). **Why:** Unauthenticated endpoint could be abused for email spam. **Outcome:** Only authenticated users can trigger welcome emails.
+- Middleware security: fixed n8n bypass, CSRF fallback handling, API route auth enforcement. **Why:** Multiple middleware bypasses discovered in security audit. **Outcome:** All routes properly enforce security policies.
+
+---
+
+## [2026-02-09] - Database Security & Validation (PR #11)
+
+### Added
+- HSTS header (Strict-Transport-Security) with 1-year max-age. **Why:** Enforce HTTPS connections. **Outcome:** Browsers will always use HTTPS after first visit.
+- Content-Security-Policy headers to middleware. **Why:** XSS protection. **Outcome:** CSP prevents unauthorized script execution.
+- DB validation constraints: email format validation, non-negative deal_value, single primary contact per business. **Why:** Data integrity at the database level. **Outcome:** Invalid data is rejected by PostgreSQL constraints.
+- Super admin RLS policies for profiles table (can view/update all). **Why:** Super admins need to manage all users. **Outcome:** Full profile access for super admins.
+- Org admin RLS policies scoped by organization_id. **Why:** Org admins should only see their organization's data. **Outcome:** Multi-tenant data isolation.
+
+### Changed
+- Regenerated `database.ts` types from actual DB schema with proper `Relationships`. **Why:** Join type inference was returning `never[]` without Relationships. **Outcome:** Supabase joins infer correct types.
+- Scoped RLS SELECT policies to user ownership on businesses and campaigns. **Why:** Users could see other users' data. **Outcome:** Data access restricted to own records (except admins).
+
+---
+
+## [2026-02-09] - Sprint 5: CSV Import/Export + Email Auto-Capture
+
+### Added
+- Export API (`GET /api/leads/export`) -- server-side CSV generation with filter pass-through, rate limited 5/min. **Why:** Users need to export lead data for external analysis. **Outcome:** Feature-gated CSV export for Growth+ tiers.
+- Import API (`POST /api/leads/import`) -- batch insert with Zod validation, duplicate detection (skip/overwrite/create), auto-contact creation, automation triggers. **Why:** Bulk lead import saves manual data entry. **Outcome:** 4-step import wizard with drag/drop, auto column mapping, progress bar.
+- Email auto-capture via BCC forwarding -- unique forwarding address per user, `captured_emails` table, email matching via businesses/contacts email, Resend inbound webhook, deduplication by Message-ID. **Why:** Automatically log email interactions without manual activity creation. **Outcome:** Settings UI with Gmail/Outlook setup guides.
+- `papaparse` dependency for client-side CSV parsing. **Why:** Needed for CSV import preview and column mapping. **Outcome:** Fast client-side CSV processing.
+
+---
+
+## [2026-02-09] - Sprint 4: Follow-ups, Mobile, Dedup, Guided Workflow, Zapier/Make
+
+### Added
+- Follow-up system: `next_follow_up` date field persisted to database with partial index, overdue highlighting, quick action set follow-up, dashboard widgets (overdue alerts, due today, stale leads). **Why:** Sales reps need follow-up tracking and reminders. **Outcome:** Visual follow-up management integrated into leads and dashboard.
+- Mobile responsive layout: hidden sidebar with hamburger toggle, slide-in overlay, responsive padding. **Why:** Platform needs to work on mobile devices. **Outcome:** Usable on phones and tablets.
+- Duplicate detection API (`POST /api/leads/check-duplicates`) with fuzzy name + exact email/phone matching. **Why:** Prevent duplicate lead entries. **Outcome:** Non-blocking warning in create form with links to existing leads.
+- Next-best-action suggestions: status-specific action recommendations (max 3), cross-cutting suggestions for follow-ups and idle hot leads. **Why:** Guide users toward optimal sales actions. **Outcome:** Contextual suggestions on lead detail pages.
+- Stage transition guidance: transition map with suggested/allowed/requiresReason statuses, reason modal for Won/Lost. **Why:** Standardize pipeline progression. **Outcome:** Guided transitions with audit trail.
+- Zapier & Make integration guide with one-click webhook creation. **Why:** Enable third-party automation platform connections. **Outcome:** Documentation and UI for webhook setup.
+
+---
+
+## [2026-02-09] - Sprint 3: Automation Expansion, Realtime, Free Tier & UI Polish
+
+### Added
+- 4 new automation actions: `create_task`, `update_status`, `assign_user`, `send_webhook`. **Why:** Expand automation capabilities beyond email notifications. **Outcome:** Versatile automation engine supporting common CRM workflows.
+- Auto-trigger on lead status change (fires `status_changed` trigger). **Why:** Status changes are key moments for automated follow-up. **Outcome:** Automation runs automatically on pipeline progression.
+- Supabase Realtime subscriptions with `useRealtimeSubscription` hook. **Why:** Multi-tab and multi-user data consistency. **Outcome:** Live data sync for leads, contacts, and activities.
+- Environment variable validation at startup (`validateEnv()`). **Why:** Fail fast on misconfiguration. **Outcome:** Clear error messages for missing required env vars.
+- `send_webhook` action with HTTPS-only enforcement and 10s timeout. **Why:** Outbound webhook integration for n8n/Zapier/Make. **Outcome:** SSRF-safe webhook delivery.
+
+### Changed
+- Free tier: lead limit reduced from 50 to 25, campaigns reduced from 1 to 0. **Why:** Encourage upgrades to paid tiers. **Outcome:** Free tier is a trial experience.
+- Fixed quick actions tile alignment and removed duplicate "Analytics" sidebar nav item. **Why:** UI polish. **Outcome:** Cleaner dashboard layout.
+
+---
+
+## [2026-02-09] - Sprint 2: Stripe, Email & Automation Foundation
+
+### Added
+- Stripe integration: checkout session creation, customer portal, webhook handler for `checkout.session.completed`, `customer.subscription.updated`, `customer.subscription.deleted`. **Why:** Enable paid subscriptions. **Outcome:** Full payment lifecycle from checkout to cancellation.
+- Resend email integration: email sending API (`/api/email/send`), welcome email template. **Why:** Transactional email capability. **Outcome:** HTML email sending with lazy SDK initialization.
+- Automation engine foundation: rule-based engine with trigger/action pattern, `send_email` action, execution API, logs table, success/failure tracking. **Why:** Automate repetitive CRM tasks. **Outcome:** `useCreateLead` fires `lead_created` trigger on success.
+- 5-tier subscription system: `useSubscription` hook with `can()`, `limit()`, `atLimit()` helpers; `UsageLimitBar`, `UpgradeModal`, `FeatureGate` components; admin tier management. **Why:** Monetization and feature differentiation. **Outcome:** Complete feature gating system.
+- Pricing page (`/pricing`) with 5-tier plan cards and feature comparison table. **Why:** Public-facing sales page. **Outcome:** Monthly/annual toggle with pricing details.
+- Billing settings page (`/settings/billing`) with current plan and usage overview. **Why:** Users need to see their subscription status. **Outcome:** Usage bars and plan change CTA.
+- API key management with CRUD, scoped permissions, integration types. **Why:** Enable API access for integrations. **Outcome:** Full API key lifecycle management.
+
+---
+
+## [2026-02-09] - Bug Fixes & Stability
+
+### Fixed
+- 10 bug fixes: dashboard loading, activity errors, row navigation, date/score consistency. **Why:** Various runtime and UX issues reported. **Outcome:** Stable core functionality.
+
+### Added
+- In-app seed data button for quick test data population. **Why:** Simplify testing setup. **Outcome:** One-click test data generation.
+
+### Changed
+- Moved `@types/papaparse` to devDependencies. **Why:** Type packages belong in devDependencies. **Outcome:** Cleaner production dependency tree.
+
+---
+
+## [2026-02-08] - Monetization System & Security Audit
+
+### Added
+- Monetization system with Stripe integration. **Why:** Revenue generation capability. **Outcome:** Subscription management infrastructure.
+- Security audit identifying 17 vulnerabilities (2 Critical, 5 High). **Why:** Pre-launch security review. **Outcome:** Critical findings documented and prioritized.
+
+### Fixed
+- Critical privilege escalation chain: signup metadata injection + profile self-modification allowed users to grant themselves admin roles. **Why:** Critical security vulnerability. **Outcome:** Protected columns trigger blocks self-role-escalation.
+
+---
+
+## [2026-02-07] - Lead Creation & Stability Fixes
+
+### Fixed
+- Lead creation flow and Supabase type issues. **Why:** Lead creation was broken due to type mismatches. **Outcome:** Working lead CRUD.
+- Runtime errors and stability improvements. **Why:** Various startup and runtime crashes. **Outcome:** Stable application boot and operation.
+
+### Added
+- Initial documentation: README, SETUP, CHANGELOG. **Why:** Developer onboarding. **Outcome:** Basic project documentation.
+
+---
+
+## [2026-02-04] - Phase 5: Admin Panel, Integrations & Polish
+
+### Added
+- Admin panel with user management, system settings, and audit logs. **Why:** Platform administration capability. **Outcome:** Admin pages at `/admin/users`, `/admin/settings`, `/admin/audit`.
+- Role-based access control for admin routes. **Why:** Restrict admin functions to authorized users. **Outcome:** Middleware and layout guards enforce admin access.
+
+---
+
+## [2026-02-04] - Phase 4: Campaigns, Reports & Workflow Automation
+
+### Added
+- Campaign management: types (Email, Cold Call, Direct Mail, Social Media, Multi-Channel), lifecycle (Draft, Active, Paused, Completed), creation form, stats overview. **Why:** Marketing campaign tracking. **Outcome:** Full campaign CRUD.
+- Reports: types (Leads, Activities, Campaigns, Pipeline, Team Performance, Custom), scheduling, CSV export. **Why:** Data analysis and reporting. **Outcome:** Saved reports with scheduling.
+- Workflow automation foundation. **Why:** Automate CRM processes. **Outcome:** Rule-based automation engine.
+
+---
+
+## [2026-02-04] - Phase 3: Dashboard with Unified Analytics
+
+### Added
+- KPI cards: Total Leads, New This Week, Pipeline Value, Conversion Rate, Deals Won, Revenue Won, Activities Today, Average Deal Size. **Why:** At-a-glance business metrics. **Outcome:** Interactive dashboard with key performance indicators.
+- Charts: Leads Trend (30 days), Revenue Trend (6 months), Pipeline Funnel, Source Distribution (pie chart), Activity Heatmap (12 weeks). **Why:** Visual data analysis. **Outcome:** Interactive Recharts visualizations.
+- Date range selector with presets and quick actions panel. **Why:** Flexible data filtering and fast actions. **Outcome:** Configurable dashboard experience.
+
+---
+
+## [2026-02-04] - Phase 2: Core CRM with 360-Degree Customer View
+
+### Added
+- Full lead CRUD with 40+ fields: business info, address, social media, Google Business Profile, website scores, deal info, tags, custom fields. **Why:** Comprehensive lead data management. **Outcome:** List view with filters, sorting, pagination, and full-text search.
+- Contacts linked to businesses with primary contact designation. **Why:** Track people associated with each lead. **Outcome:** Contact CRUD with primary flag.
+- Activity logging and customer journey timeline. **Why:** Track all interactions with leads. **Outcome:** 20+ activity types with timeline visualization.
+- Global contacts directory with alphabetical grouping. **Why:** Quick contact lookup across all leads. **Outcome:** Searchable contacts page.
+
+---
+
+## [2026-02-04] - Phase 1: Foundation - Auth, Layout, Theme
+
+### Added
+- Email/password authentication via Supabase Auth with auto-profile creation trigger. **Why:** User authentication is foundational. **Outcome:** Login, register, forgot-password flows.
+- Dark theme with gold accent design language. **Why:** Brand identity and visual distinction. **Outcome:** Custom TailwindCSS theme configuration.
+- Dashboard shell with sidebar navigation and header. **Why:** Application layout framework. **Outcome:** Consistent page structure across the app.
+- Database migrations (11 core tables) and Playwright E2E test setup. **Why:** Data layer and testing infrastructure. **Outcome:** PostgreSQL schema with RLS and test framework.
+
+---
+
+## [2026-02-04] - Initial Commit
+
+### Added
+- Project scaffolded with Create Next App (Next.js 14). **Why:** Project initialization. **Outcome:** TypeScript, TailwindCSS, ESLint configured.
