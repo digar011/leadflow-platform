@@ -4,6 +4,24 @@ All notable changes to the Goldyon CRM platform are documented here, organized c
 
 ---
 
+## [2026-03-01] - Infrastructure & DevOps Sprint (PRs #72-#81)
+
+### Added
+- **Stricter ESLint config** (PR #72): Added `@typescript-eslint/eslint-plugin` with strict rules (`no-explicit-any`, `no-unused-vars`, `consistent-type-imports`, `no-console` warn). Fixed lint errors across ~48 files. **Why:** Enforce code quality at the linter level. **Outcome:** Stricter type safety and cleaner codebase.
+- **Jest unit testing** (PR #74): Configured Jest + ts-jest + @testing-library/jest-dom with 7 test suites and 166 tests covering formatters, validation schemas, subscription logic, stage transitions, permissions, CSV fields, and next-best-action suggestions. 76.68% code coverage. **Why:** No unit tests existed, only Playwright E2E. **Outcome:** Comprehensive unit test coverage with `npm test` / `npm run test:watch`.
+- **Environment validation script** (PR #75): Standalone `scripts/validate-env.mjs` that parses `.env.example`, validates `.env.local`, categorizes variables (required/recommended/optional), detects placeholders. Supports `--strict` mode. **Why:** Catch misconfiguration before runtime. **Outcome:** `npm run validate-env` for pre-startup checks.
+- **React Error Boundaries** (PR #76): `ErrorBoundary` class component with page/feature level variants, retry button, optional `onError` callback. Root `error.tsx` and dashboard `error.tsx` pages. `DashboardShell` wraps children with page-level boundary. **Why:** Uncaught React errors crashed entire app. **Outcome:** Graceful error handling with recovery.
+- **Structured logging** (PR #77): JSON-formatted `logger` with `createLogger()` factory for route-scoped child loggers. Applied to leads export, import, and Stripe webhook routes. Debug suppressed in production. **Why:** `console.log` is unstructured and hard to parse in production. **Outcome:** Machine-parseable logs with context (requestId, userId, etc.).
+- **SEO meta tags, sitemap, robots** (PR #79): Dynamic `sitemap.ts` (public pages), `robots.ts` (allow public, block dashboard/admin/api), Open Graph tags on pricing page, `noindex`/`nofollow` on auth pages. **Why:** Improve search engine visibility for public pages. **Outcome:** Proper SEO infrastructure.
+- **Sentry error tracking** (PR #80): `@sentry/nextjs` v10 with client/server/edge runtime init, session replay (10% baseline, 100% on error), browser tracing (20% sample), `global-error.tsx` root boundary. CSP updated for Sentry ingest domain. Disabled in development. **Why:** Production error visibility. **Outcome:** Real-time error monitoring with replay.
+- **Monthly dependency audit** (PR #81): GitHub Actions workflow runs on the 1st of each month, auto-creates GitHub Issues with vulnerability counts and remediation steps. Local `npm run audit-deps` script with colored terminal output. **Why:** CLAUDE.md mandates regular dependency audits. **Outcome:** Automated security monitoring.
+- **CI/CD pipeline** (PR #78): GitHub Actions workflow with 4 jobs (lint, typecheck, unit-tests, build). Build depends on lint + typecheck. Coverage artifacts uploaded. Runs on PRs and pushes to master. **Why:** No CI/CD existed. **Outcome:** Automated quality gates on every PR.
+
+### Changed
+- **Pinned dependency versions** (PR #73): Removed all `^` and `~` prefixes from 31 dependencies in `package.json`, pinned to exact versions from `package-lock.json`. **Why:** CLAUDE.md mandates exact version pinning for production. **Outcome:** Reproducible builds with no surprise updates.
+
+---
+
 ## [Unreleased] - feature/role-hierarchy-and-test-fixes
 
 ### Added
