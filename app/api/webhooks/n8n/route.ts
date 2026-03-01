@@ -6,6 +6,8 @@ import type { Database } from "@/lib/types/database";
 import { rateLimit } from "@/lib/utils/security";
 import { ApiErrors, handleApiError } from "@/lib/utils/api-errors";
 
+export const maxDuration = 30;
+
 // Lazy-initialized Supabase service client (avoids module-level env var access)
 let _supabase: ReturnType<typeof createClient<Database>> | null = null;
 function getSupabase() {

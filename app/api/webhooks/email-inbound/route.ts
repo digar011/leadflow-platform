@@ -12,6 +12,8 @@ import {
 import { rateLimit } from "@/lib/utils/security";
 import { ApiErrors, handleApiError } from "@/lib/utils/api-errors";
 
+export const maxDuration = 30;
+
 function getSupabase() {
   return createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
