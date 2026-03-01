@@ -4,6 +4,28 @@ All notable changes to the Goldyon CRM platform are documented here, organized c
 
 ---
 
+## [2026-03-01] - RLS, DB Constraints & Webhook Fixes (PR #89)
+
+### Fixed
+- **RLS policies missing org_admin/super_admin roles** (migration `20260301000001`): SELECT and ALL policies on `businesses`, `campaigns`, and `campaign_members` only checked `role IN ('admin', 'manager')`. Updated to include `super_admin`, `org_admin`, and `admin`. **Why:** Org admins and super admins couldn't see all records despite having admin privileges. **Outcome:** All admin roles now have proper RLS access.
+- **Manager role rejected by DB constraint** (migration `20260301000002`): TypeScript `UserRole` type includes `manager` but the DB CHECK constraint only allowed `('super_admin', 'org_admin', 'admin', 'user')`. Added `manager` to the constraint. **Why:** Assigning `manager` role would fail at the database level. **Outcome:** All five role tiers are accepted by the database.
+- **n8n webhook module-level Supabase init crash** (`app/api/webhooks/n8n/route.ts`): Supabase client was created at module import time, crashing if env vars were missing. Replaced with lazy-initialized `getSupabase()` pattern using `createClient<Database>()` for full type safety. **Why:** Module-level init fails during build/test when env vars aren't set. **Outcome:** Client created on first use only, with typed queries.
+- **n8n webhook type-unsafe inserts**: `processWebhookEvent` used `user_id` on `businesses` (doesn't exist — should be `assigned_to`), `user_id` on `contacts` (doesn't exist), and untyped spread operators bypassing TypeScript checks. Rewrote all insert/update calls with explicitly typed field mappings. **Why:** Pre-existing bugs hidden by untyped `createClient()` that would cause runtime failures. **Outcome:** Type-safe inserts matching actual DB schema.
+- **n8n webhook allowlist field name mismatches**: `ALLOWED_LEAD_FIELDS` referenced `website`, `industry`, `temperature`, `description` but actual DB columns are `website_url`, `industry_category`, `lead_temperature`, `notes`. **Why:** Webhook payloads with these fields were silently dropped. **Outcome:** Field allowlist matches actual database column names.
+- **n8n webhook contact.create missing business_id validation**: Contacts require `business_id` but the handler only validated `first_name`/`last_name`. Added `business_id` as a required field check. **Why:** Insert would fail at DB level without a clear error. **Outcome:** Explicit validation error before DB call.
+- **n8n webhook activity.log missing business_id validation**: Activities require `business_id` and `activity_type` but only `activity_type` was validated. **Why:** Same as above. **Outcome:** Both required fields validated upfront.
+
+---
+
+## [2026-03-01] - Legal Pages & Password Reset (PRs #87-#88)
+
+### Added
+- **Reset password page** (PR #87): Client component at `/reset-password` using `supabase.auth.updateUser()`. Password validation (min 8 chars, match confirmation), success state with redirect to login. Matches auth page design pattern. **Why:** Forgot-password flow sent users to `/reset-password` which didn't exist. **Outcome:** Complete password reset flow.
+- **Terms of Service page** (PR #88): Server component at `/terms` covering acceptance, accounts, acceptable use, IP, payments, liability, termination, governing law. **Why:** Register page linked to dead `/terms` route; legally required for SaaS. **Outcome:** Accessible legal terms page.
+- **Privacy Policy page** (PR #88): Server component at `/privacy` covering data collection, usage, third-party sharing (Supabase, Stripe, Resend, Sentry), GDPR/CCPA rights, data retention, contact info. **Why:** Register page linked to dead `/privacy` route; legally required under GDPR/CCPA. **Outcome:** Accessible privacy policy page.
+
+---
+
 ## [2026-03-01] - Infrastructure, DevOps & Quality Sprint (PRs #72-#85)
 
 ### Added
