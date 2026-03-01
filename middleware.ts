@@ -13,25 +13,67 @@ const authRoutes = ["/login", "/register", "/forgot-password"];
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Skip middleware for static files and webhook/API routes that handle their own auth
+  // Skip middleware entirely for static files and Supabase auth callbacks
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api/auth") ||
-    pathname.startsWith("/api/webhooks/stripe") ||
-    pathname.startsWith("/api/webhooks/email-inbound") ||
-    pathname.startsWith("/api/webhooks/n8n") ||
     pathname.includes(".")
   ) {
     return NextResponse.next();
   }
 
-  // Skip CSRF and session auth for API routes — they handle their own auth
-  // via supabase.auth.getUser() which supports both cookies and Bearer tokens
+  // API routes handle their own auth via supabase.auth.getUser() which
+  // supports both cookies and Bearer tokens. However, mutation requests
+  // (POST/PUT/DELETE/PATCH) still need CSRF Origin validation to prevent
+  // cross-site request forgery — except for GET (read-only) and webhook
+  // routes (which verify signatures instead).
   if (pathname.startsWith("/api/")) {
+    // GET requests are safe — skip CSRF
+    if (request.method === "GET" || request.method === "HEAD" || request.method === "OPTIONS") {
+      return NextResponse.next();
+    }
+
+    // Webhook routes use signature verification — skip CSRF
+    const webhookRoutes = [
+      "/api/webhooks/stripe",
+      "/api/webhooks/email-inbound",
+      "/api/webhooks/n8n",
+    ];
+    if (webhookRoutes.some((route) => pathname.startsWith(route))) {
+      return NextResponse.next();
+    }
+
+    // Validate Origin header for all other mutation requests
+    const origin = request.headers.get("origin");
+    const host = request.headers.get("host");
+
+    if (origin && host) {
+      const originHost = new URL(origin).host;
+      if (originHost !== host) {
+        return NextResponse.json(
+          { success: false, error: { code: "CSRF_FAILED", message: "CSRF validation failed" } },
+          { status: 403 }
+        );
+      }
+    } else if (!origin && host) {
+      const referer = request.headers.get("referer");
+      if (referer) {
+        const refererHost = new URL(referer).host;
+        if (refererHost !== host) {
+          return NextResponse.json(
+            { success: false, error: { code: "CSRF_FAILED", message: "CSRF validation failed" } },
+            { status: 403 }
+          );
+        }
+      }
+      // If neither Origin nor Referer, allow (non-browser clients like curl/Postman)
+    }
+
+    // API routes skip session auth — they call supabase.auth.getUser() internally
     return NextResponse.next();
   }
 
-  // CSRF Protection for mutation requests
+  // CSRF Protection for non-API mutation requests (form submissions, etc.)
   if (["POST", "PUT", "DELETE", "PATCH"].includes(request.method)) {
     const origin = request.headers.get("origin");
     const host = request.headers.get("host");
