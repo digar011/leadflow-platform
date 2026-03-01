@@ -2,8 +2,13 @@ import type { Metadata } from "next";
 import Image from "next/image";
 
 export const metadata: Metadata = {
-  title: "Authentication - Goldyon",
-  description: "Sign in or create an account to access Goldyon",
+  title: "Sign In",
+  description:
+    "Sign in or create an account to access Goldyon, the lead intelligence and CRM platform.",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
 export default function AuthLayout({

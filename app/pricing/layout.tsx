@@ -3,9 +3,15 @@ import Link from "next/link"
 import Image from "next/image";
 
 export const metadata: Metadata = {
-  title: "Pricing - Goldyon",
+  title: "Pricing",
   description:
-    "Choose the right plan for your business. From free to enterprise.",
+    "Choose the right Goldyon plan for your business. From free to enterprise, with lead management, automation, and analytics.",
+  openGraph: {
+    title: "Pricing - Goldyon",
+    description:
+      "Choose the right plan for your business. Lead management, automation, and analytics from free to enterprise.",
+    type: "website",
+  },
 };
 
 export default function PricingLayout({
