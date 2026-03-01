@@ -32,6 +32,8 @@ jobs:
     name: Deploy to Staging
     runs-on: ubuntu-latest
     needs: [lint-and-test]
+    outputs:
+      deployment-url: ${{ steps.deploy.outputs.url }}
     environment:
       name: staging
       url: ${{ steps.deploy.outputs.url }}
@@ -69,8 +71,12 @@ jobs:
       - name: Wait for deployment to stabilize
         run: sleep 15
       - name: Health check
+        env:
+          DEPLOY_URL: ${{ needs.deploy-staging.outputs.deployment-url }}
         run: |
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}" "${{ needs.deploy-staging.outputs.url || 'https://staging-goldyon.vercel.app' }}")
+          TARGET_URL="${DEPLOY_URL:-https://staging-goldyon.vercel.app}"
+          echo "Running health check against: $TARGET_URL"
+          STATUS=$(curl -o /dev/null -s -w "%{http_code}" "$TARGET_URL")
           if [ "$STATUS" -ne 200 ]; then
             echo "Health check failed with status $STATUS"
             exit 1
