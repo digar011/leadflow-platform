@@ -4,7 +4,7 @@ All notable changes to the Goldyon CRM platform are documented here, organized c
 
 ---
 
-## [2026-03-01] - Security, UX & Performance Batch (PRs #91, #92, #94)
+## [2026-03-01] - Security, UX & Performance Batch (PRs #91, #92, #94, #98)
 
 ### Added
 - **Standardized API error responses** (PR #91): Created `lib/utils/api-errors.ts` with `ApiErrors` helper methods (badRequest, unauthorized, forbidden, notFound, validationError, rateLimited, internalError, serviceUnavailable) and `handleApiError` catch-all. Updated all 15 API routes. 17 unit tests added. **Why:** API routes returned inconsistent error formats. **Outcome:** Consistent `{ success: false, error: { code, message } }` across all endpoints.
@@ -13,15 +13,16 @@ All notable changes to the Goldyon CRM platform are documented here, organized c
 - **Dynamic OG image** (PR #91): Next.js ImageResponse at opengraph-image.tsx with Goldyon branding.
 - **Twitter Card metadata** (PR #91): summary_large_image card in root layout.
 - **RESEND_WEBHOOK_SECRET** added to .env.example.
-- **Node.js engines field** in package.json (>=20.0.0).
-- **Webhook maxDuration** (PR #91): Set `maxDuration = 30` on Stripe, email-inbound, and n8n webhook routes for Vercel.
+- **Node.js engines field** (PR #91): Added `"engines": { "node": ">=20.0.0" }` to package.json. **Why:** Enforce minimum Node.js version. **Outcome:** `npm install` warns on incompatible Node versions.
+- **Webhook maxDuration** (PR #98): Set `export const maxDuration = 30` on Stripe, email-inbound, and n8n webhook routes. **Why:** Vercel default 10s timeout is too short for webhook processing. **Outcome:** Webhook functions get 30s execution time.
+- **Stale repo dirs cleanup** (PR #92): Removed 12 stale repo directory names from `tsconfig.json` exclude, added to `.gitignore`. **Why:** Leftover cloned repos polluted tsconfig and could be accidentally committed. **Outcome:** Clean tsconfig excludes; stale dirs gitignored.
 
 ### Fixed
 - **API error details leak** (PR #91): admin/seed, slack/send, slack/test, and leads/import routes no longer expose raw error messages. Uses `handleApiError` which logs real errors but returns safe generic response.
 - **Resend client silent failure** (PR #94): `getResend()` now throws explicit error when `RESEND_API_KEY` is missing instead of returning null silently. Unit tests added.
 - **Sentry in error boundaries** (PR #91): error.tsx and dashboard error.tsx now use Sentry.captureException.
-- **CSP connect-src** (PR #91): Added Sentry ingest domain to security.ts to match middleware.ts.
-- **HSTS in vercel.json** (PR #91): Covers static files.
+- **CSP connect-src** (PR #91): Added `https://*.ingest.sentry.io` to `connect-src` in `lib/utils/security.ts` to match middleware.ts CSP. **Why:** Sentry error reporting was blocked by inconsistent CSP directives. **Outcome:** CSP is consistent between middleware and security utility.
+- **HSTS in vercel.json** (PR #91): Added `Strict-Transport-Security: max-age=31536000; includeSubDomains` header. **Why:** Middleware HSTS doesn't cover static files served by Vercel CDN. **Outcome:** HSTS on all responses including static assets.
 - **.gitignore** (PR #91): Now covers plain .env files.
 
 ### Changed
