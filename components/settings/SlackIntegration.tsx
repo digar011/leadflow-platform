@@ -28,7 +28,6 @@ export function SlackIntegration() {
     saveConfig,
     isSaving,
     deleteConfig,
-    isDeleting,
     testConnection,
     isTesting,
   } = useSlackIntegration();
@@ -340,7 +339,7 @@ export function SlackIntegration() {
                       </a>{" "}
                       and click <strong>Create New App</strong>
                     </p>
-                    <p>2. Choose <strong>From scratch</strong>, name it (e.g. "Goldyon CRM"), and select your workspace</p>
+                    <p>2. Choose <strong>From scratch</strong>, name it (e.g. &quot;Goldyon CRM&quot;), and select your workspace</p>
                     <p>3. Go to <strong>Incoming Webhooks</strong> and toggle it <strong>On</strong></p>
                     <p>4. Click <strong>Add New Webhook to Workspace</strong> and pick a channel</p>
                     <p>5. Copy the <strong>Webhook URL</strong> and paste it above</p>

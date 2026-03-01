@@ -8,12 +8,10 @@ import {
   Check,
   ChevronDown,
   Loader2,
-  X,
 } from "lucide-react";
 import Papa from "papaparse";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import { Badge } from "@/components/ui/Badge";
 import { cn } from "@/lib/utils";
 import { CSV_IMPORT_FIELDS, autoMapColumns } from "@/lib/utils/csvFields";
 import { useSubscription } from "@/lib/hooks/useSubscription";
@@ -45,7 +43,7 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
   const [result, setResult] = useState<ImportResult | null>(null);
   const [showErrors, setShowErrors] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const [showUpgrade, setShowUpgrade] = useState(false);
+  const [, _setShowUpgrade] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const { can } = useSubscription();
@@ -143,8 +141,7 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
 
     const mappedRows = getMappedRows();
     const chunkSize = 50;
-    const totalChunks = Math.ceil(mappedRows.length / chunkSize);
-    let totalResult: ImportResult = { imported: 0, skipped: 0, errors: [], total: mappedRows.length };
+    const totalResult: ImportResult = { imported: 0, skipped: 0, errors: [], total: mappedRows.length };
 
     for (let i = 0; i < mappedRows.length; i += chunkSize) {
       const chunk = mappedRows.slice(i, i + chunkSize);
@@ -236,7 +233,7 @@ export function ImportModal({ isOpen, onClose }: ImportModalProps) {
         {!isMappingValid() && (
           <p className="text-sm text-status-error flex items-center gap-1">
             <AlertTriangle className="h-3 w-3" />
-            Map "Business Name" (required)
+            Map &quot;Business Name&quot; (required)
           </p>
         )}
       </div>

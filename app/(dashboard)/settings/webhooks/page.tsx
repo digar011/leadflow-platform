@@ -8,7 +8,6 @@ import {
   Trash2,
   Play,
   Pause,
-  Copy,
   RefreshCw,
   ExternalLink,
   Check,
@@ -39,7 +38,7 @@ export default function WebhooksSettingsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
   const [selectedWebhook, setSelectedWebhook] = useState<string | null>(null);
-  const [copiedSecret, setCopiedSecret] = useState<string | null>(null);
+  const [, setCopiedSecret] = useState<string | null>(null);
   const [newWebhookType, setNewWebhookType] = useState<"inbound" | "outbound">("outbound");
   const [newWebhookData, setNewWebhookData] = useState({
     name: "",
@@ -100,7 +99,7 @@ export default function WebhooksSettingsPage() {
     }
   };
 
-  const copyToClipboard = (text: string, id: string) => {
+  const _copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopiedSecret(id);
     setTimeout(() => setCopiedSecret(null), 2000);

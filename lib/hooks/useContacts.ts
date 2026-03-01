@@ -150,7 +150,6 @@ export function useSetPrimaryContact() {
   return useMutation({
     mutationFn: async ({
       contactId,
-      businessId,
     }: {
       contactId: string;
       businessId: string;

@@ -66,7 +66,6 @@ export function LeadTable({
   onPageChange,
   onSort,
   sortColumn,
-  sortDirection,
   onDelete,
   onStatusChange,
   selectedLeads = [],

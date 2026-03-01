@@ -104,7 +104,7 @@ export default function ProfileSettingsPage() {
                 {profile?.avatar_url ? (
                   <img
                     src={profile.avatar_url}
-                    alt=""
+                    alt={profile.full_name || "User avatar"}
                     className="h-24 w-24 rounded-full object-cover"
                   />
                 ) : (

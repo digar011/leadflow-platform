@@ -8,7 +8,6 @@ import {
   MoreVertical,
   User,
   Briefcase,
-  MapPin,
   Plus,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";

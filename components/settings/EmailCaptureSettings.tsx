@@ -141,9 +141,9 @@ export function EmailCaptureSettings() {
           </button>
           {showGmail && (
             <div className="ml-4 p-3 rounded-lg bg-white/5 text-sm text-text-secondary space-y-1">
-              <p>1. Open Gmail, click the gear icon, then "See all settings"</p>
-              <p>2. Under "General", scroll to "Send mail as"</p>
-              <p>3. For automatic BCC: use a browser extension like "Auto BCC for Gmail"</p>
+              <p>1. Open Gmail, click the gear icon, then &quot;See all settings&quot;</p>
+              <p>2. Under &quot;General&quot;, scroll to &quot;Send mail as&quot;</p>
+              <p>3. For automatic BCC: use a browser extension like &quot;Auto BCC for Gmail&quot;</p>
               <p>4. Or simply forward important emails to your CRM address manually</p>
             </div>
           )}
@@ -159,8 +159,8 @@ export function EmailCaptureSettings() {
           {showOutlook && (
             <div className="ml-4 p-3 rounded-lg bg-white/5 text-sm text-text-secondary space-y-1">
               <p>1. In Outlook, go to Settings &gt; Mail &gt; Rules</p>
-              <p>2. Create a new rule: "Apply to all messages I send"</p>
-              <p>3. Action: "Forward a copy to" your CRM forwarding address</p>
+              <p>2. Create a new rule: &quot;Apply to all messages I send&quot;</p>
+              <p>3. Action: &quot;Forward a copy to&quot; your CRM forwarding address</p>
               <p>4. Or manually forward important emails to your CRM address</p>
             </div>
           )}

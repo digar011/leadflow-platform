@@ -40,7 +40,7 @@ export default function EditLeadPage() {
         <Building2 className="h-16 w-16 mx-auto text-text-muted mb-4" />
         <h2 className="text-xl font-semibold text-text-primary mb-2">Lead Not Found</h2>
         <p className="text-text-secondary mb-4">
-          The lead you're trying to edit doesn't exist or has been deleted.
+          The lead you&apos;re trying to edit doesn&apos;t exist or has been deleted.
         </p>
         <Link href="/leads">
           <Button>Back to Leads</Button>

@@ -15,8 +15,6 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
-  AreaChart,
-  Area,
 } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { formatCurrency, formatCompactNumber } from "@/lib/utils/formatters";
@@ -151,6 +149,7 @@ export function RevenueTrendChart({ data, title = "Revenue Trend", icon, isLoadi
                 borderRadius: "8px",
               }}
               labelStyle={{ color: "rgba(255,255,255,0.7)" }}
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Recharts Formatter type mismatch
               formatter={((value: number) => [formatCurrency(value), "Revenue"]) as any}
             />
             <Line
@@ -213,6 +212,7 @@ export function PipelineFunnelChart({ data, title = "Pipeline Overview", icon, i
               formatter={((value: number, name: string) => {
                 if (name === "count") return [value, "Leads"];
                 return [formatCurrency(value), "Value"];
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Recharts Formatter type mismatch
               }) as any}
             />
             <Bar dataKey="count" radius={[0, 4, 4, 0]}>

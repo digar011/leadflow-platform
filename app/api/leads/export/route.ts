@@ -61,7 +61,6 @@ export async function GET(request: NextRequest) {
     }
 
     // Map leads to export fields
-    const exportKeys = CSV_EXPORT_FIELDS.map((f) => f.key);
     const rows = leads.map((lead: Record<string, unknown>) => {
       const row: Record<string, string> = {};
       for (const field of CSV_EXPORT_FIELDS) {

@@ -8,7 +8,6 @@ import {
   Mail,
   Calendar,
   MoreVertical,
-  Thermometer,
   GripVertical,
 } from "lucide-react";
 import { Badge, getStatusBadgeVariant, getTemperatureBadgeVariant } from "@/components/ui/Badge";
@@ -121,7 +120,7 @@ function KanbanCard({ lead, onDragStart, onDragEnd }: KanbanCardProps) {
   );
 }
 
-function KanbanColumn({ status, leads, onDrop, isDragging, draggedStatus }: KanbanColumnProps) {
+function KanbanColumn({ status, leads, onDrop, draggedStatus }: KanbanColumnProps) {
   const [isOver, setIsOver] = useState(false);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -225,14 +224,6 @@ function KanbanColumn({ status, leads, onDrop, isDragging, draggedStatus }: Kanb
 export function KanbanBoard({ leads, onStatusChange, isLoading }: KanbanBoardProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [draggedStatus, setDraggedStatus] = useState<string | null>(null);
-
-  const handleDragStart = useCallback((e: React.DragEvent, leadId: string, currentStatus: string) => {
-    setIsDragging(true);
-    setDraggedStatus(currentStatus);
-    e.dataTransfer.setData("leadId", leadId);
-    e.dataTransfer.setData("currentStatus", currentStatus);
-    e.dataTransfer.effectAllowed = "move";
-  }, []);
 
   const handleDragEnd = useCallback(() => {
     setIsDragging(false);
