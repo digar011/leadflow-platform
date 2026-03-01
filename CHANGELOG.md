@@ -4,24 +4,28 @@ All notable changes to the Goldyon CRM platform are documented here, organized c
 
 ---
 
-## [2026-03-01] - Security, UX & Performance Batch
+## [2026-03-01] - Security, UX & Performance Batch (PRs #91, #92, #94)
 
 ### Added
-- **Cookie consent banner**: GDPR/ePrivacy-compliant CookieConsent component with accept/reject, localStorage persistence, privacy policy link.
-- **Dashboard loading skeletons**: 7 loading.tsx states for leads, contacts, activities, campaigns, reports, automation, settings.
-- **Dynamic OG image**: Next.js ImageResponse at opengraph-image.tsx with Goldyon branding.
-- **Twitter Card metadata**: summary_large_image card in root layout.
+- **Standardized API error responses** (PR #91): Created `lib/utils/api-errors.ts` with `ApiErrors` helper methods (badRequest, unauthorized, forbidden, notFound, validationError, rateLimited, internalError, serviceUnavailable) and `handleApiError` catch-all. Updated all 15 API routes. 17 unit tests added. **Why:** API routes returned inconsistent error formats. **Outcome:** Consistent `{ success: false, error: { code, message } }` across all endpoints.
+- **Cookie consent banner** (PR #91): GDPR/ePrivacy-compliant CookieConsent component with accept/reject, localStorage persistence, privacy policy link.
+- **Dashboard loading skeletons** (PR #91): 7 loading.tsx states for leads, contacts, activities, campaigns, reports, automation, settings.
+- **Dynamic OG image** (PR #91): Next.js ImageResponse at opengraph-image.tsx with Goldyon branding.
+- **Twitter Card metadata** (PR #91): summary_large_image card in root layout.
 - **RESEND_WEBHOOK_SECRET** added to .env.example.
 - **Node.js engines field** in package.json (>=20.0.0).
+- **Webhook maxDuration** (PR #91): Set `maxDuration = 30` on Stripe, email-inbound, and n8n webhook routes for Vercel.
 
 ### Fixed
-- **Sentry in error boundaries**: error.tsx and dashboard error.tsx now use Sentry.captureException.
-- **CSP connect-src**: Added Sentry ingest domain to security.ts to match middleware.ts.
-- **HSTS in vercel.json**: Covers static files.
-- **.gitignore**: Now covers plain .env files.
+- **API error details leak** (PR #91): admin/seed, slack/send, slack/test, and leads/import routes no longer expose raw error messages. Uses `handleApiError` which logs real errors but returns safe generic response.
+- **Resend client silent failure** (PR #94): `getResend()` now throws explicit error when `RESEND_API_KEY` is missing instead of returning null silently. Unit tests added.
+- **Sentry in error boundaries** (PR #91): error.tsx and dashboard error.tsx now use Sentry.captureException.
+- **CSP connect-src** (PR #91): Added Sentry ingest domain to security.ts to match middleware.ts.
+- **HSTS in vercel.json** (PR #91): Covers static files.
+- **.gitignore** (PR #91): Now covers plain .env files.
 
 ### Changed
-- **Logo images optimized**: WebP conversion (1.3MB->25KB, 1.8MB->115KB). All references updated.
+- **Logo images optimized** (PR #91): WebP conversion (1.3MB->25KB, 1.8MB->115KB). All references updated.
 
 ---
 

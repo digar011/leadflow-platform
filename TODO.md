@@ -72,21 +72,22 @@
 
 ### Medium — Code Quality
 
-- [ ] Standardize API error response format -- audit finding M1
-  - Should follow `{ success: false, error: { code, message, details } }` per CLAUDE.md
-- [ ] Fix error details leak in admin seed route -- audit finding M2
-  - `app/api/admin/seed/route.ts:40` returns raw DB error messages
+- [x] Standardize API error response format -- completed 2026-03-01 by Claude (PR #91)
+  - Created `lib/utils/api-errors.ts` with `ApiErrors` helper and `handleApiError`. Updated all 15 API routes.
+- [x] Fix error details leak in admin seed route -- completed 2026-03-01 by Claude (PR #91)
+  - Fixed in admin/seed, slack/send, slack/test, and leads/import routes via `handleApiError`.
 - [x] Clean stale repo dirs from tsconfig.json exclude -- completed 2026-03-01 by Claude
   - Outcome: Dirs still present, excludes kept. Need manual deletion.
 - [x] Add `engines` field to package.json -- completed 2026-03-01 by Claude
-- [ ] Make Resend client throw on missing API key -- audit finding
-  - `lib/email/resend.ts` fails silently if `RESEND_API_KEY` is empty
+- [x] Make Resend client throw on missing API key -- completed 2026-03-01 by Claude (PR #94)
+  - `getResend()` now throws explicit error when `RESEND_API_KEY` is missing. Unit tests added.
 - [ ] Verify `goldyon.com` domain in Resend dashboard -- audit finding
   - `EMAIL_FROM` defaults to `noreply@goldyon.com`, must be verified to send
 - [x] Add HSTS header to vercel.json -- completed 2026-03-01 by Claude
 - [x] Fix CSP `connect-src` inconsistency -- completed 2026-03-01 by Claude
   - Outcome: Added Sentry ingest domain to security.ts CSP
-- [ ] Add Vercel `maxDuration` for webhook routes -- audit finding
+- [x] Add Vercel `maxDuration` for webhook routes -- completed 2026-03-01 by Claude (PR #91)
+  - Set `maxDuration = 30` on Stripe, email-inbound, and n8n webhook routes.
 
 ## In Progress
 
