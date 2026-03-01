@@ -7,6 +7,8 @@ import { ApiErrors } from "@/lib/utils/api-errors";
 import type Stripe from "stripe";
 import type { Database } from "@/lib/types/database";
 
+export const maxDuration = 30;
+
 const log = createLogger({ route: "/api/webhooks/stripe" });
 
 // Lazy Supabase service client for webhook processing
