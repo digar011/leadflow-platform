@@ -235,7 +235,6 @@ export default function AdminUsersPage() {
                 </thead>
                 <tbody>
                   {filteredUsers.map((user) => {
-                    const RoleIcon = roleOptions.find((r) => r.value === user.role)?.icon || UserIcon;
                     const roleColor = roleOptions.find((r) => r.value === user.role)?.color || "text-text-muted";
 
                     return (
@@ -249,7 +248,7 @@ export default function AdminUsersPage() {
                               {user.avatar_url ? (
                                 <img
                                   src={user.avatar_url}
-                                  alt=""
+                                  alt={user.full_name || "User avatar"}
                                   className="h-10 w-10 rounded-full object-cover"
                                 />
                               ) : (

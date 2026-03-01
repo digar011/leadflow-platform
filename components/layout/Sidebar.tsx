@@ -11,7 +11,6 @@ import {
   Activity,
   Megaphone,
   BarChart3,
-  FileText,
   Zap,
   Settings,
   ChevronLeft,

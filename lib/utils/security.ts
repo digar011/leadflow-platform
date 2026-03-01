@@ -84,7 +84,8 @@ export async function rateLimit(
 
   if (supabase) {
     try {
-      const { data, error } = await (supabase.rpc as Function)(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- rate limit client uses generic Supabase rpc
+      const { data, error } = await (supabase.rpc as any)(
         "check_rate_limit",
         {
           p_identifier: identifier,

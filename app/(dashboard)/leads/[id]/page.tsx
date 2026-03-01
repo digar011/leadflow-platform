@@ -14,7 +14,6 @@ import {
   DollarSign,
   Edit,
   Trash2,
-  MoreVertical,
   ExternalLink,
   Clock,
   TrendingUp,
@@ -27,7 +26,7 @@ import { differenceInDays } from "date-fns";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge, getStatusBadgeVariant, getTemperatureBadgeVariant } from "@/components/ui/Badge";
-import { Modal, ConfirmModal } from "@/components/ui/Modal";
+import { ConfirmModal } from "@/components/ui/Modal";
 import { JourneyTimeline } from "@/components/leads/JourneyTimeline";
 import { EngagementScore } from "@/components/leads/EngagementScore";
 import { ContactsList } from "@/components/leads/ContactsList";
@@ -50,7 +49,6 @@ export default function LeadDetailPage() {
 
   const [activeTab, setActiveTab] = useState<"timeline" | "contacts" | "documents" | "notes">("timeline");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
 
   const { data: lead, isLoading, error } = useLead(leadId);
   const { data: journeyEvents, isLoading: journeyLoading } = useCustomerJourney(leadId);
@@ -137,7 +135,7 @@ export default function LeadDetailPage() {
         <Building2 className="h-16 w-16 mx-auto text-text-muted mb-4" />
         <h2 className="text-xl font-semibold text-text-primary mb-2">Lead Not Found</h2>
         <p className="text-text-secondary mb-4">
-          The lead you're looking for doesn't exist or has been deleted.
+          The lead you&apos;re looking for doesn&apos;t exist or has been deleted.
         </p>
         <Link href="/leads">
           <Button>Back to Leads</Button>
@@ -507,7 +505,7 @@ export default function LeadDetailPage() {
             hasEmail={!!lead.email}
             hasPhone={!!lead.phone}
             hasDealValue={!!lead.deal_value}
-            onActionClick={(actionType) => {
+            onActionClick={() => {
               // Scroll to quick actions and trigger the action
               const el = document.getElementById("quick-actions");
               el?.scrollIntoView({ behavior: "smooth" });

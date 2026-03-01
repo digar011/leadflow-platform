@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStripe } from "@/lib/stripe/server";
 import { tierFromPriceId } from "@/lib/stripe/config";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 import type Stripe from "stripe";
 import type { Database } from "@/lib/types/database";
 
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
         );
         break;
       default:
-        console.log(`Unhandled Stripe event: ${event.type}`);
+        console.warn(`Unhandled Stripe event: ${event.type}`);
     }
   } catch (error) {
     console.error(`Error processing ${event.type}:`, error);
@@ -144,6 +144,7 @@ async function handleSubscriptionUpdated(
     updates.subscription_billing_cycle = tierInfo.billingCycle;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- dynamic updates object from Stripe webhook
   await (supabase.from("profiles") as any).update(updates).eq("id", userId);
 }
 

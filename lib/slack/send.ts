@@ -17,8 +17,6 @@ interface SlackMessageOptions {
   blocks?: SlackBlock[];
 }
 
-const GOLD_COLOR = "#D2AC47";
-
 /**
  * Send a message to a Slack Incoming Webhook URL.
  * Validates URL to prevent SSRF — only allows hooks.slack.com.

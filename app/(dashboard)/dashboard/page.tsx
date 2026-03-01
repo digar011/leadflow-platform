@@ -13,7 +13,7 @@ import {
   PieChart,
   BarChart3,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Card, CardContent } from "@/components/ui/Card";
 import { KPICard } from "@/components/dashboard/KPICard";
 import { DateRangeSelector, type DateRange } from "@/components/dashboard/DateRangeSelector";
 import {

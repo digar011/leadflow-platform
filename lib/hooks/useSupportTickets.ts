@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getSupabaseClient } from "@/lib/supabase/client";
-import type { Tables, InsertTables } from "@/lib/types/database";
+import type { Tables } from "@/lib/types/database";
 
 export type SupportTicket = Tables<"support_tickets"> & {
   profiles?: { full_name: string | null; email: string | null } | null;

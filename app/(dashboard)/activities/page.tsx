@@ -10,7 +10,6 @@ import {
   Calendar,
   FileText,
   MessageSquare,
-  Filter,
   Building2,
   ExternalLink,
   Clock,

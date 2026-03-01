@@ -179,7 +179,6 @@ export function useRemoveFromCampaign() {
 
   return useMutation({
     mutationFn: async ({
-      campaignId,
       memberId,
     }: {
       campaignId: string;

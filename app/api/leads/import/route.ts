@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
             continue;
           }
           if (duplicateStrategy === "overwrite" && existingId) {
-            const { business_name, ...updateData } = result.data;
+            const { business_name: _business_name, ...updateData } = result.data;
             await supabase
               .from("businesses")
               .update(updateData)
@@ -169,8 +169,9 @@ export async function POST(request: NextRequest) {
 
     for (let i = 0; i < toInsert.length; i += 50) {
       const chunk = toInsert.slice(i, i + 50);
-      const { data: inserted, error: insertError } = await (supabase
-        .from("businesses") as any)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- dynamic CSV data doesn't match strict Supabase insert type
+      const businessTable = supabase.from("businesses") as any;
+      const { data: inserted, error: insertError } = await businessTable
         .insert(chunk)
         .select("id, business_name, email, phone");
 
@@ -187,9 +188,10 @@ export async function POST(request: NextRequest) {
         imported += inserted.length;
 
         // Auto-create primary contacts for leads with email or phone
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- inserted shape from dynamic CSV import
         const contacts = inserted
-          .filter((lead: any) => lead.email || lead.phone)
-          .map((lead: any) => ({
+          .filter((lead: Record<string, string | null>) => lead.email || lead.phone)
+          .map((lead: Record<string, string | null>) => ({
             business_id: lead.id,
             first_name: lead.business_name,
             email: lead.email || null,
@@ -201,7 +203,7 @@ export async function POST(request: NextRequest) {
           await supabase.from("contacts").insert(contacts);
         }
 
-        createdIds.push(...inserted.map((l: any) => l.id));
+        createdIds.push(...inserted.map((l: Record<string, string>) => l.id));
       }
     }
 

@@ -42,7 +42,7 @@ export default function TeamSettingsPage() {
     setIsInviting(true);
     try {
       // In production, this would send an invitation email
-      console.log("Inviting:", inviteEmail, "as", inviteRole);
+      // TODO: Send invitation email in production
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setShowInviteModal(false);
       setInviteEmail("");
@@ -152,7 +152,7 @@ export default function TeamSettingsPage() {
                         {user.avatar_url ? (
                           <img
                             src={user.avatar_url}
-                            alt=""
+                            alt={user.full_name || "User avatar"}
                             className="h-12 w-12 rounded-full object-cover"
                           />
                         ) : (

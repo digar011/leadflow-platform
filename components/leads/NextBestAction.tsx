@@ -3,7 +3,7 @@
 import { Lightbulb } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { cn } from "@/lib/utils";
-import { getNextBestActions, type NextAction } from "@/lib/utils/nextBestAction";
+import { getNextBestActions } from "@/lib/utils/nextBestAction";
 import type { LeadStatus, LeadTemperature } from "@/lib/types/database";
 
 interface NextBestActionProps {

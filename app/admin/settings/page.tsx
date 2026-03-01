@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import {
-  Settings,
   Save,
   Building,
   Globe,

@@ -5,10 +5,8 @@ import Link from "next/link";
 import {
   Plus,
   Search,
-  Filter,
   Megaphone,
   Play,
-  Pause,
   CheckCircle2,
   FileText,
 } from "lucide-react";

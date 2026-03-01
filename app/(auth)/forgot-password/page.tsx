@@ -6,7 +6,7 @@ import { Mail, AlertCircle, CheckCircle, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/Card";
-import { forgotPasswordSchema, type ForgotPasswordInput } from "@/lib/utils/validation";
+import { forgotPasswordSchema } from "@/lib/utils/validation";
 import { getSupabaseClient } from "@/lib/supabase/client";
 
 export default function ForgotPasswordPage() {

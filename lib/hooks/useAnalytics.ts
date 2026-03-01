@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { getSupabaseClient } from "@/lib/supabase/client";
-import { subDays, startOfDay, endOfDay, format, subWeeks, subMonths } from "date-fns";
+import { subDays, startOfDay, format, subWeeks, subMonths } from "date-fns";
 import { useViewMode } from "@/lib/contexts/ViewModeContext";
 
 export interface DateRange {

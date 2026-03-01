@@ -12,16 +12,14 @@ import {
   Users,
   Megaphone,
   TrendingUp,
-  MoreVertical,
   Play,
   Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { useReports, useDeleteReport, exportToCSV, useGenerateReport } from "@/lib/hooks/useReports";
+import { useReports, useDeleteReport } from "@/lib/hooks/useReports";
 import { REPORT_TYPES } from "@/lib/utils/constants";
-import { cn } from "@/lib/utils";
 
 const typeIcons: Record<string, React.ReactNode> = {
   leads: <Users className="h-4 w-4" />,
@@ -42,7 +40,7 @@ const scheduleLabels: Record<string, string> = {
 export default function ReportsPage() {
   const { data: reports, isLoading, error } = useReports();
   const deleteReport = useDeleteReport();
-  const [runningReportId, setRunningReportId] = useState<string | null>(null);
+  const [, setRunningReportId] = useState<string | null>(null);
 
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this report?")) {

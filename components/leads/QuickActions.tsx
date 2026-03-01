@@ -9,7 +9,6 @@ import {
   FileText,
   MessageSquare,
   Send,
-  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -68,7 +67,6 @@ const actionTypes = [
 ];
 
 export function QuickActions({
-  businessId,
   businessName,
   onLogActivity,
   onSetFollowUp,

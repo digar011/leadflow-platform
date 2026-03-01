@@ -10,15 +10,12 @@ import {
   Layers,
   Users,
   Calendar,
-  DollarSign,
-  MoreVertical,
   Play,
   Pause,
   CheckCircle2,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
-import { Button } from "@/components/ui/Button";
 import { formatCurrency } from "@/lib/utils/formatters";
 import { cn } from "@/lib/utils";
 
@@ -53,7 +50,7 @@ const statusConfig: Record<string, { color: string; icon: React.ReactNode }> = {
   completed: { color: "bg-blue-500/20 text-blue-400", icon: <CheckCircle2 className="h-3 w-3" /> },
 };
 
-export function CampaignCard({ campaign, onStatusChange }: CampaignCardProps) {
+export function CampaignCard({ campaign }: CampaignCardProps) {
   const typeIcon = typeIcons[campaign.campaign_type] || <Megaphone className="h-4 w-4" />;
   const statusInfo = statusConfig[campaign.status] || statusConfig.draft;
   const budgetProgress = campaign.budget && campaign.spent

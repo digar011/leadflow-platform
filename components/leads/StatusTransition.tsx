@@ -4,7 +4,6 @@ import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import { Badge, getStatusBadgeVariant } from "@/components/ui/Badge";
 import { cn } from "@/lib/utils";
 import { getTransitionRule, isReasonRequired, STATUS_LABELS } from "@/lib/utils/stageTransitions";
 import type { LeadStatus } from "@/lib/types/database";

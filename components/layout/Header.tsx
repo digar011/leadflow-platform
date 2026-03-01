@@ -93,7 +93,7 @@ export function Header({ title, subtitle, onMenuClick }: HeaderProps) {
   const [isSearching, setIsSearching] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const { isAnyAdmin, isSuperAdmin, isSuperAdminView, isOrgAdminView, isAdminView, viewMode, toggleViewMode, loading } = useViewMode();
+  const { isAnyAdmin, isSuperAdmin, isSuperAdminView, isAdminView, viewMode, toggleViewMode, loading } = useViewMode();
   const router = useRouter();
 
   const notifRef = useRef<HTMLDivElement>(null);

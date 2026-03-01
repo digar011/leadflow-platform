@@ -10,7 +10,7 @@ function getServiceClient() {
   );
 }
 
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // Verify the user is authenticated
     const supabase = await createServerSupabaseClient();

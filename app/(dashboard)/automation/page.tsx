@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { format } from "date-fns";
 import {
@@ -268,7 +268,7 @@ export default function AutomationPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {recentLogs.slice(0, 10).map((log: any) => (
+                  {(recentLogs as { id: string; status: string; created_at: string; rule_name?: string; error?: string; automation_rules?: { name: string } | null; businesses?: { business_name: string } | null }[]).slice(0, 10).map((log) => (
                     <div
                       key={log.id}
                       className="flex items-start gap-2 text-sm"

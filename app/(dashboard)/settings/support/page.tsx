@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { MessageSquare, Plus, Clock, CheckCircle, AlertCircle, Send } from "lucide-react";
+import { MessageSquare, Plus, Clock, Send } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
+import { Card, CardContent } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import {
@@ -122,7 +121,7 @@ export default function SupportPage() {
             <MessageSquare className="h-12 w-12 text-text-muted mx-auto mb-4" />
             <p className="text-text-secondary">No support tickets yet</p>
             <p className="text-sm text-text-muted mt-1">
-              Click "New Ticket" to submit an issue or feedback
+              Click &quot;New Ticket&quot; to submit an issue or feedback
             </p>
           </CardContent>
         </Card>
