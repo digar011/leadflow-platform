@@ -4,6 +4,27 @@ All notable changes to the Goldyon CRM platform are documented here, organized c
 
 ---
 
+## [2026-03-01] - Security, CI/CD, Landing Page & Performance (PRs #99-#102)
+
+### Added
+- **Public landing page** (PR #100): Replaced login redirect at `/` with full marketing landing page featuring hero section, 6-feature grid (Lead Management, Pipeline Tracking, Campaign Automation, Advanced Analytics, Team Collaboration, Integrations), CTA sections, and footer. Full SEO metadata (title, description, keywords, Open Graph, Twitter Card, canonical URL). **Why:** `app/page.tsx` just redirected to `/login` with no SEO value. **Outcome:** Indexed, branded landing page with clear conversion path.
+- **E2E tests in CI pipeline** (PR #101): Added Playwright E2E test job to `.github/workflows/ci.yml` that runs after build. Downloads build artifact, installs Chromium, starts Next.js server, runs tests. `continue-on-error: true` until CI Supabase project is configured. Uploads Playwright report and test results as artifacts (14-day retention). **Why:** 21 Playwright specs existed but never ran in CI. **Outcome:** E2E tests run on every PR.
+- **Vercel CI gating** (PR #101): Added `"github": { "silent": true }` to `vercel.json`. **Why:** Vercel auto-deploy could run before CI finishes. **Outcome:** Vercel deployments don't bypass CI checks.
+- **Database search indexes** (PR #102): Migration `20260301000003_add_search_indexes.sql` adds trigram indexes (`gin_trgm_ops`) on `business_name`, `email`, `city` for ILIKE search queries; B-tree indexes on `status`, `assigned_to`, `created_at`; composite index on `(assigned_to, status)` for dashboard queries. Enables `pg_trgm` extension. **Why:** Search and filter queries on businesses table had no index support. **Outcome:** Fast search and filter performance.
+- **Expanded unit test coverage** (PR #100): Added 101 new tests across 4 new test suites (`constants.test.ts`, `env.test.ts`, `logger.test.ts`, `security.test.ts`). Total: 13 suites, 289 tests. Coverage: 90.81% statements. **Why:** Previous coverage only measured `lib/utils/**/*.ts` with 76.68%. **Outcome:** Exceeded 80% target with comprehensive coverage of constants, environment validation, structured logger, and security utilities.
+
+### Fixed
+- **CSRF bypass on API routes** (PR #99, audit finding C7): Middleware now validates Origin/Referer headers for POST/PUT/DELETE/PATCH requests to `/api/` routes. GET/HEAD/OPTIONS are exempt (safe methods). Webhook routes exempt (use signature verification). Non-browser clients allowed. **Why:** `middleware.ts:30-32` skipped Origin validation for all `/api/` routes. **Outcome:** Cross-site request forgery prevented on API mutations.
+- **Unauthenticated Slack send route** (PR #99, audit finding M3): Added `supabase.auth.getUser()` check to `app/api/integrations/slack/send/route.ts`. **Why:** Route had no auth check — anyone could trigger Slack messages. **Outcome:** 401 returned for unauthenticated requests.
+- **Unsanitized HTML in email send** (PR #99, audit finding C6): Added `sanitizeHtml()` call in `app/api/email/send/route.ts` before passing HTML to Resend. **Why:** User-provided HTML passed directly to email API enables XSS/email injection. **Outcome:** HTML sanitized with DOMPurify allowlist.
+- **Test files with hardcoded secrets** (PR #99, audit finding C2): Added 5 test utility files with hardcoded Supabase service_role keys to `.gitignore` and removed from tracking. **Why:** Hardcoded secrets in tracked files are a security risk. **Outcome:** Secrets no longer in version control.
+- **Staging deploy URL wiring** (PR #101): Fixed `deploy-staging` job to properly expose deployment URL via `outputs`. Health check now uses the actual deployment URL with fallback. **Why:** Smoke test couldn't find the deployed URL. **Outcome:** Staging smoke tests hit the correct URL.
+
+### Changed
+- **Optimized `useLeadStats` hook** (PR #102): Replaced 3 sequential full-table queries with parallel `head: true` count queries per status + `Promise.all`. Separate total count query instead of client-side sum. Pipeline value query unchanged (needs actual values). **Why:** `useLeadStats` fetched ALL businesses to count client-side. **Outcome:** Parallel lightweight queries instead of 3 sequential full-table scans.
+
+---
+
 ## [2026-03-01] - Security, UX & Performance Batch (PRs #91, #92, #94, #98)
 
 ### Added
