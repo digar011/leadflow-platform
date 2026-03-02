@@ -20,8 +20,6 @@ const config: Config = {
   collectCoverageFrom: [
     "lib/utils/**/*.ts",
     "!lib/utils/index.ts",
-    "!lib/utils/constants.ts",
-    "!lib/utils/env.ts",
     "!lib/types/**",
   ],
 };
