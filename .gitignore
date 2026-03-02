@@ -50,8 +50,15 @@ tests/e2e/.auth/
 
 # Windows artifacts
 nul
+
+# Test utility files with hardcoded Supabase keys — NEVER commit secrets
 tests/test-admin-rls.mjs
 tests/update-tier.mjs
+tests/e2e-full-test.mjs
+tests/verify-admin-test-user.mjs
+tests/setup-admin-test.mjs
+tests/cleanup-e2e-data.mjs
+tests/e2e/auth.setup.ts
 
 # Stale repo clones (audit workspace artifacts — not part of this project)
 /Bonsai-hut/

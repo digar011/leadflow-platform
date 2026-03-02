@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getResend, EMAIL_FROM } from "@/lib/email/resend";
-import { rateLimit } from "@/lib/utils/security";
+import { rateLimit, sanitizeHtml } from "@/lib/utils/security";
 import { ApiErrors, handleApiError } from "@/lib/utils/api-errors";
 
 export async function POST(request: NextRequest) {
@@ -27,11 +27,14 @@ export async function POST(request: NextRequest) {
       return ApiErrors.badRequest("Missing required fields: to, subject, html");
     }
 
+    // Sanitize user-provided HTML to prevent XSS and email injection
+    const sanitizedHtml = sanitizeHtml(html);
+
     const { data, error } = await getResend().emails.send({
       from: EMAIL_FROM,
       to: Array.isArray(to) ? to : [to],
       subject,
-      html,
+      html: sanitizedHtml,
       replyTo: replyTo || user.email || undefined,
     });
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 import {
   sendSlackMessage,
   formatLeadCreatedMessage,
@@ -11,7 +12,7 @@ import { ApiErrors, handleApiError } from "@/lib/utils/api-errors";
 
 /**
  * Internal API for sending Slack messages.
- * Called by the automation engine (service role) or authenticated users.
+ * Called by authenticated users. Requires valid Supabase session.
  */
 
 function getServiceClient() {
@@ -23,6 +24,17 @@ function getServiceClient() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Verify authenticated user
+    const supabase = await createServerSupabaseClient();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return ApiErrors.unauthorized();
+    }
+
     const body = await request.json();
     const { userId, event, data } = body as {
       userId: string;
@@ -34,10 +46,10 @@ export async function POST(request: NextRequest) {
       return ApiErrors.badRequest("Missing userId or event");
     }
 
-    const supabase = getServiceClient();
+    const serviceClient = getServiceClient();
 
     // Look up user's Slack config
-    const { data: slackKey } = await supabase
+    const { data: slackKey } = await serviceClient
       .from("api_keys")
       .select("external_key, scopes, is_active")
       .eq("integration_type", "slack")
